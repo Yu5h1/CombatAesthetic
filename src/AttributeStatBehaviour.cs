@@ -8,6 +8,7 @@ using UnityEngine.Events;
 [DisallowMultipleComponent]
 public class AttributeStatBehaviour : MonoBehaviour
 {
+    private CameraController cameraController => CameraController.instance;
     public static readonly AttributeType[] AttributeTypes = EnumEx.GetValues<AttributeType>();
     [SerializeField]
     private AttributeType attributes = AttributeType.Health;
@@ -20,13 +21,15 @@ public class AttributeStatBehaviour : MonoBehaviour
     public bool VisualizeStat;
     public bool IsEmpty => attributes == AttributeType.None;
     public int Count => stats.Length;
-    public event UnityAction<AttributeType> StatDepletedEvent;
+
+    public event UnityAction<AttributeType> StatDepleted;
 
     public bool TryGetIndex(string key, out int index) => (index = Keys.IndexOf(key)) >= 0;
     public bool TryGetIndex(AttributeType type, out int index) => TryGetIndex($"{type}", out index);
     public bool IsEnough(string key, float amount) => TryGetIndex(key, out int index) && stats[index].current >= amount;
 
-    private CameraController cameraController => CameraController.instance;
+    public UI_statbar[] uI_Statbars { get; private set; }
+
     public void Reset()
     {
         attributes = AttributeType.Health;
@@ -68,7 +71,7 @@ public class AttributeStatBehaviour : MonoBehaviour
                 continue;
             stats[index].Affect(affectType, amount);
             if (stats[index].IsDepleted)
-                OnStatDepleted(flag);
+                StatDepleted?.Invoke(flag);
         }
     }
     public IEnumerator Affect(int index,float interval) {
@@ -85,35 +88,7 @@ public class AttributeStatBehaviour : MonoBehaviour
         foreach (var info in infos)
             Affect(info.attributeType, affectType, info.amount);
     }
-    public void Damage(float strength)
-    {
-        #region custom damage formula...and unorganized
-        var damage = strength;
-        #endregion
-        Affect(AttributeType.Health, AffectType.NEGATIVE, damage);
-        StartCoroutine(PoolManager.ChangeSpriteColor0_2s(gameObject));
-    }
-    private void OnStatDepleted(AttributeType DepletedType)
-        => StatDepletedEvent?.Invoke(DepletedType);
 
-    public void PerformStatus()
-    {
-        StartCoroutine(PerformingStatus());
-    }
-    public IEnumerator PerformingStatus()
-    {
-        
-        yield return new WaitForSeconds(1);
-    }
-
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        if (other == null) return;
-        if (other.gameObject.TryGetComponent(out AttributeStatBehaviour damageable) && damageable.CompareTag("Player"))
-        {
-            damageable.Damage(30);
-        }
-    }
     public bool Validate(Dictionary<string,int> cost)
     {
         if (stats.IsEmpty())
@@ -127,7 +102,13 @@ public class AttributeStatBehaviour : MonoBehaviour
     #region UI
     public StatProperty.VisualItem[] CreateVisualItems(RectTransform parent, Vector2 size, bool UpDown)
         => Keys.Select((key, order) => new StatProperty.VisualItem(parent, System.Enum.Parse<AttributeType>(key), order, size, UpDown)).ToArray();
-        
+
+
+    public void GetUI_StatsBar()
+    {
+        //uI_Statbars = new UI_statbar[Keys.Length];
+        //    PoolManager.instance.Spawn("BaseStatBar");
+    }
 
     #endregion
 }

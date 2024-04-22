@@ -13,7 +13,7 @@ public class Influencor : MonoBehaviour
     public void Affect(Transform target, Vector2 strength)
     {
         if (target.TryGetComponent(out Controller2D controller))
-            controller.Push(strength);
+            controller.Hit(strength);
         if (target.TryGetComponent(out AttributeStatBehaviour stat))
             stat.Affect(affectType, info);
     }

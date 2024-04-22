@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 using NullReferenceException = System.NullReferenceException;
 
 namespace Yu5h1Lib.Game.Character
@@ -62,6 +62,7 @@ namespace Yu5h1Lib.Game.Character
         private bool _UnderControl;
         public bool underControl { get => _UnderControl; private set => _UnderControl = value; }
         #endregion        
+
         #region  Skill
         [SerializeField]
         private SkillData[] _Skills;
@@ -87,14 +88,20 @@ namespace Yu5h1Lib.Game.Character
         }
         #endregion
 
-        #region Miscellaneous paramaters
-        private Vector2 floating_v_temp = Vector2.zero;
+        #region parameters
         public float forward2D => IsFaceForward ? 1 : -1;
         public bool IsFaceForward => transform.forward == Vector3.forward;
-        //public Vector2 Momentum { get; private set; }
         #endregion
 
+        #region flag , caches
+        private Vector2 floating_v_temp = Vector2.zero;
         public bool Initinalized { get; private set; }
+        #endregion
+
+        #region Event
+        public event UnityAction<Vector2> Hited;
+        #endregion
+
         public void Init()
         {
             if (Initinalized)
@@ -133,10 +140,10 @@ namespace Yu5h1Lib.Game.Character
             UpdateInputInstruction();
             animParam?.Update();
         }
-
-        public void Push(Vector2 strength)
+        public void Hit(Vector2 strength)
         {
-            //...give velocity
+            
+            Hited?.Invoke(strength);
         }
         private void OnGroundStateChanged(bool val)
         {
@@ -218,7 +225,7 @@ namespace Yu5h1Lib.Game.Character
                 return;
             if (currentSkill is Anim_FX_Skill fxSkill && fxSkill.effects.Validate(index) && !fxSkill.effects[index].IsEmpty()) {
                 var offsetTransform = transform.Find("FxOffset") ?? transform;
-                var fx = PoolManager.instance.Spawn(fxSkill.effects[index], offsetTransform.position, offsetTransform.forward);
+                var fx = PoolManager.instance.Spawn<Transform>(fxSkill.effects[index], offsetTransform.position, offsetTransform.forward);
                 foreach (var mask in fx.GetComponents<EventMask2D>())
                     mask.IgnoreTag = gameObject.tag;
             }

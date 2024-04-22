@@ -10,7 +10,7 @@ public class PoolManager : SingletonComponent<PoolManager>
     private Canvas _canvas;
     public static Canvas canvas => instance._canvas;
 
-    public Dictionary<string, Pool<Transform>> pools { get; private set; }
+    public Dictionary<string, Pool> pools { get; private set; }
     public int Count = 3;
 
     protected override void Init(){
@@ -26,7 +26,7 @@ public class PoolManager : SingletonComponent<PoolManager>
                 _canvas.planeDistance = 1;
                 _canvas.GetOrAdd(out _statsManager);
             }
-            PrepareFromResourece("Fx");
+            PrepareFromResourece<Transform>("Fx");
         }
     }
     public bool Exists(string key) {
@@ -37,8 +37,8 @@ public class PoolManager : SingletonComponent<PoolManager>
         }
         return true;
     }
-    public Transform Spawn(string key, Vector3 position, Vector3 forward = default(Vector3))
-        => Exists(key) ? pools[key].Spawn(position, forward) : null;
+    public T Spawn<T>(string key, Vector3 position = default(Vector3), Vector3 forward = default(Vector3)) where T : Component
+        => Exists(key) ? pools[key].Spawn<T>(position, forward) : null;
 
 
     public void Despawn(GameObject obj)
@@ -48,21 +48,17 @@ public class PoolManager : SingletonComponent<PoolManager>
             return;
         pools[key].Despawn(obj.transform);
     }
-    public void PrepareFromResourece(string folderName)
+    public void PrepareFromResourece<T>(string folderName) where T : Component
     {
-        pools = pools ?? new Dictionary<string, Pool<Transform>>();
-        foreach (var item in Resources.LoadAll<GameObject>(folderName))
+        pools = pools ?? new Dictionary<string, Pool>();
+        foreach (var item in Resources.LoadAll<T>(folderName))
             Add(item, Count);
     }
-    public void Add(GameObject source,int count)
+    public void Add<T>(T source,int count) where T : Component
     {
-        if (!pools.ContainsKey(source.name))
-            pools.Add(source.name, new Pool<Transform>(transform, source.transform, count));
-    }
-    public void Add_UI(GameObject source, int count)
-    {
-        if (!pools.ContainsKey(source.name))
-            pools.Add(source.name, new Pool<Transform>(canvas.transform, source.transform, count));
+        var root = source.GetComponent<RectTransform>() == null ? transform : canvas.transform;
+        if (!pools.ContainsKey(source.name) && Pool.TryCreateCreate(source, root, count,out Pool result))
+            pools.Add(source.name, result);
     }
     public static IEnumerator ChangeSpriteColor0_2s(GameObject target)
     {

@@ -12,7 +12,7 @@ public class StatsManager : MonoBehaviour
     public static StatsManager instance => PoolManager.statsManager;
     public PoolManager poolManager => PoolManager.instance;
 
-    public UIStat uiStatSource => Resources.Load<UIStat>("UI/BaseStatBar");
+    public UI_statbar UI_statbarSource => Resources.Load<UI_statbar>("UI/BaseStatBar");
 
     public Dictionary<GameObject, StatProperty> CharactersMap = new Dictionary<GameObject, StatProperty>();
     public List<StatProperty> Stats = new List<StatProperty>();
@@ -25,7 +25,7 @@ public class StatsManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        poolManager.Add_UI(uiStatSource.gameObject,5);
+        poolManager.Add(UI_statbarSource,5);
 
         CharactersMap = FindObjectsByType<Controller2D>(FindObjectsInactive.Include, FindObjectsSortMode.None).
             Select(c => {
@@ -114,4 +114,14 @@ public class StatsManager : MonoBehaviour
             item.Value.Destory();
     }
 
+    #region stat performance
+    //public static void PerformStatus(AttributeStatBehaviour attribute)
+    //{
+    //    StartCoroutine(PerformingStatus());
+    //}
+    //public  sIEnumerator PerformingStatus()
+    //{
+    //    yield return new WaitForSeconds(1);
+    //}
+    #endregion
 }

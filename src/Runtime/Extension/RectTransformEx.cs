@@ -9,4 +9,6 @@ public static class RectTransformEx
         graph = null;
         return rt.TryFind(name,out Transform t) && t.TryGetComponent(out graph);
     }
+    public static void SetSize(this RectTransform r,float? width = null, float? height = null)
+        => r.sizeDelta = new Vector2(width ?? r.sizeDelta.x, height ?? r.sizeDelta.y);
 }

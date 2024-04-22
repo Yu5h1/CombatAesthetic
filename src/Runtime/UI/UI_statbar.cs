@@ -2,23 +2,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIStat : UIBehaviour
+public class UI_statbar : UIBehaviour
 {
     public Image background;
     public Image fill;
 
     private void Reset()
     {
-        TryGetImageInChildren(nameof(background),out background);
-        TryGetImageInChildren(nameof(fill), out fill);
+        FindOrCreateImage(nameof(background),out background);
+        if (!FindOrCreateImage(nameof(fill), out fill)) {
+            fill.type = Image.Type.Filled;
+            fill.fillMethod = Image.FillMethod.Horizontal;
+
+            Color.RGBToHSV(fill.color, out float h, out float s, out float v);
+            background.color = Color.HSVToRGB(h, s, v * 0.3f);
+        }
+        rectTransform.SetSize(height: rectTransform.sizeDelta.x * 0.1f);
     }
 
     private bool TryGetImageInChildren(string name, out Image image) => rectTransform.TryGetGraphInChildren(name, out image);
-
-    private Image FindOrCreateImage(string name, Image.Type imgType = Image.Type.Simple, Image.FillMethod fillMethod = Image.FillMethod.Horizontal,
-    AttributeType attributeType = AttributeType.None)
+    private bool FindOrCreateImage(string name, out Image result)
     {
-        if (TryGetImageInChildren(name, out Image result))
+        if (TryGetImageInChildren(name, out result))
             return result;
         if (!transform.TryFind(name,out Transform t))
             t = new GameObject(name).transform;
@@ -29,10 +34,11 @@ public class UIStat : UIBehaviour
         result.rectTransform.pivot = Vector2.one * 0.5f;
         result.rectTransform.offsetMin = Vector2.zero;
         result.rectTransform.offsetMax = Vector2.zero;
-        result.type = imgType;
-        result.fillMethod = fillMethod;
         result.sprite = Resources.Load<Sprite>("Texture/Square");
-        return result;
+        return false;
     }
+
     public void UpdateStat(AttributeStat status) => fill.fillAmount = status.normal;
+
+
 }

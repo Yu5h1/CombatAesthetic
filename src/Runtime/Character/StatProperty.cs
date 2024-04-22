@@ -16,12 +16,12 @@ public class StatProperty
         characterController = charactercontroller;
         
         if (stats = characterController.gameObject.GetComponent<AttributeStatBehaviour>())
-            stats.StatDepletedEvent += CheckHealthPointDepleted;
+            stats.StatDepleted += CheckHealthPointDepleted;
     }
     public void Destory()
     {
         if (stats)
-            stats.StatDepletedEvent -= CheckHealthPointDepleted;
+            stats.StatDepleted -= CheckHealthPointDepleted;
         if (Stat_UI)
             GameObject.Destroy(Stat_UI.gameObject);
     }

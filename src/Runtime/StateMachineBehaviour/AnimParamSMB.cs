@@ -8,8 +8,7 @@ using UnityEngine.TextCore.Text;
 namespace Yu5h1Lib.Game.Character
 {
     public class AnimParamSMB : BaseCharacterSMB
-    {
-        public Animator animator { get; private set; }        
+    {      
         private readonly int GroundedHash = Animator.StringToHash("Grounded");
         private readonly int SpeedXHash = Animator.StringToHash("SpeedX");
         private readonly int SpeedYHash = Animator.StringToHash("SpeedY");
@@ -38,14 +37,19 @@ namespace Yu5h1Lib.Game.Character
         }
         public void TriggerSkill() => animator.SetTrigger(TriggerSkillHash);
         #endregion
-        //public Dictionary<string,AnimatorControllerParameter> AnimParams { get; private set; }
-        public override void Init(Controller2D character)
+        AnimatorControllerParameter hurt;
+        public override void Init(Controller2D controller)
         {
-            base.Init(character);
-            animator = character.animator;
-            character.colliderDetector.OnGroundStateChangedEvent.AddListener(val => Grounded = val);
-            //AnimParams = animator.parameters.ToDictionary(p => p.name, p => p);
+            base.Init(controller);  
+            controller.colliderDetector.OnGroundStateChangedEvent.AddListener(val => Grounded = val);
+            if (TryGetAnimParam("Hurt",out hurt) ) {
+                controller.Hited += Controller_Hited;
+            }
+
         }
+        private void Controller_Hited(Vector2 strength)
+            => animator.SetTrigger(hurt.nameHash);
+
         public virtual void Update()
         {
             SpeedXParam = Math.Abs(owner.InputMovement.x * owner.BoostMultiplier);
