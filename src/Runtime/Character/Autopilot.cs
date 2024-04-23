@@ -20,17 +20,18 @@ namespace Yu5h1Lib.Game.Character
             }
             return nextMovement;
         }
-        public override void GetInputState(Controller2D character, out bool down, out bool hold, out bool up)
+        public override void GetInputState(Controller2D character, UpdateInput updateInput)
         {
-            down = hold = up = false;
+            updateInput(false, false, false);
+        }
+        public override void GetInputState(string bindingName, Controller2D character, UpdateInput updateInput)
+        {
+            throw new System.NotImplementedException();
         }
 
         public override int ShiftIndexOfSkill(Controller2D character)
             => 0;
 
-        public override void GetInputState(string bindingName, Controller2D character, out bool down, out bool hold, out bool up)
-        {
-            down = hold = up = false;
-        }
+  
     }
 }

@@ -7,4 +7,9 @@ public static class CameraEx
         height = camera.orthographicSize * 2;
         width = height * camera.aspect;
     }
+	public static Vector2 GetNormalizedCoordinates(this Camera cam,Vector2 screenPoint)
+	{
+        var result = cam.ScreenToViewportPoint(screenPoint);
+        return new Vector3(2 * result.x - 1, 2 * result.y - 1, result.z);
+    }
 }

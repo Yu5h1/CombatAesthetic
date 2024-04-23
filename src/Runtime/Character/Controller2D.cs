@@ -194,7 +194,7 @@ namespace Yu5h1Lib.Game.Character
             //rigidbody.velocity = momentum; 
         }
         #region Custom Functions
-        private void CheckForward(float x)
+        public void CheckForward(float x)
         {
             if (x == 0)
                 return;

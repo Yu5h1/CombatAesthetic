@@ -16,21 +16,21 @@ public class CharacterSMB : BaseCharacterSMB
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         owner.currentState = this;
-        if (Controllable && CheckForwardType == ProcessStep.Enter)
+        if (CheckForwardType == ProcessStep.Enter)
             owner.CheckForward();
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (Controllable && CheckForwardType == ProcessStep.Excute)
+        if (CheckForwardType == ProcessStep.Excute)
             owner.CheckForward();
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (Controllable && CheckForwardType == ProcessStep.Exit)
+        if (CheckForwardType == ProcessStep.Exit)
             owner.CheckForward();
         if (owner.currentState == this)
             owner.currentState = null;

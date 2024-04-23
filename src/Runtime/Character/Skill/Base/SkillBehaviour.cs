@@ -6,29 +6,28 @@ namespace Yu5h1Lib.Game.Character
     public abstract class SkillBehaviour {
         public Controller2D owner { get; protected set; }
         public Host2D host => owner.host;       
-        public SkillData _Data { get; protected set; }
+        public SkillData data { get; protected set; }
         public abstract bool IsReady { get; }
         protected bool Activate()
         {
             if (!IsReady || !owner.underControl)
                 return false;
-            owner.statBehaviour.Affect(AffectType.NEGATIVE, _Data.costs);
+            owner.statBehaviour.Affect(AffectType.NEGATIVE, data.costs);
             return true;
         }
         public void update()
         {
             if (!owner.host)
-            {
                 throw new MissingReferenceException("Missing host");
-            }
-            bool down, hold, up;
-            if (!_Data.incantation.IsEmpty()) /// keybinding skill
-                host.GetInputState(_Data.incantation, owner, out down, out hold, out up);
-            else if (owner.currentSkillBehaviour == this) /// optinal skill
-                host.GetInputState(owner, out down, out hold, out up);
-            else
+
+            if (owner.currentSkillBehaviour != this)
                 return;
-            OnUpdate(down, hold, up);
+
+            if (!data.incantation.IsEmpty()) /// keybinding skill
+                host.GetInputState(data.incantation, owner, OnUpdate);
+            else if (owner.currentSkillBehaviour == this) /// optinal skill
+                host.GetInputState(owner, OnUpdate);
+
         }
         protected abstract void Init();
         protected abstract void OnUpdate(bool down, bool hold, bool stop);
@@ -43,7 +42,7 @@ namespace Yu5h1Lib.Game.Character
         {
             var result = (SkillBehaviour)Activator.CreateInstance(skill.GetBehaviourType());
             result.owner = character;
-            result._Data = skill;
+            result.data = skill;
             result.Init();
             return result;
         }
@@ -51,8 +50,8 @@ namespace Yu5h1Lib.Game.Character
     }
     public abstract class SkillBehaviour<Data> : SkillBehaviour where Data : SkillData
     {
-        public Data data => (Data)_Data;
-        public override bool IsReady => owner.statBehaviour.Validate(_Data.preCalculatedCost);
+        public new Data data => (Data)base.data;
+        public override bool IsReady => owner.statBehaviour.Validate(base.data.preCalculatedCost);
         protected SkillBehaviour() {}
     }
 

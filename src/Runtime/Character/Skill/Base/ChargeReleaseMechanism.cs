@@ -1,33 +1,36 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Yu5h1Lib.Game.Character;
 
 
 public class ChargeReleaseMechanism : SkillStateMachine<ChargeReleaseMechanism.Behaviour>
 {
-    public class Behaviour : Behaviour<SkillStateMachine<Behaviour>>
-    {
+    public int IndexOfSkillParam;
+    public string NameOfSkill;
+    public class Behaviour : Behaviour<ChargeReleaseMechanism> 
+    {        
+        public AnimParamSMB animParam => owner.animParam;
+        public override bool IsReady => base.IsReady && animParam.DoesParamExists("HoldSkill");
         protected override void Init()
         {
-           
+            
         }
-
-        protected override void OnUpdate(bool down, bool hold, bool stop)
+        protected override void OnEnter()
         {
-            if (!IsReady && !IsExecuting)
-                return;
-            if (IsExecuting)
-            {
-                if (!owner.underControl)
-                    Interrupt();
-                else if (hold)
-                    Excute();
-                else
-                    Release();
-            }
-            else if (IsReady && down)
-                Enter();
+            if (data.NameOfSkill.IsEmpty())
+                animParam.IndexOfSkillParam = data.IndexOfSkillParam;
+            else
+                animParam.IndexOfSkillParam = Animator.StringToHash(data.NameOfSkill);
+            owner.animator.SetBool("HoldSkill", true);
+            animParam.TriggerSkill();
+        }
+        protected override void OnExcute() {}
+        protected override void OnExit(ExitReason reason)
+        {
+            owner.animator.SetBool("HoldSkill", false);
         }
     }
 }

@@ -4,35 +4,49 @@ using UnityEngine;
 
 namespace Yu5h1Lib.Game.Character
 {
-    public abstract class SkillStateMachine<B> : SkillData<B> where B : SkillStateMachine<B>.Behaviour<SkillStateMachine<B>>
+    public abstract class SkillStateMachine<T> : SkillData<T> where T : SkillBehaviour
     {
+        public EnergyInfo EnterCosts;
         public EnergyInfo[] ExcutingCosts;
 
-        public abstract class Behaviour<TData> : SkillBehaviour<TData> where TData : SkillStateMachine<B>
+        public abstract class Behaviour<TData> : SkillBehaviour<TData> where TData : SkillData
         {
+            public enum ExitReason
+            {
+                none = 0,
+                release = 1,
+                interrupt = 2
+            }
             public bool IsExecuting { get; private set; }
 
-            protected virtual void Enter()
+            protected override void OnUpdate(bool down, bool hold, bool stop)
             {
-                IsExecuting = true;
+                if (!IsReady && !IsExecuting)
+                    return;
+                if (IsExecuting)
+                {
+                    if (!owner.underControl)
+                        Exit(ExitReason.interrupt);
+                    else if (hold)
+                        OnExcute();
+                    else
+                        Exit(ExitReason.release);
+                }
+                else if (IsReady && down)
+                {
+                    IsExecuting = true;
+                    OnEnter();
+                }
             }
-            protected virtual void Excute()
-            {
 
-
-            }
-            protected virtual void Exit()
+            protected abstract void OnEnter();
+            protected abstract void OnExcute();
+            private void Exit(ExitReason reason)
             {
                 IsExecuting = false;
+                OnExit(reason);
             }
-            protected virtual void Release()
-            {
-                Exit();
-            }
-            protected virtual void Interrupt()
-            {
-                Exit();
-            }
+            protected abstract void OnExit(ExitReason reason);
         }
     }
 

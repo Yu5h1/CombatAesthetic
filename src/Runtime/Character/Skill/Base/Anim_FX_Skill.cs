@@ -11,11 +11,11 @@ public class Anim_FX_Skill : SkillData<Anim_FX_Skill.Behaviour>
     public string[] effects;
     public class Behaviour : SkillBehaviour<Anim_FX_Skill>
     {
-        public AnimParamSMB animParam;
+        public AnimParamSMB animParam => owner.animParam;
    
         protected override void Init()
         {
-            animParam = owner.animParam;
+            
         }
         protected override void OnUpdate(bool down, bool hold, bool stop)
         {

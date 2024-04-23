@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Yu5h1Lib.Game.Character;
 
@@ -9,24 +10,19 @@ public abstract class BaseCharacterSMB : StateMachineBehaviour
 {
     public Controller2D owner { get; private set; }
     public Animator animator { get; private set; }
-    public AnimatorControllerParameter[] parameters => animator.parameters;
+    public Dictionary<string, AnimatorControllerParameter> Parameters;
+
+
     public virtual void Init(Controller2D characterController)
     {
         owner = owner ?? characterController;
         animator = owner.animator;
+        Parameters = animator.parameters.ToDictionary(p => p.name, p => p);
+        
     }
 
     protected bool TryGetAnimParam(string name,out AnimatorControllerParameter result)
-    {
-        result = null;
-        for (int i = 0; i < parameters.Length; i++)
-        {
-            if (parameters[i].name == name)
-            {
-                result = parameters[i];
-                return true;
-            }
-        }
-        return false;
-    }
+        => Parameters.TryGetValue(name, out result);
+    public bool DoesParamExists(string name) => Parameters.ContainsKey(name);
+    public bool DoesParamsExists(params string[] name) => name.All(n=> DoesParamExists(n));
 }

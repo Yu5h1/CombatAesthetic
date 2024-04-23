@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using static Yu5h1Lib.GameManager.IDispatcher;
 using Controller2D = Yu5h1Lib.Game.Character.Controller2D;
-using PlayerInput = Yu5h1Lib.Game.Character.PlayerInput;
+using PlayerHost = Yu5h1Lib.Game.Character.PlayerHost;
 
 public class StatsManager : MonoBehaviour
 {
@@ -43,7 +43,7 @@ public class StatsManager : MonoBehaviour
                 Target.SetUIVisible(false);
             else
             {
-                Target.characterController.host = Resources.Load<PlayerInput>("PlayerInput");
+                Target.characterController.host = Resources.Load<PlayerHost>("PlayerInput");
                 Target.CreateDefaultVisualItems();
                 Target.Stat_UI.SetParent(transform,false);
             }

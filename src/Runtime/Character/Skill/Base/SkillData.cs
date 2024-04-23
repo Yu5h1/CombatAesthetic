@@ -7,9 +7,7 @@ namespace Yu5h1Lib.Game.Character
 {
     public class SkillData : ScriptableObject
     {
-        /// <summary>
-        /// If spell is empty, the skill will be set to the skill option
-        /// </summary>
+        [Tooltip("If spell is empty, the skill will be set as index skill option")]
         public string incantation;
         public EnergyInfo[] costs;
         private Dictionary<string, int> _preCalculatedCost;
@@ -25,7 +23,7 @@ namespace Yu5h1Lib.Game.Character
                 return _preCalculatedCost;
             }
         }
-        public virtual System.Type GetBehaviourType() => typeof(SkillData);
+        public virtual System.Type GetBehaviourType() => typeof(SkillBehaviour);
         public virtual SkillBehaviour GetBehaviour(Controller2D controller)
             => SkillBehaviour.Constructor(this, controller);
         public override string ToString() => $"{GetType()}";

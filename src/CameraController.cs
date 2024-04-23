@@ -22,6 +22,7 @@ public class CameraController : SingletonComponent<CameraController>
 
     public void Start()
     {
+        camera.tag = "MainCamera";
         camera.orthographic = true;
         camera.nearClipPlane = 0;
 
