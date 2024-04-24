@@ -12,7 +12,15 @@ public static class ArrayEx
             return;
         (array[from], array[to]) = (array[to], array[from]);
     }
-    public static void Swap<T>(this IList<T> array, T item, int to) => array.Swap(array.IndexOf(item), to); 
+    public static void Swap<T>(this IList<T> array, T item, int to) => array.Swap(array.IndexOf(item), to);
+
+    public static void SwapShift<T>(this IList<T> array, T item, bool next)
+    {
+        var from = array.IndexOf(item);
+        var to = from + (next ? 1 : -1);
+        to = to < 0 ? array.Count - 1 : (to >= array.Count ? 0 : to);
+        array.Swap(from, to);
+    }
     #endregion
 
     public static int IndexOf<T>(this T[] array,T value) => array.IsEmpty() ? -1 : Array.IndexOf(array, value);

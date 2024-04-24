@@ -12,7 +12,9 @@ namespace Yu5h1Lib.Game.Character {
             return new Vector2(input.GetAxisRaw("Horizontal"), input.GetAxisRaw("Vertical"));
         }
         public override void GetInputState(Controller2D character, UpdateInput updateInput)
-            => updateInput(input.GetMouseButtonDown(0), input.GetMouseButton(0), input.GetMouseButtonUp(0));
+        {
+            updateInput(input.GetMouseButtonDown(0), input.GetMouseButton(0), input.GetMouseButtonUp(0));
+        }
 
         public override void GetInputState(string bindingName, Controller2D character, UpdateInput updateInput)
         {

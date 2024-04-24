@@ -11,7 +11,9 @@ public class PoolManager : SingletonComponent<PoolManager>
     public static Canvas canvas => instance._canvas;
 
     public Dictionary<string, Pool> pools { get; private set; }
-    public int Count = 3;
+
+    [Tooltip("Maximum number of instantiations")]
+    public int Max = 3;
 
     protected override void Init(){
 
@@ -52,7 +54,7 @@ public class PoolManager : SingletonComponent<PoolManager>
     {
         pools = pools ?? new Dictionary<string, Pool>();
         foreach (var item in Resources.LoadAll<T>(folderName))
-            Add(item, Count);
+            Add(item, Max);
     }
     public void Add<T>(T source,int count) where T : Component
     {

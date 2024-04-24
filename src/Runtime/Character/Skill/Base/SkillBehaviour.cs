@@ -30,7 +30,7 @@ namespace Yu5h1Lib.Game.Character
 
         }
         protected abstract void Init();
-        protected abstract void OnUpdate(bool down, bool hold, bool stop);
+        protected abstract void OnUpdate(bool down, bool hold, bool up);
         public void SpawnFx(string fx)
         {
             //if (Fx.IsEmpty() || !Fx.Validate(index) || !ResourcesEx.TryLoad(Fx[index], out GameObject source))

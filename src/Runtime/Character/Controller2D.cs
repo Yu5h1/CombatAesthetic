@@ -214,7 +214,9 @@ namespace Yu5h1Lib.Game.Character
             InputMovement = host.GetMovement(this);
             foreach (var behaviour in skillBehaviours)
                 behaviour.update();
+
             ShiftIndexOfSilll(host.ShiftIndexOfSkill(this));
+
         }
         #endregion
         #region Animation Events

@@ -19,20 +19,20 @@ namespace Yu5h1Lib.Game.Character
             }
             public bool IsExecuting { get; private set; }
 
-            protected override void OnUpdate(bool down, bool hold, bool stop)
+            protected override void OnUpdate(bool down, bool hold, bool release)
             {
                 if (!IsReady && !IsExecuting)
                     return;
                 if (IsExecuting)
                 {
+                    if (hold)
+                        OnExcute();
                     if (!owner.underControl)
                         Exit(ExitReason.interrupt);
-                    else if (hold)
-                        OnExcute();
-                    else
+                    if (release)
                         Exit(ExitReason.release);
-                }
-                else if (IsReady && down)
+                }                
+                else if (down && Activate())
                 {
                     IsExecuting = true;
                     OnEnter();

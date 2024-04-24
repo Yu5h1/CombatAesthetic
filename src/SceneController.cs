@@ -28,7 +28,7 @@ public class SceneController : MonoBehaviour
         if (other.TryGetComponent(out AttributeStatBehaviour attributeBeahaviour))
             gameManager.Despawn(attributeBeahaviour.gameObject, DespawnReason.OutOfBounds);
     }
-    #region Loading stuffs...
+    #region Static 
     public static event UnityAction BeginLoadSceneHandler;
     public static event UnityAction<float> LoadSceneAsyncHandler;
     public static event UnityAction EndLoadSceneHandler;
@@ -40,6 +40,7 @@ public class SceneController : MonoBehaviour
         Contains,
         EndsWith
     }
+    public static bool BelongToCurrentScene(GameObject gameObject) => gameObject.scene == ActiveScene;
 
     public static bool IsSceneName(string name, StringSearchOption comparison = StringSearchOption.Equals) => comparison switch
     {

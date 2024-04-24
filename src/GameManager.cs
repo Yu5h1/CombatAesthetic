@@ -93,7 +93,9 @@ namespace Yu5h1Lib
             }
             if (!Input.GetKey(KeyCode.LeftControl) && input.TryGetScrollWheelDelta(out float delta)) {
                 if (SceneController.IsLevelScene)
+                {
                     cameraController.ZoomCamera(delta);
+                }
             }
         }
         public void Despawn(GameObject obj, DespawnReason reason) => StatsManager.instance?.Despawn(obj, reason);
