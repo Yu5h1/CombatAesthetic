@@ -4,12 +4,17 @@ using UnityEngine;
 
 public abstract class Rigidbody2DBehaviour : MonoBehaviourEnhance
 {
-    public new Rigidbody2D rigidbody { get; private set; }
+    [SerializeField]
+    private Rigidbody2D _rigidbody;
+    public new Rigidbody2D rigidbody => _rigidbody;
 
-    protected virtual void Reset() {}
+    protected virtual void Reset() {
+        _rigidbody = GetComponent<Rigidbody2D>();
+    }
     protected virtual void OnEnable()
     {
-        rigidbody = rigidbody ?? GetComponent<Rigidbody2D>();
+        if (!_rigidbody)
+            _rigidbody = GetComponent<Rigidbody2D>();
     }
 
 }

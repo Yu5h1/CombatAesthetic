@@ -12,11 +12,11 @@ public class StatsManager : MonoBehaviour
     public static StatsManager instance => PoolManager.statsManager;
     public PoolManager poolManager => PoolManager.instance;
 
-    public UI_statbar UI_statbarSource => Resources.Load<UI_statbar>("UI/BaseStatBar");
+    public UI_Statbar UI_statbarSource => Resources.Load<UI_Statbar>("UI/BaseStatBar");
 
-    public Dictionary<GameObject, StatProperty> CharactersMap = new Dictionary<GameObject, StatProperty>();
-    public List<StatProperty> Stats = new List<StatProperty>();
-    public StatProperty Target { get; private set; }
+    public Dictionary<GameObject, StatProperty_Deprecated> CharactersMap = new Dictionary<GameObject, StatProperty_Deprecated>();
+    public List<StatProperty_Deprecated> Stats = new List<StatProperty_Deprecated>();
+    public StatProperty_Deprecated Target { get; private set; }
 
     private void Awake()
     {
@@ -26,11 +26,10 @@ public class StatsManager : MonoBehaviour
     void Start()
     {
         poolManager.Add(UI_statbarSource,5);
-
         CharactersMap = FindObjectsByType<Controller2D>(FindObjectsInactive.Include, FindObjectsSortMode.None).
             Select(c => {
                 //c.Init();
-                var result = new StatProperty(c);
+                var result = new StatProperty_Deprecated(c);
                 if (c.tag == "Player")
                     Target = result;
                 return result;
@@ -43,12 +42,14 @@ public class StatsManager : MonoBehaviour
                 Target.SetUIVisible(false);
             else
             {
-                Target.characterController.host = Resources.Load<PlayerHost>("PlayerInput");
+                Target.characterController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
                 Target.CreateDefaultVisualItems();
                 Target.Stat_UI.SetParent(transform,false);
             }
         }
     }
+    public UI_Statbar SpawnStatbar() => poolManager.Spawn<UI_Statbar>(UI_statbarSource.name);
+
     // Update is called once per frame
     void Update()
     {
@@ -67,7 +68,7 @@ public class StatsManager : MonoBehaviour
     //{
     //    PoolManager.instance.Spawn(,);
     //}
-    public void OnCharacterDespawn(StatProperty characterProperty)
+    public void OnCharacterDespawn(StatProperty_Deprecated characterProperty)
     {
         if (characterProperty == null)
         {
@@ -113,15 +114,4 @@ public class StatsManager : MonoBehaviour
         foreach (var item in CharactersMap)
             item.Value.Destory();
     }
-
-    #region stat performance
-    //public static void PerformStatus(AttributeStatBehaviour attribute)
-    //{
-    //    StartCoroutine(PerformingStatus());
-    //}
-    //public  sIEnumerator PerformingStatus()
-    //{
-    //    yield return new WaitForSeconds(1);
-    //}
-    #endregion
 }

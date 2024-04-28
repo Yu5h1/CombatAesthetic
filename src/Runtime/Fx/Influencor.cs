@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Yu5h1Lib.Game.Character;
 
@@ -10,17 +9,19 @@ public class Influencor : MonoBehaviour
     [SerializeField]
     private EnergyInfo info;
 
-    public void Affect(Transform target, Vector2 strength)
+    public void Affect(Collider2D other, Vector2 strength)
     {
-        if (target.TryGetComponent(out Controller2D controller))
+        if (other.TryGetComponent(out Controller2D controller))
             controller.Hit(strength);
-        if (target.TryGetComponent(out AttributeStatBehaviour stat))
+        if (other.TryGetComponent(out AttributeStatBehaviour stat))
             stat.Affect(affectType, info);
     }
-    public void Affect(Collider2D target)
+    public void Affect(Collider2D other)
     {
-        if (target.TryGetComponent(out AttributeStatBehaviour stat))
+        if (other.TryGetComponent(out AttributeStatBehaviour stat))
             stat.Affect(affectType, info);
+        if (other.TryGetComponent(out Controller2D controller))
+            controller.Hit( TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.velocity : Vector2.one * info.amount);
     }
 
 
@@ -33,8 +34,9 @@ public class Influencor : MonoBehaviour
     }
     private IEnumerator AffectForSeconds(Controller2D character)
     {
-        character.BoostMultiplier = 2;
+        character.BoostMultiplier += 1;
         yield return new WaitForSeconds(3);
-        character.BoostMultiplier = 1;
+        if (character.BoostMultiplier > 1)
+            character.BoostMultiplier -= 1;
     }
 }

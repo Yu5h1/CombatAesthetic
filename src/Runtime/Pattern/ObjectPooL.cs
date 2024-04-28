@@ -56,7 +56,7 @@ public class Pool
         Debug.LogWarning($"Spawn type does not match. Pool Type :({Source.GetType()}) request Type : ({typeof(T)})");
         return false;
     }
-    public T Spawn<T>(Vector3 position, Vector3 forward = default(Vector3)) where T : Component
+    public T Spawn<T>(Vector3 position, Quaternion rotation = default(Quaternion)) where T : Component
     {
         if (!IsTypeMatch<T>())
             return null;
@@ -67,8 +67,8 @@ public class Pool
             objectQueue.Enqueue(obj);
         }
         obj.transform.position = position;
-        if (forward != default(Vector3))
-            obj.transform.forward = forward;
+        if (rotation != default(Quaternion))
+            obj.transform.rotation = rotation;
         obj.gameObject.SetActive(true);
         return (T)obj;
     }

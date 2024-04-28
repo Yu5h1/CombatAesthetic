@@ -6,7 +6,7 @@ using static SceneController;
 using System.Diagnostics.Tracing;
 
 [DisallowMultipleComponent]
-public class UIManager : MonoBehaviour
+public class UI_Manager : MonoBehaviour
 {    
     private RectTransform rectTransform => gameManager.rectTransform;
 

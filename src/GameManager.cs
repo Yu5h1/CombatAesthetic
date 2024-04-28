@@ -8,7 +8,7 @@ using static GameObjectEx;
 namespace Yu5h1Lib
 {
     [RequireComponent(typeof(Canvas))]
-    [RequireComponent(typeof(UIManager), typeof(EventSystem), typeof(InputSystemUIInputModule))]
+    [RequireComponent(typeof(UI_Manager), typeof(EventSystem), typeof(InputSystemUIInputModule))]
     [RequireComponent(typeof(AudioListener), typeof(AudioSource))]
     [DisallowMultipleComponent]
     public partial class GameManager : MonoBehaviour
@@ -16,7 +16,7 @@ namespace Yu5h1Lib
         public interface IDispatcher
         {
             static GameManager gameManager => instance;
-            static UIManager uiManager => UIController;
+            static UI_Manager uiManager => UIController;
             static CameraController cameraController => GameManager.cameraController;
             static InputSystemUIInputModule inputModule => InputModule;
             static BaseInput input => InputModule.input;
@@ -32,8 +32,8 @@ namespace Yu5h1Lib
         public static EventSystem eventsystem => instance.GetOrAddIfNull(ref instance._eventSystem);
         private Canvas _canvas_overlay;
         public static Canvas canvas_overlay => instance.GetOrAddIfNull(ref instance._canvas_overlay);
-        private UIManager _uiController;
-        public static UIManager UIController => instance.GetOrAddIfNull(ref instance._uiController);
+        private UI_Manager _uiController;
+        public static UI_Manager UIController => instance.GetOrAddIfNull(ref instance._uiController);
         private InputSystemUIInputModule _InputModule;
         public static InputSystemUIInputModule InputModule => instance.GetOrAddIfNull(ref instance._InputModule);
         public static BaseInput input => InputModule.input;

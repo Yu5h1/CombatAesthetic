@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_statbar : UIBehaviour
+public class UI_Statbar : UI_Behaviour
 {
     public Image background;
     public Image fill;

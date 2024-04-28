@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIMenu : UIBehaviour
+public class UIMenu : UI_Behaviour
 {
     private Button _Submit;
     public Button Submit => _Submit ?? (TryFindButton(nameof(Submit), out _Submit) ? _Submit : null);

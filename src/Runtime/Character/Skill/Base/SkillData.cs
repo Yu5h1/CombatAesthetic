@@ -10,6 +10,7 @@ namespace Yu5h1Lib.Game.Character
         [Tooltip("If spell is empty, the skill will be set as index skill option")]
         public string incantation;
         public EnergyInfo[] costs;
+        public virtual bool parallelizable => false;
         private Dictionary<string, int> _preCalculatedCost;
         public Dictionary<string, int> preCalculatedCost
         {

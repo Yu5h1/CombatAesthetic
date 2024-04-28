@@ -17,9 +17,12 @@ public static class ArrayEx
     public static void SwapShift<T>(this IList<T> array, T item, bool next)
     {
         var from = array.IndexOf(item);
-        var to = from + (next ? 1 : -1);
-        to = to < 0 ? array.Count - 1 : (to >= array.Count ? 0 : to);
-        array.Swap(from, to);
+        array.Swap(from, array.ShiftIndex(from, next));
+    }
+    public static int ShiftIndex<T>(this IList<T> array, int index,bool next) {
+        var result = index + (next ? 1 : -1);
+        result = result < 0 ? array.Count - 1 : (result >= array.Count ? 0 : result);
+        return result;
     }
     #endregion
 

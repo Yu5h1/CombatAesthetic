@@ -26,10 +26,12 @@ public class AttributeStatBehaviour : MonoBehaviour
 
     public bool TryGetIndex(string key, out int index) => (index = Keys.IndexOf(key)) >= 0;
     public bool TryGetIndex(AttributeType type, out int index) => TryGetIndex($"{type}", out index);
+
     public bool IsEnough(string key, float amount) => TryGetIndex(key, out int index) && stats[index].current >= amount;
 
-    public UI_statbar[] uI_Statbars { get; private set; }
+    public UI_Statbar[] uI_Statbars { get; private set; }
 
+    private bool affected;
     public void Reset()
     {
         attributes = AttributeType.Health;
@@ -44,7 +46,9 @@ public class AttributeStatBehaviour : MonoBehaviour
             if (previouseStatCount < stats.Length)
             {
                 for (int i = previouseStatCount; i < stats.Length; i++)
+                {
                     stats[i] = AttributeStat.Default;
+                }
             }
         }
     }
@@ -55,6 +59,11 @@ public class AttributeStatBehaviour : MonoBehaviour
     }
     void Update()
     {
+        if (affected)
+        {
+            affected = false;
+            return;
+        }
         for (int i = 0; i < stats.Length; i++)
         {
             if (stats[i].IsFull)
@@ -62,8 +71,13 @@ public class AttributeStatBehaviour : MonoBehaviour
             stats[i].current += stats[i].recovery * Time.deltaTime;
         }
     }
-    public void Affect(AttributeType attributeType, AffectType affectType, float amount)
+    /// <summary>
+    /// Returns depleted attributeType. 
+    /// </summary>
+    public AttributeType Affect(AttributeType attributeType, AffectType affectType, float amount)
     {
+        affected = true;
+        var DepletedTypes = AttributeType.None;
         foreach (var flag in attributeType.SeparateFlags())
         {
             var index = Keys.IndexOf($"{flag}");
@@ -71,8 +85,12 @@ public class AttributeStatBehaviour : MonoBehaviour
                 continue;
             stats[index].Affect(affectType, amount);
             if (stats[index].IsDepleted)
+            {
                 StatDepleted?.Invoke(flag);
+                DepletedTypes |= flag;
+            }
         }
+        return DepletedTypes;
     }
     public IEnumerator Affect(int index,float interval) {
         while (!stats[index].IsFull)
@@ -83,10 +101,12 @@ public class AttributeStatBehaviour : MonoBehaviour
         routines[index] = null;
         yield return null;
     }    
-    public void Affect(AffectType affectType,params EnergyInfo[] infos)
+    public AttributeType Affect(AffectType affectType,params EnergyInfo[] infos)
     {
+        var DepletedTypes = AttributeType.None;
         foreach (var info in infos)
-            Affect(info.attributeType, affectType, info.amount);
+            DepletedTypes |= Affect(info.attributeType, affectType, info.amount);
+        return DepletedTypes;
     }
 
     public bool Validate(Dictionary<string,int> cost)
@@ -100,8 +120,8 @@ public class AttributeStatBehaviour : MonoBehaviour
     }
 
     #region UI
-    public StatProperty.VisualItem[] CreateVisualItems(RectTransform parent, Vector2 size, bool UpDown)
-        => Keys.Select((key, order) => new StatProperty.VisualItem(parent, System.Enum.Parse<AttributeType>(key), order, size, UpDown)).ToArray();
+    public StatProperty_Deprecated.VisualItem[] CreateVisualItems(RectTransform parent, Vector2 size, bool UpDown)
+        => Keys.Select((key, order) => new StatProperty_Deprecated.VisualItem(parent, System.Enum.Parse<AttributeType>(key), order, size, UpDown)).ToArray();
 
 
     public void GetUI_StatsBar()

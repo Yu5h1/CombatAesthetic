@@ -4,14 +4,14 @@ using static Yu5h1Lib.GameManager.IDispatcher;
 using Yu5h1Lib.Game.Character;
 using static UnityEngine.UI.Image;
 
-public class StatProperty
+public class StatProperty_Deprecated
 {
     public Controller2D characterController { get; private set; }
     public AttributeStatBehaviour stats { get; private set; }
     public RectTransform Stat_UI;
     public VisualItem[] visualItems;
     public DespawnReason DespawnReason = DespawnReason.None;
-    public StatProperty(Controller2D charactercontroller)
+    public StatProperty_Deprecated(Controller2D charactercontroller)
     {
         characterController = charactercontroller;
         

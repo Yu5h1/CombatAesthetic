@@ -10,5 +10,7 @@ public static class TransformEx
         component = null;
         return t.TryFind(name, out Transform child) && child.TryGetComponent(out component);
     }
-    
+    #region 2D
+    public static Vector3 TransformPoint(this Transform t,float x,float y) => t.TransformPoint(new Vector3(x, y));
+    #endregion
 }

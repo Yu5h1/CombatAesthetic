@@ -10,6 +10,6 @@ public abstract class MonoBehaviourEnhance : MonoBehaviour
     }
     public void Despawn()
     {
-        PoolManager.instance.Despawn(gameObject);
+        PoolManager.instance.Despawn(gameObject.transform);
     }
 }

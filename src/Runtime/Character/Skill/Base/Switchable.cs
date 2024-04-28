@@ -7,9 +7,9 @@ public class Switchable : SkillStateMachine<Switchable.Behaviour>
         protected override void Init()
         {
         }
-        protected override void OnUpdate(bool down, bool hold, bool stop)
+        protected override void UpdateInput(bool down, bool hold, bool stop)
         {
-            base.OnUpdate(down, hold, stop);
+            base.UpdateInput(down, hold, stop);
         }
         protected override void OnEnter()
         {

@@ -6,10 +6,8 @@ namespace Yu5h1Lib.Game.Character
 {
     public abstract class SkillStateMachine<T> : SkillData<T> where T : SkillBehaviour
     {
-        public EnergyInfo EnterCosts;
         public EnergyInfo[] ExcutingCosts;
-
-        public abstract class Behaviour<TData> : SkillBehaviour<TData> where TData : SkillData
+        public abstract class Behaviour<TData> : SkillBehaviour<TData> where TData : SkillStateMachine<T>
         {
             public enum ExitReason
             {
@@ -19,7 +17,13 @@ namespace Yu5h1Lib.Game.Character
             }
             public bool IsExecuting { get; private set; }
 
-            protected override void OnUpdate(bool down, bool hold, bool release)
+            protected virtual bool keepholding
+                => ConsumeExecutionCosts() == AttributeType.None;
+
+            protected virtual AttributeType ConsumeExecutionCosts()
+                => owner.statBehaviour.Affect(AffectType.NEGATIVE, data.ExcutingCosts);
+
+            protected override void UpdateInput(bool down, bool hold, bool release)
             {
                 if (!IsReady && !IsExecuting)
                     return;
@@ -29,7 +33,7 @@ namespace Yu5h1Lib.Game.Character
                         OnExcute();
                     if (!owner.underControl)
                         Exit(ExitReason.interrupt);
-                    if (release)
+                    if (release || !keepholding)
                         Exit(ExitReason.release);
                 }                
                 else if (down && Activate())

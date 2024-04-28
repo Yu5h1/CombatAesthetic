@@ -4,8 +4,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[CustomEditor(typeof(UI_statbar))]
-public class UI_statbarInspector : Editor<UI_statbar>
+[CustomEditor(typeof(UI_Statbar))]
+public class UI_statbarInspector : Editor<UI_Statbar>
 {
     public override void OnInspectorGUI()
     {

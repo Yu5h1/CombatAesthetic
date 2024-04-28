@@ -16,8 +16,9 @@ public class CameraController : SingletonComponent<CameraController>
     [Range(0.05f,1)]
     public float smoothTime = 0.1f;
 
-    #region property
-    private Vector3 CurrentVelocity;
+    #region operators
+    private Vector3 currentPosition;
+    //private Vector3 currentEulerAngles;
     #endregion
 
     public void Start()
@@ -38,6 +39,7 @@ public class CameraController : SingletonComponent<CameraController>
                 s.transform.localScale = new Vector3(width + 1, height + 1, 1);
                 return s;
             });
+        
     }
     private void FixedUpdate()
     {
@@ -74,6 +76,10 @@ public class CameraController : SingletonComponent<CameraController>
     /// </summary>
     public void FollowTarget()
     {
-        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, target.position - camera.transform.forward , ref CurrentVelocity, smoothTime);
+        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, target.position - camera.transform.forward , ref currentPosition, smoothTime);
+
+        var angles = transform.eulerAngles;
+        angles.z = target.eulerAngles.z;
+        transform.eulerAngles = angles * target.forward.z;
     }
 }

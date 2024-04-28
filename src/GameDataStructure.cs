@@ -23,14 +23,15 @@ public struct AttributeStat
         this.max = max;
         Init();
     }
-    public void Affect(AffectType affectType, float val) => current += val * (int)affectType;
+    public void Affect(AffectType affectType, float amount) => current += amount * (int)affectType;
     public override string ToString() => $"{current}";
 }
 [System.Serializable]
 public struct EnergyInfo
 {
     public AttributeType attributeType;
-    public uint amount;
+    [Range(0,100)]
+    public float amount;
 }
 [System.Flags]
 public enum AttributeType

@@ -17,7 +17,7 @@ public class Anim_FX_Skill : SkillData<Anim_FX_Skill.Behaviour>
         {
             
         }
-        protected override void OnUpdate(bool down, bool hold, bool stop)
+        protected override void UpdateInput(bool down, bool hold, bool stop)
         {
             if (down && Activate() )
             {

@@ -39,16 +39,16 @@ public class PoolManager : SingletonComponent<PoolManager>
         }
         return true;
     }
-    public T Spawn<T>(string key, Vector3 position = default(Vector3), Vector3 forward = default(Vector3)) where T : Component
-        => Exists(key) ? pools[key].Spawn<T>(position, forward) : null;
+    public T Spawn<T>(string key, Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion)) where T : Component
+        => Exists(key) ? pools[key].Spawn<T>(position, rotation) : null;
 
 
-    public void Despawn(GameObject obj)
+    public void Despawn<T>(T obj) where T : Component
     {
         var key = obj.GetNameWithOutClone().Substring(obj.name.IndexOf('.') + 1);
         if (!Exists(key))
             return;
-        pools[key].Despawn(obj.transform);
+        pools[key].Despawn(obj);
     }
     public void PrepareFromResourece<T>(string folderName) where T : Component
     {

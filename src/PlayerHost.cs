@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.Windows;
+using UnityEngine.InputSystem;
 using static UnityEngine.EventSystems.StandaloneInputModule;
 using static Yu5h1Lib.GameManager.IDispatcher;
 
@@ -18,14 +18,17 @@ namespace Yu5h1Lib.Game.Character {
 
         public override void GetInputState(string bindingName, Controller2D character, UpdateInput updateInput)
         {
-            throw new System.NotImplementedException();
-            //=> updateInput(false, false, false);
+            updateInput(Input.GetButtonDown(bindingName), Input.GetButton(bindingName), Input.GetButtonUp(bindingName));
         }
-        public override int ShiftIndexOfSkill(Controller2D character)
+        public override bool ShiftIndexOfSkill(Controller2D character,out bool next)
         {
+            next = false;
             if (input.TryGetScrollWheelDelta(out float delta))
-                return (int)Mathf.Sign(delta);
-            return 0;
+            {
+                next = Mathf.Sign(delta) > 0;
+                return true;
+            }
+            return false;
         }
 
  

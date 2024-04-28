@@ -10,7 +10,7 @@ public class ParticleSystemEvent : BaseParticleSystemBehaviour
     public UnityEvent ParticleTriggerEnter;
     public UnityEvent ParticleCollision;
     public UnityEvent OnParticleSystemStoppedEvent;
-    public UnityEvent<Transform,Vector2> ParticleTriggerEnterCollider;
+    public UnityEvent<Collider2D,Vector2> ParticleTriggerEnterCollider;
     protected ParticleSystem.Particle[] particles;
     protected override void OnEnable()
     {
@@ -25,9 +25,10 @@ public class ParticleSystemEvent : BaseParticleSystemBehaviour
 
     //}
     private void OnParticleTrigger()
-    {        
+    {
         if (TryGetTriggerCollider(ParticleSystemTriggerEventType.Enter, out Particle particle, out Component component))
-            ParticleTriggerEnterCollider?.Invoke(component.transform, (Vector2)(particle.velocity * particle.GetCurrentSize(particleSystem)));
+            if (component.TryGetComponent(out Collider2D collider))
+                ParticleTriggerEnterCollider?.Invoke(collider, (Vector2)(particle.velocity * particle.GetCurrentSize(particleSystem)));
         ParticleTriggerEnter?.Invoke();
     }
     private void OnParticleTriggerEnter(GameObject gameObject)

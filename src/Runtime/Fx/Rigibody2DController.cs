@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class Rigibody2DController : Rigidbody2DBehaviour
 {
-    public Vector3 velocity = Vector3.zero;
+    public Vector2 velocity;
     protected override void OnEnable()
     {
         base.OnEnable();
-        rigidbody.velocity = Quaternion.LookRotation(transform.forward) * velocity;
+        rigidbody.velocity = transform.right * velocity.magnitude;
+            //velocity.LookAtDirection(transform.right);
     }
 }

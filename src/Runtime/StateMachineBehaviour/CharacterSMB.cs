@@ -15,6 +15,8 @@ public class CharacterSMB : BaseCharacterSMB
     //OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (!owner)
+            return;
         owner.currentState = this;
         if (CheckForwardType == ProcessStep.Enter)
             owner.CheckForward();
@@ -23,6 +25,8 @@ public class CharacterSMB : BaseCharacterSMB
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (!owner)
+            return;
         if (CheckForwardType == ProcessStep.Excute)
             owner.CheckForward();
     }
@@ -30,6 +34,8 @@ public class CharacterSMB : BaseCharacterSMB
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (!owner)
+            return;
         if (CheckForwardType == ProcessStep.Exit)
             owner.CheckForward();
         if (owner.currentState == this)

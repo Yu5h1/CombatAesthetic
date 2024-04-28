@@ -5,9 +5,10 @@ namespace Yu5h1Lib.Game.Character
 {
     public abstract class SkillBehaviour {
         public Controller2D owner { get; protected set; }
-        public Host2D host => owner.host;       
         public SkillData data { get; protected set; }
         public abstract bool IsReady { get; }
+
+        protected abstract void Init();
         protected bool Activate()
         {
             if (!IsReady || !owner.underControl)
@@ -15,28 +16,17 @@ namespace Yu5h1Lib.Game.Character
             owner.statBehaviour.Affect(AffectType.NEGATIVE, data.costs);
             return true;
         }
-        public void update()
+        public void Update(Host2D host)
         {
-            if (!owner.host)
-                throw new MissingReferenceException("Missing host");
-
-            if (owner.currentSkillBehaviour != this)
+            if (!data.parallelizable && owner.currentSkillBehaviour != this)
                 return;
-
             if (!data.incantation.IsEmpty()) /// keybinding skill
-                host.GetInputState(data.incantation, owner, OnUpdate);
+                host.GetInputState(data.incantation, owner, UpdateInput);
             else if (owner.currentSkillBehaviour == this) /// optinal skill
-                host.GetInputState(owner, OnUpdate);
+                host.GetInputState(owner, UpdateInput);
 
         }
-        protected abstract void Init();
-        protected abstract void OnUpdate(bool down, bool hold, bool up);
-        public void SpawnFx(string fx)
-        {
-            //if (Fx.IsEmpty() || !Fx.Validate(index) || !ResourcesEx.TryLoad(Fx[index], out GameObject source))
-            //    return;
-            //var fx = GameObject.Instantiate(source);
-        }
+        protected abstract void UpdateInput(bool down, bool hold, bool up);
 
         public static SkillBehaviour Constructor(SkillData skill, Controller2D character)
         {
