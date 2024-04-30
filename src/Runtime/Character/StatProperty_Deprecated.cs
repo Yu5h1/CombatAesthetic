@@ -6,43 +6,73 @@ using static UnityEngine.UI.Image;
 
 public class StatProperty_Deprecated
 {
-    public Controller2D characterController { get; private set; }
-    public AttributeStatBehaviour stats { get; private set; }
+    public Controller2D Controller { get; private set; }
+    public AttributeStatBehaviour statsBehaviour { get; private set; }
     public RectTransform Stat_UI;
     public VisualItem[] visualItems;
-    public DespawnReason DespawnReason = DespawnReason.None;
-    public StatProperty_Deprecated(Controller2D charactercontroller)
+    public DefeatedReason DespawnReason = DefeatedReason.None;
+    public StatProperty_Deprecated(AttributeStatBehaviour s,Controller2D controller)
     {
-        characterController = charactercontroller;
+        statsBehaviour = s;
+        Controller = controller;
+        if (controller.tag == "Player")
+        {
+            cameraController.target = controller.transform;
+            Controller.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
+            CreateDefaultVisualItems();
+        }
+        //if (stats = Controller.gameObject.GetComponent<AttributeStatBehaviour>())
+        //    stats.StatDepleted += CheckHealthPointDepleted;
+
         
-        if (stats = characterController.gameObject.GetComponent<AttributeStatBehaviour>())
-            stats.StatDepleted += CheckHealthPointDepleted;
     }
     public void Destory()
     {
-        if (stats)
-            stats.StatDepleted -= CheckHealthPointDepleted;
+        if (statsBehaviour)
+            statsBehaviour.StatDepleted -= CheckHealthPointDepleted;
         if (Stat_UI)
             GameObject.Destroy(Stat_UI.gameObject);
     }
     private void CheckHealthPointDepleted(AttributeType type)
     {
-        if (type == AttributeType.Health)
-            DespawnReason = DespawnReason.Exhausted;
-    }
-    public void SetUIVisible(bool visible) {
-        if (!Stat_UI)
+        if (type != AttributeType.Health)
             return;
-        Stat_UI.gameObject.SetActive(visible);
+        DespawnReason = DefeatedReason.Exhausted;
+        OnCharacterDefeated();
     }
     public void UpdateVisualItems()
     {        
-        if (!stats || visualItems.IsEmpty())
+        if (!statsBehaviour || visualItems.IsEmpty())
             return;
-        for (int i = 0; i < stats.Keys.Length; i++)
-            visualItems[i].Update(stats.stats[i]);
+        for (int i = 0; i < statsBehaviour.Keys.Length; i++)
+            visualItems[i].Update(statsBehaviour.stats[i]);
         
     }
+    public void OnCharacterDefeated()
+    {
+        if (Controller.tag == "Player")
+        {
+            Controller.enabled = false;
+            Controller.animParam.animator.Play("Fail");
+            Controller.rigidbody.simulated = false;
+            //UIController.Fadeboard_UI.FadeIn(Color.black,true);
+            PoolManager.canvas.sortingLayerName = "Back";
+            cameraController.FadeIn("Back", 1);
+
+            uiManager.LevelSceneMenu.FadeIn(5);
+
+            //foreach (var item in CharactersForUpdate)
+            //    item.characterController.enabled = false;
+        }
+        else
+        {
+            // npc ring out
+            //Controller.gameObject.SetActive(false);
+        }
+        Controller.host = null;
+        Debug.Log($"{Controller.gameObject.name} was defeated because of {DespawnReason}.");
+    }
+
     public void CreateDefaultVisualItems()
     {
         if (Stat_UI != null)
@@ -50,9 +80,9 @@ public class StatProperty_Deprecated
             Stat_UI.gameObject.SetActive(true);
             return;
         }
-        Stat_UI = new GameObject($"{characterController.name}_UI").AddComponent<RectTransform>();
-        Stat_UI.SetParent(gameManager.transform, false);
-        visualItems = stats.CreateVisualItems(Stat_UI, new Vector2(150, 15), false);
+        Stat_UI = new GameObject($"{Controller.name}_UI").AddComponent<RectTransform>();
+        Stat_UI.SetParent(StatsManager.instance.transform, false);
+        visualItems = statsBehaviour.CreateVisualItems(Stat_UI, new Vector2(150, 15), false);
         Stat_UI.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, 0);
         Stat_UI.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, 0);
         Stat_UI.pivot = new Vector2(-1, 1);

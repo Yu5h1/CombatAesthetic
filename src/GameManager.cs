@@ -38,6 +38,12 @@ namespace Yu5h1Lib
         public static InputSystemUIInputModule InputModule => instance.GetOrAddIfNull(ref instance._InputModule);
         public static BaseInput input => InputModule.input;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void Init()
+        {
+            
+        }
+
         #endregion
 
         public static CameraController cameraController => CameraController.instance;
@@ -98,7 +104,11 @@ namespace Yu5h1Lib
                 }
             }
         }
-        public void Despawn(GameObject obj, DespawnReason reason) => StatsManager.instance?.Despawn(obj, reason);
+        public void OnCharacterDefeated(GameObject character)
+        {
+
+
+        }
         #region FX
         public void PlayAudio(AudioSource source)
         {

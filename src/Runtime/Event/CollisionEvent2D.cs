@@ -7,11 +7,9 @@ using UnityEngine.Events;
 public class CollisionEvent2D : MonoBehaviour
 {
     [SerializeField]
-    private UnityEvent OnCollisionEnter2DEvent;
+    private UnityEvent<Collider2D> OnCollisionEnter2DEvent;
     private void OnCollisionEnter2D(Collision2D collision)
-    {
-        OnCollisionEnter2DEvent?.Invoke();
-    }
+        => OnCollisionEnter2DEvent?.Invoke(collision.collider);
 }
 public class CollisionEvent2D<T> : MonoBehaviour where T : Behaviour
 {
@@ -26,4 +24,5 @@ public class CollisionEvent2D<T> : MonoBehaviour where T : Behaviour
             return;
         OnCollisionEnter2DEvent?.Invoke(behaviour);
     }
+    
 }

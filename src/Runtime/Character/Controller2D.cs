@@ -163,6 +163,7 @@ namespace Yu5h1Lib.Game.Character
         {
             if (grounded)
             {
+
                 landingImpactForce = rigidbody.mass * localVelocity.y / 2;
                 localVelocity *= Vector2.right;
                 velocity = transform.TransformVector(localVelocity);
@@ -193,13 +194,15 @@ namespace Yu5h1Lib.Game.Character
                     {
                         momentum.x = 0;
                     }
-                    //else if (momentum.y < JumpPower)
-                    //{
-                    //    /// fix bouncing while moving on slop
-                    //    if (detector.groundHit.distance > 0)
-                    //        momentum += new Vector2(0, -detector.groundHit.distance).normalized;
-                    //    momentum = momentum.magnitude * detector.CheckSlop2D(IsFaceForward).normalized;
-                    //}
+                    else if (momentum.y < JumpPower)
+                    {
+                        /// fix bouncing while moving on slop
+             
+                        var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop2D(IsFaceForward).normalized);
+                        momentum = momentum.magnitude * localSlopDir;
+                        if (detector.groundHit.distance > 0)
+                            momentum += new Vector2(0, -detector.groundHit.distance);
+                    }
                 }
             }
             else if (Floatable)
@@ -211,13 +214,10 @@ namespace Yu5h1Lib.Game.Character
             {
                 if (VelocityWeight.magnitude != 0)
                 {
-                    if (momentum.y > Physics2D.gravity.y)
+                    if (momentum.y > Physics2D.gravity.y * 2f)
                         momentum += Physics2D.gravity * 0.0666666f;
-                    //if (localmomentum.magnitude < Physics2D.gravity.magnitude && gravity.normalized.IsSameDirectionAs(down))
-                    //    momentum += gravity;
-                    //momentum += Physics2D.gravity * 0.0666666f;
-                    //momentum += InputMovement * AirborneMultiplier;
-                    //momentum.x = IsFaceForward ? Mathf.Min(MaxAirborneSpeed, momentum.x) : Mathf.Max(-MaxAirborneSpeed, momentum.x);
+                    if (Mathf.Abs(momentum.x) < MaxAirborneSpeed)
+                        momentum += new Vector2(Mathf.Abs(InputMovement.x), InputMovement.y) * AirborneMultiplier;
                 }
             }
             localVelocity = momentum;
@@ -227,6 +227,8 @@ namespace Yu5h1Lib.Game.Character
             /// deprecated using velocity control movement . this method will causing flick movement
             //rigidbody.velocity = momentum; 
         }
+        public void AddForce(Vector2 force) => velocity += force;
+
         #region Custom Functions
         public void CheckForward(float x)
         {
@@ -267,7 +269,10 @@ namespace Yu5h1Lib.Game.Character
                 var offsetTransform = transform.Find("FxOffset") ?? transform;
                 var fx = PoolManager.instance.Spawn<Transform>(fxSkill.effects[index], offsetTransform.position, offsetTransform.rotation);
                 foreach (var mask in fx.GetComponents<EventMask2D>())
-                    mask.IgnoreTag = gameObject.tag;
+                {
+                    mask.tagOption.tag = gameObject.tag;
+                    mask.tagOption.type = TagOption.ComparisionType.NotEqual;
+                }
             }
         }
         #endregion

@@ -9,7 +9,7 @@ namespace Yu5h1Lib.Game.Character
         #region Ground detection parameters
         private ContactFilter2D GroundFilter;
         public LayerMask GroundLayer => GroundFilter.layerMask;
-        private RaycastHit2D[] CharacterColliderDownCastResults;
+        private RaycastHit2D[] GroundCastResults;
         public RaycastHit2D groundHit { get; private set; }
         public bool IsGrounded { get; private set; }
         [SerializeField,Range(0.00001f,1.0f)]
@@ -81,10 +81,10 @@ namespace Yu5h1Lib.Game.Character
 
         public void CheckGroundState()
         {
-            CharacterColliderDownCastResults = new RaycastHit2D[5];
+            GroundCastResults = new RaycastHit2D[5];
             groundHit = default(RaycastHit2D);
-            collider.Cast(-transform.up, GroundFilter, CharacterColliderDownCastResults, groundRayDistance, true);
-            foreach (var hit in CharacterColliderDownCastResults)
+            collider.Cast(-transform.up, GroundFilter, GroundCastResults, groundRayDistance, true);
+            foreach (var hit in GroundCastResults)
             {
                 if (!hit)
                     continue;

@@ -26,7 +26,7 @@ public class SceneController : MonoBehaviour
         if (SceneController.IsLoading)
             return;
         if (other.TryGetComponent(out AttributeStatBehaviour attributeBeahaviour))
-            gameManager.Despawn(attributeBeahaviour.gameObject, DespawnReason.OutOfBounds);
+            attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 1000);
     }
     #region Static 
     public static event UnityAction BeginLoadSceneHandler;

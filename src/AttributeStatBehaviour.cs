@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-
+using Yu5h1Lib.Game.Character;
 
 [DisallowMultipleComponent]
 public class AttributeStatBehaviour : MonoBehaviour
@@ -29,7 +29,13 @@ public class AttributeStatBehaviour : MonoBehaviour
 
     public bool IsEnough(string key, float amount) => TryGetIndex(key, out int index) && stats[index].current >= amount;
 
-    public UI_Statbar[] uI_Statbars { get; private set; }
+    #region UI
+    //public UI_Statbar[] uI_Statbars { get; private set; }
+    public StatProperty_Deprecated statProperty_Deprecated { get; private set; }
+    #endregion
+
+
+
 
     private bool affected;
     public void Reset()
@@ -52,6 +58,12 @@ public class AttributeStatBehaviour : MonoBehaviour
             }
         }
     }
+    private void Start()
+    {
+        if (SceneController.IsLevelScene && TryGetComponent(out Controller2D controller)) {
+            statProperty_Deprecated = new StatProperty_Deprecated(this,controller);
+        }
+    }
     private void OnEnable()
     {
         for (int i = 0; i < stats.Length; i++)
@@ -59,6 +71,10 @@ public class AttributeStatBehaviour : MonoBehaviour
     }
     void Update()
     {
+        #region UI
+        if (statProperty_Deprecated != null)
+            statProperty_Deprecated.UpdateVisualItems();
+        #endregion
         if (affected)
         {
             affected = false;

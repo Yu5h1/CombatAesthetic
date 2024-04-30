@@ -30,7 +30,6 @@ public struct AttributeStat
 public struct EnergyInfo
 {
     public AttributeType attributeType;
-    [Range(0,100)]
     public float amount;
 }
 [System.Flags]
@@ -49,7 +48,7 @@ public enum AffectType
     NEUTRAL = 0    
 }
 [System.Flags]
-public enum DespawnReason
+public enum DefeatedReason
 {
     None = 0,
     Exhausted = 1 << 0,

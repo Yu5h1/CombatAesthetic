@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using Yu5h1Lib.Game.Character;
 
-public class Influencor : MonoBehaviour
+public class Influencor : MonoBehaviourEnhance
 {
     [SerializeField]
     public AffectType affectType;
@@ -20,10 +20,19 @@ public class Influencor : MonoBehaviour
     {
         if (other.TryGetComponent(out AttributeStatBehaviour stat))
             stat.Affect(affectType, info);
-        if (other.TryGetComponent(out Controller2D controller))
-            controller.Hit( TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.velocity : Vector2.one * info.amount);
     }
-
+    public void Hit(Collider2D other)
+    {
+        if (other.TryGetComponent(out Controller2D controller))
+            controller.Hit(TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.velocity : Vector2.one * info.amount);
+    }
+    public void AddForce(Collider2D other)
+    {
+        if (other.TryGetComponent(out Controller2D controller))
+            controller.AddForce(transform.up * info.amount);
+        else if (other.TryGetComponent(out Rigidbody2D rigidbody)) 
+            rigidbody.AddForce(transform.up * info.amount);
+    }
 
     public void BoostMultiplier(Collider2D target)
     {
