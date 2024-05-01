@@ -59,8 +59,8 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField]
         private bool _Floatable;
         public bool Floatable { get => _Floatable; set => _Floatable = value; }
-        private bool _UnderControl;
-        public bool underControl { get => _UnderControl; private set => _UnderControl = value; }
+        public bool underControl { get; private set; }
+        public float Conscious { get; private set; } = 100.0f;
         #endregion        
 
         #region  Skill
@@ -107,8 +107,17 @@ namespace Yu5h1Lib.Game.Character
                 return;
             animator = GetComponent<Animator>();
             CharacterCollider = GetComponent<CapsuleCollider2D>();
-            detector = GetComponent<ColliderDetector2D>();
-            statBehaviour = GetComponent<AttributeStatBehaviour>();
+
+            if (TryGetComponent(out ColliderDetector2D colliderDetector))
+            {
+                detector = colliderDetector;
+                detector.OnGroundStateChangedEvent.AddListener(OnGroundStateChanged);
+            }
+            if (TryGetComponent(out AttributeStatBehaviour attributeStat))
+            {
+                statBehaviour = attributeStat;
+                statBehaviour.StatDepleted += OnStatDepleted;
+            }
             if (rigidbody)
                 rigidbody.gravityScale = 0;
 
@@ -119,7 +128,8 @@ namespace Yu5h1Lib.Game.Character
             animParam = animator.GetBehaviour<AnimParamSMB>();
             #endregion
 
-            detector.OnGroundStateChangedEvent.AddListener(OnGroundStateChanged);
+            
+            
 
 
             #region initinalize skill
@@ -148,37 +158,47 @@ namespace Yu5h1Lib.Game.Character
         }
         private void FixedUpdate()
         {
-            detector.CheckGroundState();
-        }
-        private void LateUpdate()
-        {
-            detector.CheckPlatformStandHeight();
+            detector.CheckGround();
         }
         public void Hit(Vector2 strength)
         {
-            Debug.Log($"{name} has been Hited !");
             Hited?.Invoke(strength);
-        }
+        }        
         private void OnGroundStateChanged(bool grounded)
         {
             if (grounded)
             {
-
                 landingImpactForce = rigidbody.mass * localVelocity.y / 2;
                 localVelocity *= Vector2.right;
                 velocity = transform.TransformVector(localVelocity);
             }
         }
+        private void OnStatDepleted(AttributeType AttributeType)
+        {
+            if (AttributeType == AttributeType.Health)
+                Conscious = 0;
+        }
         public float landingImpactForce { get; private set; }
-        public Vector2 velocity { get; private set; }
+        public bool UseCustomVelocity;
+        private Vector2 _velocity;
+        public Vector2 velocity 
+        {
+            get => UseCustomVelocity ? _velocity : rigidbody.velocity;
+            private set {
+                if (UseCustomVelocity)
+                    _velocity = value;
+                else
+                    rigidbody.velocity = value;
+            }
+        }
         public Vector2 localVelocity { get; private set; }
         public bool debug;
         void OnAnimatorMove()
         {
             if (Time.timeScale == 0)
                 return;
-            currentState.GetMoveInfo(out _UnderControl, out Vector2 rootMotionWeight, out Vector2 VelocityWeight);
-
+            currentState.GetMoveInfo(out bool controllable, out Vector2 rootMotionWeight, out Vector2 VelocityWeight);
+            underControl = controllable && Conscious > 10;
             var localAnimVelocity = transform.InverseTransformDirection(animator.velocity);
             localVelocity = transform.InverseTransformDirection(velocity);
 
@@ -193,6 +213,8 @@ namespace Yu5h1Lib.Game.Character
                     if (InputMovement.x == 0)
                     {
                         momentum.x = 0;
+                        if (momentum.y < JumpPower)
+                            momentum.y = 0;
                     }
                     else if (momentum.y < JumpPower)
                     {
@@ -201,7 +223,7 @@ namespace Yu5h1Lib.Game.Character
                         var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop2D(IsFaceForward).normalized);
                         momentum = momentum.magnitude * localSlopDir;
                         if (detector.groundHit.distance > 0)
-                            momentum += new Vector2(0, -detector.groundHit.distance);
+                            momentum += new Vector2(0, -detector.groundHit.distance * momentum.magnitude);
                     }
                 }
             }
@@ -221,11 +243,11 @@ namespace Yu5h1Lib.Game.Character
                 }
             }
             localVelocity = momentum;
-            rigidbody.MovePosition(rigidbody.position + ((velocity = transform.TransformDirection(momentum)) * Time.fixedDeltaTime));
-            if (debug)
-                Debug.Log($"velocity: {velocity} momentum:{momentum}");
-            /// deprecated using velocity control movement . this method will causing flick movement
-            //rigidbody.velocity = momentum; 
+
+            if (UseCustomVelocity)
+                rigidbody.MovePosition(rigidbody.position + ((velocity = transform.TransformDirection(momentum)) * Time.fixedDeltaTime));
+            else /// deprecated using velocity control movement . this method will causing flick movement
+                velocity = transform.TransformDirection(momentum);
         }
         public void AddForce(Vector2 force) => velocity += force;
 
@@ -236,11 +258,8 @@ namespace Yu5h1Lib.Game.Character
                 return;
             if (Mathf.Sign(x) == forwardSign)
                 return;
-//180 rotation will cause collider error
-//Re-enabling force the collider returns to normal
-            //detector.collider.enabled = false;
             transform.Rotate(Vector3.up, 180, Space.Self);
-            //detector.collider.enabled = true;
+            // Alternative
             //transform.rotation = Quaternion.LookRotation(new Vector3(0, 0, -forwardSign), transform.up);
 
         }

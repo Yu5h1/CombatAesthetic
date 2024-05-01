@@ -68,7 +68,7 @@ namespace Yu5h1Lib
         }
         private static void BeginLoadSceneAsync()
         {
-            
+    
         }
 
         #region build-in load scene event

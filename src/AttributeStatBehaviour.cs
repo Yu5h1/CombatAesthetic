@@ -33,10 +33,6 @@ public class AttributeStatBehaviour : MonoBehaviour
     //public UI_Statbar[] uI_Statbars { get; private set; }
     public StatProperty_Deprecated statProperty_Deprecated { get; private set; }
     #endregion
-
-
-
-
     private bool affected;
     public void Reset()
     {

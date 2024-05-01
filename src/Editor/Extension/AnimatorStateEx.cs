@@ -6,6 +6,7 @@ using UnityEngine;
 using System.Reflection;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
+using System.Linq;
 
 public static class AnimatorStateEx
 {
@@ -59,5 +60,19 @@ public static class AnimatorStateEx
         }
         t.conditions = conditions;
         EditorUtility.SetDirty(t);
+    }
+
+    [MenuItem("CONTEXT/AnimatorState/Add Hurt Exit Transition")]
+    public static void AddHurtExitTransition(MenuCommand command)
+    {
+        AnimatorState state = (AnimatorState)command.context;
+if (!state.transitions.TryFind(
+    t => t.conditions.TryFind(c => c.parameter == "Hurt", out _),out AnimatorStateTransition t))
+            t = state.AddExitTransition();
+        t.name = "HurtOut";
+        t.hasExitTime = false;
+        t.duration = 0;
+        t.AddCondition(AnimatorConditionMode.If,0,"Hurt");
+        
     }
 }

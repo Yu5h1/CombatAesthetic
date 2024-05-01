@@ -21,10 +21,10 @@ public class StatProperty_Deprecated
             Controller.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
             CreateDefaultVisualItems();
         }
-        //if (stats = Controller.gameObject.GetComponent<AttributeStatBehaviour>())
-        //    stats.StatDepleted += CheckHealthPointDepleted;
+        if (statsBehaviour = Controller.gameObject.GetComponent<AttributeStatBehaviour>())
+            statsBehaviour.StatDepleted += CheckHealthPointDepleted;
 
-        
+
     }
     public void Destory()
     {
@@ -50,16 +50,18 @@ public class StatProperty_Deprecated
     }
     public void OnCharacterDefeated()
     {
+        if (SceneController.IsLoading)
+            return;
+        if (!statsBehaviour.enabled)
+            return;
         if (Controller.tag == "Player")
         {
-            Controller.enabled = false;
-            Controller.animParam.animator.Play("Fail");
-            Controller.rigidbody.simulated = false;
             //UIController.Fadeboard_UI.FadeIn(Color.black,true);
             PoolManager.canvas.sortingLayerName = "Back";
             cameraController.FadeIn("Back", 1);
-
             uiManager.LevelSceneMenu.FadeIn(5);
+
+
 
             //foreach (var item in CharactersForUpdate)
             //    item.characterController.enabled = false;
@@ -71,6 +73,7 @@ public class StatProperty_Deprecated
         }
         Controller.host = null;
         Debug.Log($"{Controller.gameObject.name} was defeated because of {DespawnReason}.");
+        statsBehaviour.enabled = false;
     }
 
     public void CreateDefaultVisualItems()

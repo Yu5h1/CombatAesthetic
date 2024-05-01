@@ -28,7 +28,7 @@ public class PoolManager : SingletonComponent<PoolManager>
                 _canvas.planeDistance = 1;
                 _canvas.GetOrAdd(out _statsManager);
             }
-            PrepareFromResourece<Transform>("Fx");
+            PrepareFromResourece<Transform>("Prefab/Fx");
         }
     }
     public bool Exists(string key) {

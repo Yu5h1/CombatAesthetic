@@ -6,6 +6,11 @@ using Yu5h1Lib.Game.Character;
 
 public class RigibodyOperator2D : Rigidbody2DBehaviour
 {
+    public void Stop()
+    {
+        rigidbody.velocity = Vector3.zero;
+        rigidbody.angularVelocity = 0;
+    }
     public void SetVelocity(Vector2 v)
     {
         rigidbody.velocity = transform.TransformDirection(v);

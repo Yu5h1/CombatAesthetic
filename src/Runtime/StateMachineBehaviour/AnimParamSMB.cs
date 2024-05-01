@@ -14,6 +14,8 @@ namespace Yu5h1Lib.Game.Character
         private readonly int SpeedYHash = Animator.StringToHash("SpeedY");
         private readonly int IndexOfSkillHash = Animator.StringToHash("IndexOfSkill");
         private readonly int TriggerSkillHash = Animator.StringToHash("TriggerSkill");
+        private readonly int ConsciousHash = Animator.StringToHash("Conscious");
+
         #region Animator Parameters
         public bool Grounded
         {
@@ -35,6 +37,12 @@ namespace Yu5h1Lib.Game.Character
             get => animator.GetInteger(IndexOfSkillHash);
             set => animator.SetInteger(IndexOfSkillHash, value);
         }
+        public float ConsciousParam
+        {
+            get => animator.GetFloat(ConsciousHash);
+            set => animator.SetFloat(ConsciousHash, value);
+        }
+
         public void TriggerSkill() => animator.SetTrigger(TriggerSkillHash);
         #endregion
         AnimatorControllerParameter hurt;
@@ -54,6 +62,7 @@ namespace Yu5h1Lib.Game.Character
         {
             SpeedXParam = Math.Abs(owner.InputMovement.x * owner.BoostMultiplier);
             SpeedYParam = owner.IsGrounded ? owner.landingImpactForce : owner.localVelocity.y;
+            ConsciousParam = owner.Conscious;
         }
     }
 }
