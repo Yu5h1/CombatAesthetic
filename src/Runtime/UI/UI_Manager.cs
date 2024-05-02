@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using static Yu5h1Lib.GameManager.IDispatcher;
 using static SceneController;
+using Yu5h1Lib;
 
 [DisallowMultipleComponent]
 public class UI_Manager : MonoBehaviour
@@ -147,7 +148,7 @@ public class UI_Manager : MonoBehaviour
         private static void OnCancelClick()
         {  
             if (IsStartScene)
-                gameManager.ExitGame();
+                GameManager.ExitGame();
             else
                 gameManager.LoadScene(0);
         }

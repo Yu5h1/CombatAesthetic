@@ -26,5 +26,6 @@ public class TagOption
     public string tag;
     public ComparisionType type = ComparisionType.NotEqual;
     public override string ToString() => tag;
-    public bool Compare(string otherTag) => tag.IsEmpty() ? true : (type == ComparisionType.Equal ? tag == otherTag : otherTag != tag);
+    public bool IsUntagged => tag.IsEmpty() || tag.Equals("Untagged");
+    public bool Compare(string otherTag) => IsUntagged ? true : (type == ComparisionType.Equal ? tag == otherTag : otherTag != tag);
 }

@@ -23,7 +23,7 @@ public class SceneController : MonoBehaviour
     private void OnTriggerExit2D(Collider2D other)
     {
         // Avoiding OnTriggerExit2D triggered on EditorApplication.Exit
-        if (SceneController.IsLoading)
+        if (GameManager.IsQuit)
             return;
         if (other.TryGetComponent(out AttributeStatBehaviour attributeBeahaviour))
             attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 1000);
@@ -60,16 +60,6 @@ public class SceneController : MonoBehaviour
         gameManager.StartCoroutine(LoadSceneAsynchronously(SceneIndex));
         IsLoading = false;
     } 
-    public static void ExitGame()
-    {
-        IsLoading = true;
-        BeginLoadSceneHandler?.Invoke();
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-		Application.Quit();
-#endif
-    }
     private static IEnumerator LoadSceneAsynchronously(int SceneIndex)
     {        
         BeginLoadSceneHandler?.Invoke();

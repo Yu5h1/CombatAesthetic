@@ -82,6 +82,7 @@ namespace Yu5h1Lib.Game.Character
         public float forwardSign => IsFaceForward ? 1 : -1;
         public bool IsFaceForward => transform.forward.z == 1;
         public Vector2 down => -transform.up;
+        public Vector2 position => transform.position;
         #endregion
 
         #region flag , caches
@@ -220,7 +221,7 @@ namespace Yu5h1Lib.Game.Character
                     {
                         /// fix bouncing while moving on slop
              
-                        var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop2D(IsFaceForward).normalized);
+                        var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop(IsFaceForward).normalized);
                         momentum = momentum.magnitude * localSlopDir;
                         if (detector.groundHit.distance > 0)
                             momentum += new Vector2(0, -detector.groundHit.distance * momentum.magnitude);

@@ -2,6 +2,7 @@ using UnityEngine;
 
 public static class GameObjectEx
 {
+    public static bool InstantiateWithCloneSuffix = false;
     public static string GetNameWithOutClone<T>(this T obj) where T : Object
     {
         var name = obj.name;
@@ -9,18 +10,18 @@ public static class GameObjectEx
             name = name.Remove(name.Length - "(Clone)".Length);
         return name;
     }
-    public static bool InstantiateWithCloneSuffix = false;
-    public static T InstantiateFromResourecs<T>(string path, Transform parent = null) where T : Object
+    public static bool TryInstantiateFromResourecss<T>(out T result,string path, Transform parent = null,bool throwNullReferenceException = true) where T : Object
     {
-        if (ResourcesEx.TryLoad(path, out T source))
-        {
-            var clone = parent == null ? GameObject.Instantiate(source) : GameObject.Instantiate(source, parent);
-            if (!InstantiateWithCloneSuffix)
-                clone.name = clone.GetNameWithOutClone();
-            return clone;
-        }
-        return default;
+        result = null;
+        if (!ResourcesEx.TryLoad(path, out T source,throwNullReferenceException))
+            return false;
+        result = parent == null ? GameObject.Instantiate(source) : GameObject.Instantiate(source, parent);
+        if (!InstantiateWithCloneSuffix)
+            result.name = result.GetNameWithOutClone();
+        return true;
     }
+    public static T InstantiateFromResourecs<T>(string path, Transform parent = null) where T : Object
+        => TryInstantiateFromResourecss(out T result, path, parent) ? result : null;
     public static T Create<T>() where T : Component
         => new GameObject(typeof(T).Name).AddComponent<T>();
     public static T Create<T>(Transform parent) where T : Component
