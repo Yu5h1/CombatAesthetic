@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using Yu5h1Lib.Game;
 using Yu5h1Lib.Game.Character;
 
 public class Influencor : MonoBehaviourEnhance
@@ -13,16 +14,13 @@ public class Influencor : MonoBehaviourEnhance
     {
         if (other.TryGetComponent(out Controller2D controller))
             controller.Hit(strength);
-        if (other.TryGetComponent(out AttributeStatBehaviour stat))
+        if (other.TryGetComponent(out AttributeBehaviour stat))
             stat.Affect(affectType, info);
     }
     public void Affect(Collider2D other)
     {
-        if (other.TryGetComponent(out AttributeStatBehaviour stat))
+        if (other.TryGetComponent(out AttributeBehaviour stat))
             stat.Affect(affectType, info);
-    }
-    public void Hit(Collider2D other)
-    {
         if (other.TryGetComponent(out Controller2D controller))
             controller.Hit(TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.velocity : Vector2.one * info.amount);
     }
@@ -33,19 +31,8 @@ public class Influencor : MonoBehaviourEnhance
         else if (other.TryGetComponent(out Rigidbody2D rigidbody)) 
             rigidbody.AddForce(transform.up * info.amount);
     }
+    public void Method()
+    {
 
-    public void BoostMultiplier(Collider2D target)
-    {
-        if (!target.gameObject.TryGetComponent(out Controller2D character))
-            return;
-        character.StopCoroutine(AffectForSeconds(character));
-        character.StartCoroutine(AffectForSeconds(character));
-    }
-    private IEnumerator AffectForSeconds(Controller2D character)
-    {
-        character.BoostMultiplier += 1;
-        yield return new WaitForSeconds(3);
-        if (character.BoostMultiplier > 1)
-            character.BoostMultiplier -= 1;
     }
 }

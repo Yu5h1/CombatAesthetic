@@ -39,6 +39,7 @@ namespace Yu5h1Lib.Game.Character
         }
         void Awake()
         {
+            //scanner.filter.layerMask = LayerMask.GetMask("Character");
             GroundFilter = new ContactFilter2D()
             {
                 useLayerMask = true,
@@ -151,7 +152,7 @@ namespace Yu5h1Lib.Game.Character
             {
                 transform.position = transform.TransformPoint(0, Mathf.
                     Sign(localclosetGroundPoint.y - localBottomY) * distance);
-                Debug.Log("Fix incorrect height caused by rigibody momentum");
+                //Debug.Log("Fix incorrect height caused by rigibody momentum");
             }
         }
         public bool CheckCliff()

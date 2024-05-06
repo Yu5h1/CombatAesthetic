@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
-using static Yu5h1Lib.GameManager.IDispatcher;
 using Controller2D = Yu5h1Lib.Game.Character.Controller2D;
 using PlayerHost = Yu5h1Lib.Game.Character.PlayerHost;
 

@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using Yu5h1Lib.Game.Character;
 
 [DisallowMultipleComponent]
-public class AttributeStatBehaviour : MonoBehaviour
+public class AttributeBehaviour : MonoBehaviour
 {
     private CameraController cameraController => CameraController.instance;
     public static readonly AttributeType[] AttributeTypes = EnumEx.GetValues<AttributeType>();
@@ -22,10 +22,23 @@ public class AttributeStatBehaviour : MonoBehaviour
     public bool IsEmpty => attributes == AttributeType.None;
     public int Count => stats.Length;
 
-    public event UnityAction<AttributeType> StatDepleted;
-
+    [SerializeField]
+    private UnityEvent<AttributeType> StatDepletedEvent;
+    public event UnityAction<AttributeType> StatDepleted {
+        add => StatDepletedEvent.AddListener(value);
+        remove => StatDepletedEvent.RemoveListener(value);
+    }
     public bool TryGetIndex(string key, out int index) => (index = Keys.IndexOf(key)) >= 0;
     public bool TryGetIndex(AttributeType type, out int index) => TryGetIndex($"{type}", out index);
+    public bool TryGetState(AttributeType type, out AttributeStat stat) {
+        stat = default(AttributeStat);
+        if (TryGetIndex($"{type}", out int index))
+        {
+            stat = stats[index];
+            return true;
+        }
+        return false;
+    } 
 
     public bool IsEnough(string key, float amount) => TryGetIndex(key, out int index) && stats[index].current >= amount;
 
@@ -98,7 +111,7 @@ public class AttributeStatBehaviour : MonoBehaviour
             stats[index].Affect(affectType, amount);
             if (stats[index].IsDepleted)
             {
-                StatDepleted?.Invoke(flag);
+                StatDepletedEvent?.Invoke(flag);
                 DepletedTypes |= flag;
             }
         }

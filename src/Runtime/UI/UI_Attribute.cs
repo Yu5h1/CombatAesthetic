@@ -6,8 +6,8 @@ using UnityEngine;
 public class UI_AttributeStat : MonoBehaviour
 {
     public UI_Statbar[] uI_statbars { get; private set; }
-
-    public void Init(AttributeStatBehaviour attributeStat)
+    
+    public void Init(AttributeBehaviour attributeStat)
     {
         uI_statbars = new UI_Statbar[attributeStat.Keys.Length];
         for (int i = 0; i < attributeStat.Keys.Length; i++)
@@ -26,7 +26,7 @@ public class UI_AttributeStat : MonoBehaviour
             PoolManager.instance.Despawn(item);
         uI_statbars = null;
     }
-    public void Perform(AttributeStatBehaviour attribute)
+    public void Perform(AttributeBehaviour attribute)
     {
         Init(attribute);
         StartCoroutine(PerformingStatus());

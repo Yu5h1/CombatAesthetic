@@ -9,7 +9,7 @@ public class CameraController : SingletonComponent<CameraController>
     private Camera _camera;
     public new Camera camera => _camera ?? (_camera = GetComponent<Camera>());
 
-    public Transform target;
+    public Transform Target;
 
     public Dictionary<string,SpriteRenderer> SortingLayerSprites = new Dictionary<string, SpriteRenderer>();
 
@@ -39,11 +39,10 @@ public class CameraController : SingletonComponent<CameraController>
                 s.transform.localScale = new Vector3(width + 1, height + 1, 1);
                 return s;
             });
-        
     }
     private void FixedUpdate()
     {
-        if (target == null)
+        if (Target == null)
             return;
         FollowTarget();
     }
@@ -76,10 +75,16 @@ public class CameraController : SingletonComponent<CameraController>
     /// </summary>
     public void FollowTarget()
     {
-        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, target.position - camera.transform.forward , ref currentPosition, smoothTime);
+        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, Target.position - camera.transform.forward , ref currentPosition, smoothTime);
 
         var angles = transform.eulerAngles;
-        angles.z = target.eulerAngles.z;
-        transform.eulerAngles = angles * target.forward.z;
+        angles.z = Target.eulerAngles.z;
+        transform.eulerAngles = angles * Target.forward.z;
+    }
+    public void SetTarget(Transform target,bool moveCamera = true)
+    {
+        Target = target;
+        if (moveCamera)
+            camera.transform.position = Target.position - camera.transform.forward;
     }
 }

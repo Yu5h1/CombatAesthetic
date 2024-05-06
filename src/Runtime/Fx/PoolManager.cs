@@ -21,7 +21,7 @@ public class PoolManager : SingletonComponent<PoolManager>
         {
             if (_canvas == null)
             {
-                _canvas = GameObjectEx.InstantiateFromResourecs<Canvas>($"UI/PoolManager_Canvas");
+                _canvas = GameObjectEx.InstantiateFromResourecs<Canvas>($"UI/PoolManager_Canvas(Camera)");
                 _canvas.renderMode = RenderMode.ScreenSpaceCamera;
                 _canvas.worldCamera = CameraController.instance.camera;
                 _canvas.sortingLayerID = SortingLayer.NameToID("Back");

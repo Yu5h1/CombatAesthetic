@@ -1,27 +1,27 @@
 using UnityEngine;
 using UIImage = UnityEngine.UI.Image;
-using static Yu5h1Lib.GameManager.IDispatcher;
 using Yu5h1Lib.Game.Character;
 using static UnityEngine.UI.Image;
+using Yu5h1Lib;
 
 public class StatProperty_Deprecated
 {
     public Controller2D Controller { get; private set; }
-    public AttributeStatBehaviour statsBehaviour { get; private set; }
+    public AttributeBehaviour statsBehaviour { get; private set; }
     public RectTransform Stat_UI;
     public VisualItem[] visualItems;
     public DefeatedReason DespawnReason = DefeatedReason.None;
-    public StatProperty_Deprecated(AttributeStatBehaviour s,Controller2D controller)
+    public StatProperty_Deprecated(AttributeBehaviour s,Controller2D controller)
     {
         statsBehaviour = s;
         Controller = controller;
         if (controller.tag == "Player")
         {
-            cameraController.target = controller.transform;
+            CameraController.instance.SetTarget(controller.transform);
             Controller.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
             CreateDefaultVisualItems();
         }
-        if (statsBehaviour = Controller.gameObject.GetComponent<AttributeStatBehaviour>())
+        if (statsBehaviour = Controller.gameObject.GetComponent<AttributeBehaviour>())
             statsBehaviour.StatDepleted += CheckHealthPointDepleted;
 
 
@@ -50,19 +50,14 @@ public class StatProperty_Deprecated
     }
     public void OnCharacterDefeated()
     {
-        if (SceneController.IsLoading)
-            return;
         if (!statsBehaviour.enabled)
             return;
         if (Controller.tag == "Player")
         {
             //UIController.Fadeboard_UI.FadeIn(Color.black,true);
             PoolManager.canvas.sortingLayerName = "Back";
-            cameraController.FadeIn("Back", 1);
-            uiManager.LevelSceneMenu.FadeIn(5);
-
-
-
+            CameraController.instance.FadeIn("Back", 1);
+            GameManager.ui_Manager.LevelSceneMenu.FadeIn(5);
             //foreach (var item in CharactersForUpdate)
             //    item.characterController.enabled = false;
         }
@@ -71,7 +66,6 @@ public class StatProperty_Deprecated
             // npc ring out
             //Controller.gameObject.SetActive(false);
         }
-        Controller.host = null;
         Debug.Log($"{Controller.gameObject.name} was defeated because of {DespawnReason}.");
         statsBehaviour.enabled = false;
     }

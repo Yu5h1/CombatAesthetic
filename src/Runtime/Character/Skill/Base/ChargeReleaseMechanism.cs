@@ -21,9 +21,9 @@ public class ChargeReleaseMechanism : SkillStateMachine<ChargeReleaseMechanism.B
         protected override void OnEnter()
         {
             if (data.NameOfSkill.IsEmpty())
-                animParam.IndexOfSkillParam = data.IndexOfSkillParam;
+                animParam.IndexOfSkill = data.IndexOfSkillParam;
             else
-                animParam.IndexOfSkillParam = Animator.StringToHash(data.NameOfSkill);
+                animParam.IndexOfSkill = Animator.StringToHash(data.NameOfSkill);
             owner.animator.SetBool("HoldSkill", true);
             animParam.TriggerSkill();
         }

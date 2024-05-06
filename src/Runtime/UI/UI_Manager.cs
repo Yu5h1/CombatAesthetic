@@ -1,32 +1,32 @@
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using static Yu5h1Lib.GameManager.IDispatcher;
 using static SceneController;
 using Yu5h1Lib;
 
 [DisallowMultipleComponent]
 public class UI_Manager : MonoBehaviour
 {    
-    private RectTransform rectTransform => gameManager.rectTransform;
+    private RectTransform rectTransform => GameManager.instance.rectTransform;
 
     [SerializeField]
     public RectTransform _Loading;
-    public RectTransform Loading => TryFindGetInstantiateFromResourecsIfNull_UI(nameof(Loading), ref _Loading);
+    public RectTransform Loading => Build(nameof(Loading), ref _Loading);
     [SerializeField]
     private TweenImage_UI _Fadeboard_UI;
-    public TweenImage_UI Fadeboard_UI => TryFindGetInstantiateFromResourecsIfNull_UI(nameof(Fadeboard_UI), ref _Fadeboard_UI);
+    public TweenImage_UI Fadeboard_UI => Build(nameof(Fadeboard_UI), ref _Fadeboard_UI);
 
-    public GameObject _LevelSceneMenuObject;
-    public Menu LevelSceneMenu { get; private set; }
-    public GameObject _StartSceneMenuObject;
-    public Menu StartSceneMenu { get; private set; }
+    public UI_Menu _LevelSceneMenu;
+    public UI_Menu LevelSceneMenu => Build(nameof(LevelSceneMenu), ref _LevelSceneMenu);
+    public UI_Menu _StartSceneMenu;
+    public UI_Menu StartSceneMenu => Build(nameof(StartSceneMenu), ref _StartSceneMenu);
+
+    public UI_DialogBase _Dialog_UI;
+    public UI_DialogBase Dialog_UI => Build(nameof(Dialog_UI), ref _Dialog_UI);
 
     private LoadAsyncBehaviour[] loadAsyncBehaviours;
     private void Awake()
-    {                
-        LevelSceneMenu = new Menu(TryFindGetInstantiateFromResourecsIfNull_UI(nameof(LevelSceneMenu), ref _LevelSceneMenuObject));
-        StartSceneMenu = new Menu(TryFindGetInstantiateFromResourecsIfNull_UI(nameof(StartSceneMenu), ref _StartSceneMenuObject));
+    {
         if (Loading)
             loadAsyncBehaviours = Loading.GetComponentsInChildren<LoadAsyncBehaviour>(true);
         if (!loadAsyncBehaviours.IsEmpty())
@@ -34,7 +34,7 @@ public class UI_Manager : MonoBehaviour
     }
     public void Start()
     {
-        // SiblingIndex 0
+        
         if (Fadeboard_UI)
             Fadeboard_UI.gameObject.SetActive(false);
         if (IsStartScene)
@@ -50,107 +50,41 @@ public class UI_Manager : MonoBehaviour
     public void PauseGame(bool YesNo)
     {
         #region Fade 
-        if (gameManager.Setting.UI.FadeTransition)
+        if (GameManager.instance.Setting.UI.FadeTransition)
         {
-
             return;
         } 
         #endregion
-        LevelSceneMenu.root.SetActive(YesNo);
-        Time.timeScale = LevelSceneMenu.root.activeSelf ? 0 : 1;
+        LevelSceneMenu.gameObject.SetActive(YesNo);
+        if (YesNo)
+            LevelSceneMenu.canvasGroup.alpha = 1;
+        GameManager.IsGamePause = YesNo;
     }
-    private T TryFindGetInstantiateFromResourecsIfNull_UI<T>(string n, ref T result) where T : Object
+    /// <summary>
+    /// TryFindGetInstantiateFromResourecsIfNull_UI
+    /// </summary>
+    private T Build<T>(string n, ref T result) where T : Object
     {
         if (result)
             return result;
-        if (!transform.TryGetComponentInChildren(n, out result))
+        if (!this.TryGetComponentInChildren(n, out result))
             result = GameObjectEx.InstantiateFromResourecs<T>($"UI/{n}", transform);
-        (result switch
+        if (result)
         {
-            Component component => component.gameObject,
-            GameObject obj => obj,
-            _ => null
-        })?.SetActive(false);
+            (result switch
+            {
+                Component component => component.gameObject,
+                GameObject obj => obj,
+                _ => null
+            }).SetActive(false);
+        }
+        else
+            Debug.LogWarning($"{n} does not exists.");
         return result;
     }
     private void OnLoadAsyncBehaviours(float percentage)
     {
         foreach (var item in loadAsyncBehaviours)
             item.OnProcessing(percentage);
-    }
-    public class Menu
-    {
-        public enum Type
-        {
-            Main,
-            Level
-            //...
-        }
-        public GameObject root { get; private set; }
-        public RectTransform rectTransform => root.GetComponent<RectTransform>();
-        private Button _Submit;
-        public Button Submit => _Submit ?? (TryFindButton(nameof(Submit), out _Submit) ? _Submit : null);
-        private Button _Cancel;
-        public Button Cancel => _Cancel ?? (TryFindButton(nameof(Cancel), out _Cancel) ? _Cancel : null);
-
-        public Menu(GameObject menu)
-        {
-            root = menu;
-        }
-        public void FadeIn(float duration)
-        {
-            if (!root.activeSelf)
-                root.SetActive(true);
-            var c = rectTransform.GetComponent<CanvasGroup>();
-            c.alpha = 0;
-            c.DOFade(1, duration);
-        }
-        public bool TryFindButton(string name, out Button button)
-        {
-            button = null;
-            if (!root.transform.TryGetComponentInChildren(name, out button))
-                throw new MissingReferenceException($"{root.name} name:{name} Botton could not be found !");
-            return true;
-        }
-        public void Engage(bool activateRoot = true)
-        {
-            if (root.activeSelf != activateRoot)
-                root.SetActive(activateRoot);
-            if (Submit)
-            {
-                Submit.onClick.RemoveAllListeners();
-                ((Text)Submit.targetGraphic).text = IsStartScene ? "Start" : "Restart";
-                Submit.onClick.AddListener(OnSubmitClick);
-            }
-            if (Cancel)
-            {
-                Cancel.onClick.RemoveAllListeners();
-                ((Text)Cancel.targetGraphic).text = IsStartScene ? "Exit" : "Main Menu";
-                Cancel.onClick.AddListener(OnCancelClick);               
-            }
-        }
-        public void Dismiss()
-        {
-            if (root.activeSelf)
-                root.SetActive(false);
-            if (Submit)
-                Submit.onClick.RemoveAllListeners();
-            if (Cancel)
-                Cancel.onClick.RemoveAllListeners();
-        }
-        private static void OnSubmitClick()
-        {
-            if (IsStartScene)
-                LoadScene(1);
-            else
-                ReloadCurrentScene();
-        }
-        private static void OnCancelClick()
-        {  
-            if (IsStartScene)
-                GameManager.ExitGame();
-            else
-                gameManager.LoadScene(0);
-        }
     }
 }

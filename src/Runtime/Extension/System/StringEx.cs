@@ -14,5 +14,11 @@ namespace Yu5h1Lib
 			return false;
 		}
 	}
-
+    public enum StringSearchOption
+    {
+        Equals,
+        StartsWith,
+        Contains,
+        EndsWith
+    }
 }

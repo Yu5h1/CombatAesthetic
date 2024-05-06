@@ -1,12 +1,13 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using static UnityEngine.EventSystems.StandaloneInputModule;
-using static Yu5h1Lib.GameManager.IDispatcher;
 
 namespace Yu5h1Lib.Game.Character {
     [CreateAssetMenu(menuName = "Scriptable Objects/PlayerInput")]
     public class PlayerHost : Host2D
     {
+        public BaseInput input => GameManager.InputModule.input;
         public override Vector2 GetMovement(Controller2D controller)
         {
             return new Vector2(input.GetAxisRaw("Horizontal"), input.GetAxisRaw("Vertical"));

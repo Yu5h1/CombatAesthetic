@@ -15,54 +15,60 @@ namespace Yu5h1Lib.Game.Character
         private readonly int IndexOfSkillHash = Animator.StringToHash("IndexOfSkill");
         private readonly int TriggerSkillHash = Animator.StringToHash("TriggerSkill");
         private readonly int ConsciousHash = Animator.StringToHash("Conscious");
-
+        private readonly int HurtHash = Animator.StringToHash("Hurt");
         #region Animator Parameters
         public bool Grounded
         {
             get => animator.GetBool(GroundedHash);
             set => animator.SetBool(GroundedHash, value);
         }
-        public float SpeedXParam
+        public float SpeedX
         {
             get => animator.GetFloat(SpeedXHash);
             set => animator.SetFloat(SpeedXHash, value);
         }
-        public float SpeedYParam
+        public float SpeedY
         {
             get => animator.GetFloat(SpeedYHash);
             set => animator.SetFloat(SpeedYHash, value);
         }
-        public int IndexOfSkillParam
+        public int IndexOfSkill
         {
             get => animator.GetInteger(IndexOfSkillHash);
             set => animator.SetInteger(IndexOfSkillHash, value);
         }
-        public float ConsciousParam
+        public int Conscious
         {
-            get => animator.GetFloat(ConsciousHash);
-            set => animator.SetFloat(ConsciousHash, value);
+            get => animator.GetInteger(ConsciousHash);
+            set => animator.SetInteger(ConsciousHash, value);
         }
 
         public void TriggerSkill() => animator.SetTrigger(TriggerSkillHash);
         #endregion
-        AnimatorControllerParameter hurt;
+        private AnimatorControllerParameter hurtParam;
+        private AnimatorControllerParameter ConsciousParam;
         public override void Init(Controller2D controller)
         {
             base.Init(controller);  
             controller.detector.OnGroundStateChangedEvent.AddListener(val => Grounded = val);
-            if (TryGetAnimParam("Hurt",out hurt) ) {
-                controller.Hited += Controller_Hited;
-            }
-
+            TryGetAnimParam("Hurt", out hurtParam);
+            TryGetAnimParam(nameof(Conscious), out hurtParam);
         }
-        private void Controller_Hited(Vector2 strength)
-            => animator.SetTrigger(hurt.nameHash);
+        public void Hurt()
+        {
+            if (hurtParam == null)
+                return;
+            ///May cause Parameter type 'Hash ########' does not match.
+            //animator.SetTrigger(hurtParam.nameHash);
+            animator.SetTrigger(HurtHash);
+        }
 
         public virtual void Update()
         {
-            SpeedXParam = Math.Abs(owner.InputMovement.x * owner.BoostMultiplier);
-            SpeedYParam = owner.IsGrounded ? owner.landingImpactForce : owner.localVelocity.y;
-            ConsciousParam = owner.Conscious;
+            SpeedX = Math.Abs(owner.InputMovement.x * owner.BoostMultiplier);
+            SpeedY = owner.IsGrounded ? owner.landingImpactForce : owner.localVelocity.y;
+            Conscious = owner.Conscious;
+
         }
     }
 }

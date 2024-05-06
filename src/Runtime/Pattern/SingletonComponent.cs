@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Yu5h1Lib;
 
 public abstract class SingletonComponent<T> : MonoBehaviour where T : Component
 {
@@ -9,12 +10,17 @@ public abstract class SingletonComponent<T> : MonoBehaviour where T : Component
         get {
             if (_instance != null)
                 return _instance;
-            if (GameObjectEx.TryFind(out _instance, true))
-                Init(_instance);
-            else if (GameObjectEx.TryInstantiateFromResourecss(out _instance,typeof(T).Name,null,false))
-                Init(_instance);
-            else
-                _instance = GameObjectEx.Create<T>();
+            if (!GameObjectEx.TryFind(out _instance, true))
+            {
+                if (GameManager.IsQuit)
+                {
+                    Debug.LogWarning($"Game has exited\r\nSingleton<{typeof(T).Name}> stops creating instance.");
+                    return null;
+                }
+                if (!GameObjectEx.TryInstantiateFromResourecss(out _instance, typeof(T).Name, null, false))
+                    _instance = GameObjectEx.Create<T>();
+            }
+
             Init(_instance);
             return _instance; 
         }

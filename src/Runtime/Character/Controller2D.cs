@@ -19,7 +19,7 @@ namespace Yu5h1Lib.Game.Character
         #region Components 
         public Animator animator { get; private set; }
         public CapsuleCollider2D CharacterCollider { get; private set; }
-        public AttributeStatBehaviour statBehaviour { get; private set; }
+        public AttributeBehaviour statBehaviour { get; private set; }
         public ColliderDetector2D detector { get; private set; }
         public bool IsGrounded => detector.IsGrounded;
         #endregion
@@ -59,8 +59,9 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField]
         private bool _Floatable;
         public bool Floatable { get => _Floatable; set => _Floatable = value; }
-        public bool underControl { get; private set; }
-        public float Conscious { get; private set; } = 100.0f;
+        private bool _underControl;
+        public bool underControl { get => _underControl && Conscious > 0; private set => _underControl = value; }
+        public int Conscious { get; private set; } = 100;
         #endregion        
 
         #region  Skill
@@ -114,7 +115,7 @@ namespace Yu5h1Lib.Game.Character
                 detector = colliderDetector;
                 detector.OnGroundStateChangedEvent.AddListener(OnGroundStateChanged);
             }
-            if (TryGetComponent(out AttributeStatBehaviour attributeStat))
+            if (TryGetComponent(out AttributeBehaviour attributeStat))
             {
                 statBehaviour = attributeStat;
                 statBehaviour.StatDepleted += OnStatDepleted;
@@ -122,16 +123,12 @@ namespace Yu5h1Lib.Game.Character
             if (rigidbody)
                 rigidbody.gravityScale = 0;
 
-            #region State machine behaviour
+            #region initinalize State machine behaviour
             foreach (var item in animator.GetBehaviours<BaseCharacterSMB>())
                 item.Init(this);
             states = animator.GetBehaviours<CharacterSMB>();
             animParam = animator.GetBehaviour<AnimParamSMB>();
             #endregion
-
-            
-            
-
 
             #region initinalize skill
             optionalSkills = _Skills.Where(s => s.incantation.IsEmpty()).ToArray();
@@ -155,7 +152,7 @@ namespace Yu5h1Lib.Game.Character
         protected void Update()
         {
             UpdateInputInstruction();
-            animParam?.Update();     
+            animParam?.Update();
         }
         private void FixedUpdate()
         {
@@ -164,6 +161,7 @@ namespace Yu5h1Lib.Game.Character
         public void Hit(Vector2 strength)
         {
             Hited?.Invoke(strength);
+            animParam.Hurt();
         }        
         private void OnGroundStateChanged(bool grounded)
         {
@@ -177,7 +175,10 @@ namespace Yu5h1Lib.Game.Character
         private void OnStatDepleted(AttributeType AttributeType)
         {
             if (AttributeType == AttributeType.Health)
+            {
                 Conscious = 0;
+                animParam.Hurt();
+            }
         }
         public float landingImpactForce { get; private set; }
         public bool UseCustomVelocity;
@@ -268,6 +269,8 @@ namespace Yu5h1Lib.Game.Character
 
         public void UpdateInputInstruction()
         {
+            if (GameManager.IsGamePause)
+                return;
             if (host == null)
             {
                 InputMovement = Vector2.zero;

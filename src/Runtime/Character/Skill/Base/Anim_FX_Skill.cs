@@ -22,9 +22,9 @@ public class Anim_FX_Skill : SkillData<Anim_FX_Skill.Behaviour>
             if (down && Activate() )
             {
                 if (data.NameOfSkill.IsEmpty())
-                    animParam.IndexOfSkillParam = data.IndexOfSkillParam;
+                    animParam.IndexOfSkill = data.IndexOfSkillParam;
                 else
-                    animParam.IndexOfSkillParam = Animator.StringToHash(data.NameOfSkill);
+                    animParam.IndexOfSkill = Animator.StringToHash(data.NameOfSkill);
                 animParam.TriggerSkill();
             }
         }

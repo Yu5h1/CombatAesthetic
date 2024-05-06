@@ -6,7 +6,14 @@ using static UnityEngine.Tilemaps.Tile;
 
 public static class ComponentEx 
 {
-	public static T GetOrAdd<T>(this Component c, out T componentParam) where T : Component
+    public static bool TryGetComponentInChildren<T>(this Component component,out T result) where T : Component
+		=> result = component.GetComponentInChildren<T>();
+    public static bool TryGetComponentInChildren<T>(this Component c, string name, out T component) where T : Object
+    {
+        component = null;
+        return c.transform.TryFind(name, out Transform child) && child.TryGetComponent(out component);
+    }
+    public static T GetOrAdd<T>(this Component c, out T componentParam) where T : Component
 	{
 		if (!c.TryGetComponent(out componentParam))
 			componentParam = c.AddComponent<T>();
@@ -22,4 +29,5 @@ public static class ComponentEx
 				return true;
 		return false;
 	}
+
 }
