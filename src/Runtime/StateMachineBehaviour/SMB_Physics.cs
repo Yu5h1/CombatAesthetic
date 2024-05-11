@@ -8,7 +8,7 @@ using Yu5h1Lib.Game.Character;
 /// <summary>
 /// CSMB = Character State Machine Behaviour
 /// </summary>
-public class PhysicsCSMB : BaseCharacterSMB
+public class SMB_Physics : BaseCharacterSMB
 {
     public bool ChangeLayer;
     public string layerName;

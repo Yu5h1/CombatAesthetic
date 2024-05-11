@@ -15,14 +15,14 @@ namespace Yu5h1Lib.Game.Character
                 movement = self.InputMovement;
                 if (self.InputMovement.x == 0)
                     movement.x = self.transform.localScale.x;
-                if (self.detector.scanner.Scan(out Collider2D collider))
+                if (self.groundDetector.scanner.Scan(out Collider2D collider))
                 {
                     if (collider.TryGetComponent(out Controller2D target))
                     {
                         var dir = GetDirection(self, target.transform);
                         if (dir.magnitude > 2)
                         {
-                            if (self.detector.CheckCliff())
+                            if (self.groundDetector.CheckCliff())
                                 return Vector2.zero;
                             else
                                 return dir.x > 0 ? Vector2.left : Vector2.right;
@@ -32,7 +32,7 @@ namespace Yu5h1Lib.Game.Character
                        return movement * Vector2.left;
                 }
       
-                if (self.detector.CheckCliff())
+                if (self.groundDetector.CheckCliff())
                     movement.x = -movement.x;
             }
             return movement;
@@ -54,7 +54,7 @@ namespace Yu5h1Lib.Game.Character
         {
             if (target == null)
                 return false;
-            if (Vector2.Distance(self.transform.position, target.position) < self.detector.collider.bounds.size.magnitude * 2)
+            if (Vector2.Distance(self.transform.position, target.position) < self.groundDetector.collider.bounds.size.magnitude * 2)
                 return false;
             else
                 return true;

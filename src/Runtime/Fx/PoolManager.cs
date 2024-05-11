@@ -5,8 +5,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PoolManager : SingletonComponent<PoolManager>
 {
-    private StatsManager _statsManager;
-    public static StatsManager statsManager => instance._statsManager;
     private Canvas _canvas;
     public static Canvas canvas => instance._canvas;
 
@@ -26,7 +24,6 @@ public class PoolManager : SingletonComponent<PoolManager>
                 _canvas.worldCamera = CameraController.instance.camera;
                 _canvas.sortingLayerID = SortingLayer.NameToID("Back");
                 _canvas.planeDistance = 1;
-                _canvas.GetOrAdd(out _statsManager);
             }
             PrepareFromResourece<Transform>("Prefab/Fx");
         }

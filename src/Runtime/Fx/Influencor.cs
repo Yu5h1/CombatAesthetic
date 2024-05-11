@@ -21,6 +21,9 @@ public class Influencor : MonoBehaviourEnhance
     {
         if (other.TryGetComponent(out AttributeBehaviour stat))
             stat.Affect(affectType, info);
+    }
+    public void Hit(Collider2D other)
+    {
         if (other.TryGetComponent(out Controller2D controller))
             controller.Hit(TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.velocity : Vector2.one * info.amount);
     }

@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using Yu5h1Lib;
 
-public abstract class UI_DialogBase : MonoBehaviour
+public abstract class UI_DialogBase : UI_Behaviour
 {
     
     public string[] lines;

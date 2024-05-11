@@ -1,14 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
-using DG.Tweening;
 using static SceneController;
 using Yu5h1Lib;
 
 [DisallowMultipleComponent]
-public class UI_Manager : MonoBehaviour
+public class UI_Manager : UI_Behaviour
 {    
-    private RectTransform rectTransform => GameManager.instance.rectTransform;
-
     [SerializeField]
     public RectTransform _Loading;
     public RectTransform Loading => Build(nameof(Loading), ref _Loading);
@@ -25,6 +21,14 @@ public class UI_Manager : MonoBehaviour
     public UI_DialogBase Dialog_UI => Build(nameof(Dialog_UI), ref _Dialog_UI);
 
     private LoadAsyncBehaviour[] loadAsyncBehaviours;
+
+    public UI_Attribute _PlayerAttribute;
+    public UI_Attribute PlayerAttribute_UI => Build(nameof(PlayerAttribute_UI), ref _PlayerAttribute);
+
+    public UI_Statbar statbar_UI_Source => Resources.Load<UI_Statbar>($"UI/BaseStatBar_UI");
+    public UI_Attribute attribute_UI_Source => Resources.Load<UI_Attribute>("UI/BaseAttribute_UI");
+
+    public ParticleSystem pointerClick_UI_Fx;
     private void Awake()
     {
         if (Loading)
@@ -34,17 +38,34 @@ public class UI_Manager : MonoBehaviour
     }
     public void Start()
     {
-        
         if (Fadeboard_UI)
             Fadeboard_UI.gameObject.SetActive(false);
         if (IsStartScene)
         {
             LevelSceneMenu.Dismiss();
             StartSceneMenu.Engage();
+            
+            PlayerAttribute_UI.gameObject.SetActive(false);
         }
-        else {
+        else if (IsLevelScene) {
+            Dialog_UI.rectTransform.SetSiblingIndex(transform.childCount-1);
             StartSceneMenu.Dismiss();
             LevelSceneMenu.Engage(false);
+            PlayerAttribute_UI.transform.SetSiblingIndex(0);
+            PlayerAttribute_UI.FadeIn();
+            if (GameManager.instance.playerController)
+                GameManager.instance.playerController.attribute.ui = PlayerAttribute_UI;
+        }
+    }
+    public void PointerClick()
+    {
+        if (!pointerClick_UI_Fx)
+            return;
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform,
+            Input.mousePosition, null, out Vector2 localPoint)) 
+        {
+            pointerClick_UI_Fx.transform.position = localPoint;
+            pointerClick_UI_Fx.Play();
         }
     }
     public void PauseGame(bool YesNo)

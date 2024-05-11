@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using Yu5h1Lib;
 using Yu5h1Lib.Game.Character;
 
 [DisallowMultipleComponent]
@@ -42,10 +43,8 @@ public class AttributeBehaviour : MonoBehaviour
 
     public bool IsEnough(string key, float amount) => TryGetIndex(key, out int index) && stats[index].current >= amount;
 
-    #region UI
-    //public UI_Statbar[] uI_Statbars { get; private set; }
-    public StatProperty_Deprecated statProperty_Deprecated { get; private set; }
-    #endregion
+    public UI_Attribute ui { get; set; }
+
     private bool affected;
     public void Reset()
     {
@@ -69,9 +68,6 @@ public class AttributeBehaviour : MonoBehaviour
     }
     private void Start()
     {
-        if (SceneController.IsLevelScene && TryGetComponent(out Controller2D controller)) {
-            statProperty_Deprecated = new StatProperty_Deprecated(this,controller);
-        }
     }
     private void OnEnable()
     {
@@ -81,8 +77,8 @@ public class AttributeBehaviour : MonoBehaviour
     void Update()
     {
         #region UI
-        if (statProperty_Deprecated != null)
-            statProperty_Deprecated.UpdateVisualItems();
+        if (ui != null)
+            ui.UpdateAttribute(this);
         #endregion
         if (affected)
         {
@@ -109,13 +105,37 @@ public class AttributeBehaviour : MonoBehaviour
             if (index < 0)
                 continue;
             stats[index].Affect(affectType, amount);
+            if (ui != null)
+                ui.UpdateAttribute(this);
             if (stats[index].IsDepleted)
             {
-                StatDepletedEvent?.Invoke(flag);
+                OnStatDepleted(flag);
                 DepletedTypes |= flag;
             }
         }
         return DepletedTypes;
+    }
+    private void OnStatDepleted(AttributeType flag)
+    {
+        StatDepletedEvent?.Invoke(flag);
+        if (!flag.HasFlag(AttributeType.Health))
+            return;
+        if (!enabled)
+            return;
+        #region unorganized implmentation
+        if (tag == "Player")
+        {
+
+            //UIController.Fadeboard_UI.FadeIn(Color.black,true);
+            ui.FadeOut(0.3f);
+            PoolManager.canvas.sortingLayerName = "Back";
+            CameraController.instance.FadeIn("Back", 1);
+            GameManager.ui_Manager.LevelSceneMenu.FadeIn(5);
+            
+        }
+        Debug.Log($"{gameObject.name} was defeated because of {DefeatedReason.Exhausted}.");
+        enabled = false;
+        #endregion
     }
     public IEnumerator Affect(int index,float interval) {
         while (!stats[index].IsFull)
@@ -145,10 +165,6 @@ public class AttributeBehaviour : MonoBehaviour
     }
 
     #region UI
-    public StatProperty_Deprecated.VisualItem[] CreateVisualItems(RectTransform parent, Vector2 size, bool UpDown)
-        => Keys.Select((key, order) => new StatProperty_Deprecated.VisualItem(parent, System.Enum.Parse<AttributeType>(key), order, size, UpDown)).ToArray();
-
-
     public void GetUI_StatsBar()
     {
         //uI_Statbars = new UI_statbar[Keys.Length];

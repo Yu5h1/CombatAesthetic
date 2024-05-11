@@ -11,17 +11,18 @@ namespace Yu5h1Lib.Game.Character
     [DisallowMultipleComponent]
     public class Controller2D : Rigidbody2DBehaviour
     {
-        [SerializeField] private float JumpPower = 10;
-        [SerializeField] private float MaxAirborneSpeed = 8;
-        [SerializeField] private Vector2 AirborneMultiplier = new Vector2(0.2f, 0.05f);
-        [SerializeField] private Vector2 FloatingMultiplier = new Vector2(0.3f, 1f);
+        [SerializeField] private float GravityScale = 0.0333f;
+        [SerializeField] private float JumpPower = 6;
+        [SerializeField] private float MaxAirborneSpeed = 3.5f;
+        [SerializeField] private Vector2 AirborneMultiplier = new Vector2(0.1f, 0.025f);
+        [SerializeField] private Vector2 FloatingMultiplier = new Vector2(0.15f, 0.5f);
 
         #region Components 
         public Animator animator { get; private set; }
         public CapsuleCollider2D CharacterCollider { get; private set; }
-        public AttributeBehaviour statBehaviour { get; private set; }
-        public ColliderDetector2D detector { get; private set; }
-        public bool IsGrounded => detector.IsGrounded;
+        public AttributeBehaviour attribute { get; private set; }
+        public ColliderDetector2D groundDetector { get; private set; }
+        public bool IsGrounded => groundDetector.IsGrounded;
         #endregion
 
         #region Instructions
@@ -73,6 +74,7 @@ namespace Yu5h1Lib.Game.Character
         public int indexOfSkill;
 
         public SkillData currentSkill => optionalSkills.Validate(indexOfSkill) ? optionalSkills[indexOfSkill] : null;
+        
         public SkillBehaviour currentSkillBehaviour => currentSkill == null ? null : 
             skillBehaviours[_Skills.IndexOf(optionalSkills[indexOfSkill])];
 
@@ -112,13 +114,13 @@ namespace Yu5h1Lib.Game.Character
 
             if (TryGetComponent(out ColliderDetector2D colliderDetector))
             {
-                detector = colliderDetector;
-                detector.OnGroundStateChangedEvent.AddListener(OnGroundStateChanged);
+                groundDetector = colliderDetector;
+                groundDetector.OnGroundStateChangedEvent.AddListener(OnGroundStateChanged);
             }
             if (TryGetComponent(out AttributeBehaviour attributeStat))
             {
-                statBehaviour = attributeStat;
-                statBehaviour.StatDepleted += OnStatDepleted;
+                attribute = attributeStat;
+                attribute.StatDepleted += OnStatDepleted;
             }
             if (rigidbody)
                 rigidbody.gravityScale = 0;
@@ -153,10 +155,12 @@ namespace Yu5h1Lib.Game.Character
         {
             UpdateInputInstruction();
             animParam?.Update();
+            if (Input.GetKeyDown(KeyCode.E))
+                AddForce(Vector2.one * 5);
         }
         private void FixedUpdate()
         {
-            detector.CheckGround();
+            groundDetector.CheckGround();
         }
         public void Hit(Vector2 strength)
         {
@@ -169,6 +173,7 @@ namespace Yu5h1Lib.Game.Character
             {
                 landingImpactForce = rigidbody.mass * localVelocity.y / 2;
                 localVelocity *= Vector2.right;
+                rigidbody.Sleep();
                 velocity = transform.TransformVector(localVelocity);
             }
         }
@@ -203,7 +208,6 @@ namespace Yu5h1Lib.Game.Character
             underControl = controllable && Conscious > 10;
             var localAnimVelocity = transform.InverseTransformDirection(animator.velocity);
             localVelocity = transform.InverseTransformDirection(velocity);
-
             var momentum = (localVelocity * VelocityWeight) + (localAnimVelocity * rootMotionWeight);
 
             if (IsGrounded)
@@ -211,22 +215,24 @@ namespace Yu5h1Lib.Game.Character
                 if (underControl)
                 {
                     if (TriggerJump)
+                    {
                         momentum.y = JumpPower;
-                    if (InputMovement.x == 0)
+                        groundDetector.LeaveGround();
+                    }
+                    if (InputMovement.x == 0 )
                     {
                         momentum.x = 0;
                         if (momentum.y < JumpPower)
                             momentum.y = 0;
                     }
-                    else if (momentum.y < JumpPower)
-                    {
-                        /// fix bouncing while moving on slop
-             
-                        var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop(IsFaceForward).normalized);
-                        momentum = momentum.magnitude * localSlopDir;
-                        if (detector.groundHit.distance > 0)
-                            momentum += new Vector2(0, -detector.groundHit.distance * momentum.magnitude);
-                    }
+                }
+                if (momentum.y < JumpPower)
+                {
+                    /// fix bouncing while moving on slop
+                    var localSlopDir = transform.InverseTransformDirection(groundDetector.CheckSlop(IsFaceForward).normalized);
+                    momentum = momentum.magnitude * localSlopDir;
+                    if (groundDetector.groundHit.distance > 0)
+                        momentum += new Vector2(0, -groundDetector.groundHit.distance * momentum.magnitude);
                 }
             }
             else if (Floatable)
@@ -239,20 +245,33 @@ namespace Yu5h1Lib.Game.Character
                 if (VelocityWeight.magnitude != 0)
                 {
                     if (momentum.y > Physics2D.gravity.y * 2f)
-                        momentum += Physics2D.gravity * 0.0666666f;
+                        momentum += Physics2D.gravity * GravityScale;
                     if (Mathf.Abs(momentum.x) < MaxAirborneSpeed)
                         momentum += new Vector2(Mathf.Abs(InputMovement.x), InputMovement.y) * AirborneMultiplier;
                 }
             }
             localVelocity = momentum;
 
-            if (UseCustomVelocity)
-                rigidbody.MovePosition(rigidbody.position + ((velocity = transform.TransformDirection(momentum)) * Time.fixedDeltaTime));
-            else /// deprecated using velocity control movement . this method will causing flick movement
-                velocity = transform.TransformDirection(momentum);
-        }
-        public void AddForce(Vector2 force) => velocity += force;
+            if (Force != default(Vector2))
+                Force.print();
 
+            if (UseCustomVelocity)
+                rigidbody.MovePosition(rigidbody.position + ((velocity = Force + (Vector2)transform.TransformDirection(momentum)) * Time.fixedDeltaTime));
+            else /// deprecated using velocity control movement . this method will causing flick movement
+                velocity = Force + (Vector2)transform.TransformDirection(momentum);
+            Force = Vector2.zero;
+        }
+        private Vector2 Force;
+        [ContextMenu("AddForce")]
+        public void AddForce()
+        {
+            AddForce(Vector2.one * 5);
+        }
+        public void AddForce(Vector2 force) {
+            velocity += force;
+            groundDetector.LeaveGround();
+        } 
+        
         #region Custom Functions
         public void CheckForward(float x)
         {
@@ -296,6 +315,16 @@ namespace Yu5h1Lib.Game.Character
                     mask.tagOption.tag = gameObject.tag;
                     mask.tagOption.type = TagOption.ComparisionType.NotEqual;
                 }
+            }
+        }
+        public void PlayAudio(int index)
+        {
+            var clip = Resources.Load<AudioClip>($"Sound/footstep{index}");
+            var clipName = clip == null ? $"footstep{index}.mp3 not found" : clip.name;
+            $"PlayAudio : {clipName}".print();
+            if (clip)
+            {
+                GameManager.instance.PlayAudio(clip);
             }
         }
         #endregion

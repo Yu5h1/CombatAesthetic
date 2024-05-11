@@ -21,7 +21,7 @@ namespace Yu5h1Lib.Game.Character
                 => ConsumeExecutionCosts() == AttributeType.None;
 
             protected virtual AttributeType ConsumeExecutionCosts()
-                => owner.statBehaviour.Affect(AffectType.NEGATIVE, data.ExcutingCosts);
+                => owner.attribute.Affect(AffectType.NEGATIVE, data.ExcutingCosts);
 
             protected override void UpdateInput(bool down, bool hold, bool release)
             {

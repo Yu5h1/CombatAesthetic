@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using Yu5h1Lib;
@@ -16,6 +17,20 @@ public class TriggerEvent2D : EventMask2D
     {
         if (TryGetComponent(out AudioSource audioSource))
             GameManager.instance.PlayAudio(audioSource);
+    }
+    public void Spawn(string name)
+    {
+        PoolManager.instance.Spawn<Transform>(name, transform.position, transform.rotation);
+    }
+    public void Prompt(string line)
+    {
+        GameManager.ui_Manager.Dialog_UI.lines = new string[] { line };
+        GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
+    }
+    public void Prompt(string[] lines)
+    {
+        GameManager.ui_Manager.Dialog_UI.lines = lines;
+        GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
     }
 }
 public abstract class TriggerEvent2D<T> : MonoBehaviourEnhance where T : Component

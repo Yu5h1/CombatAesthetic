@@ -13,7 +13,7 @@ namespace Yu5h1Lib.Game.Character
         {
             if (!IsReady || !owner.underControl)
                 return false;
-            owner.statBehaviour.Affect(AffectType.NEGATIVE, data.costs);
+            owner.attribute.Affect(AffectType.NEGATIVE, data.costs);
             return true;
         }
         public void Update(Host2D host)
@@ -41,7 +41,7 @@ namespace Yu5h1Lib.Game.Character
     public abstract class SkillBehaviour<Data> : SkillBehaviour where Data : SkillData
     {
         public new Data data => (Data)base.data;
-        public override bool IsReady => owner.statBehaviour.Validate(base.data.preCalculatedCost);
+        public override bool IsReady => owner.attribute.Validate(base.data.preCalculatedCost);
         protected SkillBehaviour() {}
     }
 

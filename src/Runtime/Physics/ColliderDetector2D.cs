@@ -3,71 +3,59 @@ using UnityEngine.Events;
 
 namespace Yu5h1Lib.Game.Character
 {
-    public class ColliderDetector2D : Rigidbody2DBehaviour
+    public class ColliderDetector2D : BaseColliderDetector2D
     {
-        public new Collider2D collider;
-        public CollierScanner2D scanner;
         #region Ground detection parameters
-        private ContactFilter2D GroundFilter;
-        public LayerMask GroundLayer => GroundFilter.layerMask;
-        private RaycastHit2D[] GroundCastResults;
         public RaycastHit2D groundHit { get; private set; }
-        public bool IsGrounded { get; private set; }
-        [SerializeField, Range(0.00001f, 1.0f)]
-        private float groundRayDistance = 0.2f;
+        private bool _IsGrounded;
+        public bool IsGrounded 
+        { 
+            get => _IsGrounded;
+            private set {
+                if (IsGrounded == value)
+                    return;
+                _IsGrounded = value;
+                OnGroundStateChanged();
+            }
+        }
         [SerializeField, Range(0.00001f, 1.0f)]
         private float groundRayOffset = 0.25f;
         [SerializeField, Range(0.01f, 1.0f)]
         private float groundDistanceThreshold = 0.05f;
         #endregion
 
+        public CollierScanner2D scanner;
+
         public UnityEvent<bool> OnGroundStateChangedEvent;
-        public Vector2 offset => collider.offset;
-        public Vector2 extents { get; private set; }
-        public Vector2 up => (Vector2)transform.up;
-        public Vector2 down => -up;
-        public Vector2 right => transform.right;
-        public Vector2 center => rigidbody.position + (transform.right * new Vector2(offset.x, 0)) + (transform.up * new Vector2(0, offset.y));
-        public Vector2 front => center + (right * extents.x);
-        public Vector2 top => center + (up * extents.y);
-        public Vector2 bottom => center + (down * extents.y);
+
         private int PlatformLayer;
-        protected override void Reset()
-        {
-            if (TryGetComponent(out Controller2D character))
-                collider = GetComponent<CapsuleCollider2D>();
-        }
+
         void Awake()
         {
             //scanner.filter.layerMask = LayerMask.GetMask("Character");
-            GroundFilter = new ContactFilter2D()
+            filter = new ContactFilter2D()
             {
                 useLayerMask = true,
                 layerMask = LayerMask.GetMask("Platform", "PhysicsObject")
             };
-            if (collider == null && TryGetComponent(out CapsuleCollider2D c))
-                collider = c;
+            if (_collider == null && TryGetComponent(out CapsuleCollider2D c))
+                _collider = c;
             PlatformLayer = LayerMask.NameToLayer("Platform");
             Init();
         }
-        public void Init()
-        {
-            extents = collider.GetSize() * 0.5f;
-        }
         private void OnDrawGizmosSelected()
         {
-            if (groundHit)
-            {
-                var color = Gizmos.color;
-                var reverseHroundHitPoint = groundHit.point + groundHit.normal;
-                Gizmos.DrawSphere(reverseHroundHitPoint, 0.1f);
+            if (!collider || !groundHit)
+                return;
+            var color = Gizmos.color;
+            var reverseHroundHitPoint = groundHit.point + groundHit.normal;
+            Gizmos.DrawSphere(reverseHroundHitPoint, 0.1f);
 
-                Gizmos.color = Color.magenta;
-                Gizmos.DrawWireSphere(groundHit.collider.ClosestPoint(groundHit.point), 0.05f);
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawWireSphere(groundHit.point, 0.15f);
-                Gizmos.color = color;
-            }
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(groundHit.collider.ClosestPoint(groundHit.point), 0.05f);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundHit.point, 0.15f);
+            Gizmos.color = color;
         }
         private void LateUpdate()
         {
@@ -77,6 +65,16 @@ namespace Yu5h1Lib.Game.Character
         void OnGroundStateChanged()
         {
             OnGroundStateChangedEvent?.Invoke(IsGrounded);
+            if (IsGrounded) {
+                CheckPlatformStandHeight(0);
+                if (groundHit.collider.gameObject.layer == PlatformLayer)
+                    transform.SetParent(groundHit.collider.transform,true);
+            }
+            else
+            {
+                if (transform.parent != null)
+                    transform.SetParent(null, true);
+            }
         }
         //private void OnCollisionEnter2D(Collision2D collision)
         //{
@@ -104,14 +102,24 @@ namespace Yu5h1Lib.Game.Character
 #endif
             return slopDir;
         }
-
+        public void LeaveGround()
+        {
+            if (!IsGrounded)
+                return;
+            results = new RaycastHit2D[ResultsCount];
+            groundHit = default(RaycastHit2D);
+            IsGrounded = false;
+        }
         public void CheckGround()
         {
-            GroundCastResults = new RaycastHit2D[5];
+            if (!IsGrounded && transform.InverseTransformDirection(rigidbody.velocity.normalized).y > 0)
+                return;
+            results = new RaycastHit2D[ResultsCount];
             groundHit = default(RaycastHit2D);
-            for (int i = 0; i < collider.Cast(down, GroundFilter, GroundCastResults, groundRayDistance, true); i++)
+
+            for (int i = 0; i < _collider.Cast(down, filter, results, distance, true); i++)
             {
-                var hit = GroundCastResults[i];
+                var hit = results[i];
                 if (!hit)
                     continue;
                 var p = (Vector2)transform.InverseTransformPoint(hit.point);
@@ -133,12 +141,7 @@ namespace Yu5h1Lib.Game.Character
             else
                 Debug.DrawLine(center, bottom);
 #endif
-            if (IsGrounded == groundHit)
-                return;
             IsGrounded = groundHit;
-            OnGroundStateChanged();
-            if (IsGrounded)
-                CheckPlatformStandHeight(0);
         }
         public void CheckPlatformStandHeight(float Threshold = 0.05f)
         {
@@ -157,10 +160,10 @@ namespace Yu5h1Lib.Game.Character
         }
         public bool CheckCliff()
         {
-            if (!collider || !IsGrounded)
+            if (!_collider || !IsGrounded)
                 return false;
             var pos = bottom + (right * extents.x);
-            var hitground = Physics2D.Raycast(pos, down, 1, GroundLayer.value);
+            var hitground = Physics2D.Raycast(pos, down, 1, layerMask.value);
             pos += up * 0.1f;
             if (hitground)
             {

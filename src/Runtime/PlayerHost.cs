@@ -10,15 +10,21 @@ namespace Yu5h1Lib.Game.Character {
         public BaseInput input => GameManager.InputModule.input;
         public override Vector2 GetMovement(Controller2D controller)
         {
+            if (GameManager.IsSpeaking)
+                return Vector2.zero;
             return new Vector2(input.GetAxisRaw("Horizontal"), input.GetAxisRaw("Vertical"));
         }
         public override void GetInputState(Controller2D character, UpdateInput updateInput)
         {
+            if (GameManager.IsSpeaking)
+                return;
             updateInput(input.GetMouseButtonDown(0), input.GetMouseButton(0), input.GetMouseButtonUp(0));
         }
 
         public override void GetInputState(string bindingName, Controller2D character, UpdateInput updateInput)
         {
+            if (GameManager.IsSpeaking)
+                return;
             updateInput(Input.GetButtonDown(bindingName), Input.GetButton(bindingName), Input.GetButtonUp(bindingName));
         }
         public override bool ShiftIndexOfSkill(Controller2D character,out bool next)

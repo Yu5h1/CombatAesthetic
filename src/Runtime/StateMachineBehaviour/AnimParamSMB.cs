@@ -50,7 +50,7 @@ namespace Yu5h1Lib.Game.Character
         public override void Init(Controller2D controller)
         {
             base.Init(controller);  
-            controller.detector.OnGroundStateChangedEvent.AddListener(val => Grounded = val);
+            controller.groundDetector.OnGroundStateChangedEvent.AddListener(val => Grounded = val);
             TryGetAnimParam("Hurt", out hurtParam);
             TryGetAnimParam(nameof(Conscious), out hurtParam);
         }

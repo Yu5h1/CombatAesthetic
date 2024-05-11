@@ -8,9 +8,11 @@ public class SceneController : SingletonComponent<SceneController>
 {
     public string[] StartLines;
 
+
     #region Scene Preset
     void Reset()
     {
+
     }
     #endregion
     private void Start()
@@ -85,8 +87,8 @@ public class SceneController : SingletonComponent<SceneController>
     private static void EndLoadSceneAsync()
     {
         EndLoadSceneHandler?.Invoke();
-        GameManager.ui_Manager.Start();
         GameManager.instance.Start();
+        GameManager.ui_Manager.Start();
     }
     public static void RegistryLoadEvents()
     {

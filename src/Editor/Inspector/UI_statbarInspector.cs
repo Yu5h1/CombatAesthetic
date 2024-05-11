@@ -10,7 +10,7 @@ public class UI_statbarInspector : Editor<UI_Statbar>
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        if (this.TrySlider(out float val, targetObject.fill.fillAmount, 0, 1))
+        if (targetObject.fill && this.TrySlider(out float val, targetObject.fill.fillAmount, 0, 1))
         {
             targetObject.fill.fillAmount = val;
             EditorApplication.QueuePlayerLoopUpdate();

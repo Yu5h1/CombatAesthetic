@@ -68,15 +68,15 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
         yield return new Timer.Wait<Timer>(timer);
         if (IsDepleted)
         {
-            var fx = PoolManager.instance.Spawn<Transform>("FragmentExplod(Sprite)", transform.position, transform.rotation);
-            var particleSystem = fx.GetComponent<ParticleSystem>();
-            var main = particleSystem.main;
-            var shape = particleSystem.shape;
-            shape.meshShapeType = ParticleSystemMeshShapeType.Triangle;
-            shape.shapeType = ParticleSystemShapeType.SpriteRenderer;
-            shape.spriteRenderer = GetComponent<SpriteRenderer>();
+            var fx = PoolManager.instance.Spawn<Transform>(sender.Fx_Exit, transform.position, transform.rotation);
+            if (fx && fx.TryGetComponent(out ParticleSystem ps)) {
+                var main = ps.main;
+                var shape = ps.shape;
+                shape.meshShapeType = ParticleSystemMeshShapeType.Triangle;
+                shape.shapeType = ParticleSystemShapeType.SpriteRenderer;
+                shape.spriteRenderer = GetComponent<SpriteRenderer>();
+            }
             gameObject.SetActive(false);
         }
-            
     }
 }

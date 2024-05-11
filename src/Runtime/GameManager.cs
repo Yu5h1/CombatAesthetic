@@ -3,7 +3,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
-
+using Yu5h1Lib.Game.Character;
 using static GameObjectEx;
 
 namespace Yu5h1Lib
@@ -56,8 +56,12 @@ namespace Yu5h1Lib
             } 
         }
         //public static bool IsGameStart;
+        public static bool IsSpeaking => ui_Manager.Dialog_UI.gameObject.activeSelf;
+
         public static UnityAction<bool> OnPauseStateChanged;
-        
+
+        public Controller2D playerController;
+
         void Awake()
         {
             QualitySettings.vSyncCount = 0;
@@ -73,7 +77,11 @@ namespace Yu5h1Lib
             var player = GameObject.FindWithTag("Player");
             //Debug.Log($"GameManager start find player:{player}");
             if (player)
+            {
                 cameraController.SetTarget(player.transform, SceneController.IsLevelScene);
+                if (player.TryGetComponent(out playerController))
+                    playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
+            }
         }
         void Update()
         {
@@ -103,10 +111,20 @@ namespace Yu5h1Lib
 #endif
         }
         #region FX
+        public void PlayAudio(AudioClip clip,float volume = 1)
+        {
+            if (!clip)
+                return;
+            this.GetOrAdd(out AudioSource audio);
+            audio.clip = clip;
+            audio.volume = volume;
+            audio.Play();
+        }
         public void PlayAudio(AudioSource source)
         {
             if (!source)
                 return;
+            PlayAudio(source.clip);
             this.GetOrAdd(out AudioSource audio);
             audio.clip = source.clip;
             audio.volume = source.volume;

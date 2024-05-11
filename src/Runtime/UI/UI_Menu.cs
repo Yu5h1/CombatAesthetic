@@ -80,4 +80,8 @@ public class UI_Menu : UI_Behaviour
         else
             GameManager.instance.LoadScene(0);
     }
+    public void Method()
+    {
+
+    }
 }
