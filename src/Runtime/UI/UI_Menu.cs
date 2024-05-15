@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Yu5h1Lib;
-using static SceneController;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class UI_Menu : UI_Behaviour
@@ -38,50 +37,20 @@ public class UI_Menu : UI_Behaviour
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
         canvasGroup.alpha = 0;
-        canvasGroup.DOFade(1, duration);
+        var tweener = canvasGroup.DOFade(1, duration);
+        tweener.SetUpdate(true);
     }
     public void Engage(bool activate = true)
     {
         if (gameObject.activeSelf != activate)
             gameObject.SetActive(activate);
-        if (Submit)
-        {
-            Submit.onClick.RemoveAllListeners();
-            ((Text)Submit.targetGraphic).text = IsStartScene ? "Start" : "Restart";
-            Submit.onClick.AddListener(OnSubmitClick);
-        }
-        if (Cancel)
-        {
-            Cancel.onClick.RemoveAllListeners();
-            ((Text)Cancel.targetGraphic).text = IsStartScene ? "Exit" : "Main Menu";
-            Cancel.onClick.AddListener(OnCancelClick);
-        }
     }
     public void Dismiss()
     {
         if (gameObject.activeSelf)
             gameObject.SetActive(false);
-        if (Submit)
-            Submit.onClick.RemoveAllListeners();
-        if (Cancel)
-            Cancel.onClick.RemoveAllListeners();
     }
-    private static void OnSubmitClick()
-    {
-        if (IsStartScene)
-            LoadScene(1);
-        else
-            ReloadCurrentScene();
-    }
-    private static void OnCancelClick()
-    {
-        if (IsStartScene)
-            GameManager.ExitGame();
-        else
-            GameManager.instance.LoadScene(0);
-    }
-    public void Method()
-    {
-
-    }
+    public void ExitGame() => GameManager.ExitGame();
+    public void LoadScene(int index) => GameManager.instance.LoadScene(index);
+    public void ReloadCurrentScene() => SceneController.ReloadCurrentScene();
 }

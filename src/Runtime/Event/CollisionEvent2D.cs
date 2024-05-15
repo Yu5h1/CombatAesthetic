@@ -4,12 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class CollisionEvent2D : MonoBehaviour
+public class CollisionEvent2D : EventMask2D
 {
     [SerializeField]
     private UnityEvent<Collider2D> OnCollisionEnter2DEvent;
     private void OnCollisionEnter2D(Collision2D collision)
-        => OnCollisionEnter2DEvent?.Invoke(collision.collider);
+    {
+        if (!Validate(collision.gameObject))
+            return;
+        OnCollisionEnter2DEvent?.Invoke(collision.collider);
+    }
 }
 public class CollisionEvent2D<T> : MonoBehaviour where T : Behaviour
 {

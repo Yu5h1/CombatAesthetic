@@ -10,7 +10,7 @@ using TMPro;
 [CustomEditor(typeof(UI_Dialog_TMP))]
 public class UI_DialogInspector : Editor<UI_Dialog_TMP>
 {
-    static char[] InvalidChars = new char[] { '\n', '\r', '\t', '\b', '\f', '\\', '\'', '\"', '\0', '\v' };
+    //static char[] InvalidChars = new char[] { '\n', '\r', '\t', '\b', '\f', '\\', '\'', '\"', '\0', '\v' };
     //SerializedObject serializedTarget;
     void OnEnable()
     {
@@ -34,8 +34,8 @@ public class UI_DialogInspector : Editor<UI_Dialog_TMP>
                 
                 foreach (var c in targetObject.Content)
                 {
-                    if (InvalidChars.Contains(c))
-                        continue;
+                    //if (InvalidChars.Contains(c))
+                    //    continue;
                     if (!content.Contains(c)) {
                         var index = (int)c;
                         if (index > content.Length)

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using DG.Tweening;
+using System.Collections;
 
 [RequireComponent(typeof(Camera))]
 public class CameraController : SingletonComponent<CameraController>
@@ -12,6 +13,7 @@ public class CameraController : SingletonComponent<CameraController>
     public Transform Target;
     public Dictionary<string,SpriteRenderer> SortingLayerSprites = new Dictionary<string, SpriteRenderer>();
 
+    public bool syncAngle;
     
     [Range(0.05f,1)]
     public float smoothTime = 0.1f;
@@ -33,8 +35,7 @@ public class CameraController : SingletonComponent<CameraController>
     {
         camera.tag = "MainCamera";
         if (SceneController.IsLevelScene) {
-            camera.orthographic = true;
-            camera.nearClipPlane = 0;
+            camera.nearClipPlane = 0.01f;
             ZoomCamera(0);
             camera.GetOrthographicSize(out float width, out float height);
             SortingLayerSprites = SortingLayer.layers.Select(layer => layer.name).
@@ -93,7 +94,8 @@ public class CameraController : SingletonComponent<CameraController>
         var s = SortingLayerSprites[sortingLayerName];
         s.color = Color.clear;
         s.gameObject.SetActive(true);
-        s.DOColor(Color.black, duration);
+        var tween = s.DOColor(Color.black, duration);
+        tween.SetUpdate(true);
     }
     /// <summary>
     /// SmoothDamp position
@@ -102,6 +104,8 @@ public class CameraController : SingletonComponent<CameraController>
     {
         camera.transform.position = Vector3.SmoothDamp(camera.transform.position, Target.position + followOffset, ref currentPosition, smoothTime);
 
+        if (!syncAngle)
+            return;
         var angles = transform.eulerAngles;
         angles.z = Target.eulerAngles.z;
         transform.eulerAngles = angles * Target.forward.z;
@@ -123,7 +127,15 @@ public class CameraController : SingletonComponent<CameraController>
         pos.x = ScreenInteractionArea.x + c.x * ScreenInteractionArea.width;
         pos.y = ScreenInteractionArea.y + c.y * ScreenInteractionArea.height;
         camera.transform.position = pos;
-
     }
 
+    public void FollowTargetUnscaleTime()
+    {
+
+
+    }
+    IEnumerator Method()
+    {
+        yield return null;
+    }
 }

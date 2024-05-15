@@ -1,17 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Yu5h1Lib;
 
 public abstract class EventMask2D : MonoBehaviourEnhance
 {
     public LayerMask layers;
     public TagOption tagOption;
-    protected bool Validate(GameObject other) {
-        if (!tagOption.Compare(other.tag))
-            return false;
-        if (!layers.Contains(other))
-            return false;
-        return true;
+    private void OnEnable() { }
+    protected bool Validate(GameObject other) 
+        => enabled && tagOption.Compare(other.tag) && layers.Contains(other);
+    public void PlayAudio()
+    {
+        if (TryGetComponent(out AudioSource audioSource))
+            GameManager.instance.PlayAudio(audioSource);
+    }
+    public void Spawn(string name)
+    {
+        PoolManager.instance.Spawn<Transform>(name, transform.position, transform.rotation);
+    }
+    public void Prompt(string line)
+    {
+        GameManager.ui_Manager.Dialog_UI.lines = new string[] { line };
+        GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
+    }
+    public void Prompt(string[] lines)
+    {
+        GameManager.ui_Manager.Dialog_UI.lines = lines;
+        GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
     }
 }
 [System.Serializable]

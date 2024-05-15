@@ -6,7 +6,8 @@ using UnityEngine;
 public class CollierCastInfo2D
 {
     [SerializeField]
-    protected Collider2D collider;
+    protected Collider2D _collider;
+    public Collider2D collider => _collider;
     public ContactFilter2D filter;
     public LayerMask layerMask { get => filter.layerMask; set => filter.layerMask = value; }
     public RaycastHit2D[] results;

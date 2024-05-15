@@ -16,6 +16,8 @@ namespace Yu5h1Lib.Game.Character
         private readonly int TriggerSkillHash = Animator.StringToHash("TriggerSkill");
         private readonly int ConsciousHash = Animator.StringToHash("Conscious");
         private readonly int HurtHash = Animator.StringToHash("Hurt");
+        private readonly int InteractHash = Animator.StringToHash("Interact");
+        
         #region Animator Parameters
         public bool Grounded
         {
@@ -47,12 +49,14 @@ namespace Yu5h1Lib.Game.Character
         #endregion
         private AnimatorControllerParameter hurtParam;
         private AnimatorControllerParameter ConsciousParam;
-        public override void Init(Controller2D controller)
+        private AnimatorControllerParameter InteractParam;
+        public override void Init(AnimatorController2D controller)
         {
             base.Init(controller);  
-            controller.groundDetector.OnGroundStateChangedEvent.AddListener(val => Grounded = val);
-            TryGetAnimParam("Hurt", out hurtParam);
-            TryGetAnimParam(nameof(Conscious), out hurtParam);
+            controller.detector.OnGroundStateChangedEvent.AddListener(val => Grounded = val);
+            TryGetAnimParam(nameof(Hurt), out hurtParam);
+            TryGetAnimParam(nameof(Conscious), out ConsciousParam);
+            TryGetAnimParam(nameof(Interact), out InteractParam);
         }
         public void Hurt()
         {
@@ -62,11 +66,17 @@ namespace Yu5h1Lib.Game.Character
             //animator.SetTrigger(hurtParam.nameHash);
             animator.SetTrigger(HurtHash);
         }
-
+        public void Interact()
+        {
+            if (InteractParam == null)
+                return;
+            animator.SetTrigger(InteractHash);
+        }
         public virtual void Update()
         {
             SpeedX = Math.Abs(owner.InputMovement.x * owner.BoostMultiplier);
-            SpeedY = owner.IsGrounded ? owner.landingImpactForce : owner.localVelocity.y;
+            if (!owner.IsGrounded)
+                SpeedY = owner.localVelocity.y;
             Conscious = owner.Conscious;
 
         }

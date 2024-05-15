@@ -60,7 +60,7 @@ namespace Yu5h1Lib
 
         public static UnityAction<bool> OnPauseStateChanged;
 
-        public Controller2D playerController;
+        public Controller2D Player;
 
         void Awake()
         {
@@ -79,8 +79,8 @@ namespace Yu5h1Lib
             if (player)
             {
                 cameraController.SetTarget(player.transform, SceneController.IsLevelScene);
-                if (player.TryGetComponent(out playerController))
-                    playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
+                if (player.TryGetComponent(out Player))
+                    Player.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
             }
         }
         void Update()

@@ -44,7 +44,6 @@ public class UI_Manager : UI_Behaviour
         {
             LevelSceneMenu.Dismiss();
             StartSceneMenu.Engage();
-            
             PlayerAttribute_UI.gameObject.SetActive(false);
         }
         else if (IsLevelScene) {
@@ -53,8 +52,14 @@ public class UI_Manager : UI_Behaviour
             LevelSceneMenu.Engage(false);
             PlayerAttribute_UI.transform.SetSiblingIndex(0);
             PlayerAttribute_UI.FadeIn();
-            if (GameManager.instance.playerController)
-                GameManager.instance.playerController.attribute.ui = PlayerAttribute_UI;
+            if (GameManager.instance.Player)
+            {
+                if (GameManager.instance.Player.attribute)
+                    GameManager.instance.Player.attribute.ui = PlayerAttribute_UI;
+                else
+                    "Player.attribute is not assigned.".LogWarning();
+            }
+                
         }
     }
     public void PointerClick()

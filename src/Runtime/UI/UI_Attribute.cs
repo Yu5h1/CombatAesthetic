@@ -61,12 +61,14 @@ public class UI_Attribute : UI_Behaviour
     {
         canvasGroup.gameObject.SetActive(true);
         canvasGroup.alpha = 0;
-        canvasGroup.DOFade(1,duration);
+        var t = canvasGroup.DOFade(1,duration);
+        t.SetUpdate(true);
     }
     public void FadeOut(float duration = 0.5f)
     {
         canvasGroup.gameObject.SetActive(true);
         canvasGroup.alpha = 1;
-        canvasGroup.DOFade(0, duration);
+        var t = canvasGroup.DOFade(0, duration);
+        t.SetUpdate(true);
     }
 }

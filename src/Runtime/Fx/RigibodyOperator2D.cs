@@ -38,7 +38,7 @@ public class RigibodyOperator2D : Rigidbody2DBehaviour
         var count = rigidbody.GetContacts(colliders);
         for (int i = 0; i < count; i++)
         {
-            if (colliders[i].TryGetComponent(out Controller2D controller))
+            if (colliders[i].TryGetComponent(out AnimatorController2D controller))
             {
                 controller.AddForce(rigidbody.velocity);
                 Debug.Log($"{controller.name} add force by rigibodyOperator");

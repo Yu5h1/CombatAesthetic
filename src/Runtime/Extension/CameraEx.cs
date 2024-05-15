@@ -12,4 +12,5 @@ public static class CameraEx
         var result = cam.ScreenToViewportPoint(screenPoint);
         return new Vector3(2 * result.x - 1, 2 * result.y - 1, result.z);
     }
+    
 }

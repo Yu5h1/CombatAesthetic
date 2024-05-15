@@ -1,15 +1,10 @@
 {
-    "name": "Yu5h1Lib.Runtime",
+    "name": "DOTweenBehaviour",
     "rootNamespace": "",
-    "references": [],
-    "includePlatforms": [
-        "Android",
-        "EmbeddedLinux",
-        "iOS",
-        "WebGL",
-        "WindowsStandalone32",
-        "WindowsStandalone64"
+    "references": [
+        "GUID:7edec522519534f4a91ca8423a296222"
     ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

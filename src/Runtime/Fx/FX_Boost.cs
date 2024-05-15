@@ -12,12 +12,12 @@ namespace Yu5h1Lib.Game
 
         public override void Perform(Collider2D target)
         {
-            if (!target.gameObject.TryGetComponent(out Controller2D character))
+            if (!target.gameObject.TryGetComponent(out AnimatorController2D character))
                 return;
             character.StopCoroutine(AffectForSeconds(character));
             character.StartCoroutine(AffectForSeconds(character));
         }
-        private IEnumerator AffectForSeconds(Controller2D character)
+        private IEnumerator AffectForSeconds(AnimatorController2D character)
         {
             character.BoostMultiplier += 1;
             yield return new WaitForSeconds(duration);

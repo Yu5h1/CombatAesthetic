@@ -24,6 +24,8 @@ namespace Yu5h1Lib.Game.Character
         private float groundDistanceThreshold = 0.05f;
         #endregion
 
+        public CollierCastInfo2D momentumCastInfo;
+
         public CollierScanner2D scanner;
 
         public UnityEvent<bool> OnGroundStateChangedEvent;
@@ -43,6 +45,7 @@ namespace Yu5h1Lib.Game.Character
             PlatformLayer = LayerMask.NameToLayer("Platform");
             Init();
         }
+#if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
             if (!collider || !groundHit)
@@ -57,6 +60,7 @@ namespace Yu5h1Lib.Game.Character
             Gizmos.DrawWireSphere(groundHit.point, 0.15f);
             Gizmos.color = color;
         }
+#endif
         private void LateUpdate()
         {
             if (IsGrounded && groundHit.collider.gameObject.layer == PlatformLayer)
@@ -87,8 +91,8 @@ namespace Yu5h1Lib.Game.Character
         /// <param name="right"></param>
         public Vector2 CheckSlop(bool right)
         {
-            Vector2 refRir = right ? transform.up : -transform.up;
             #region Deprecated
+            //Vector2 refRir = right ? transform.up : -transform.up;
             //var groundNormal = transform.InverseTransformDirection(groundHit.normal);
             //float angle = Vector2.Angle(refRir, groundNormal);
             //float s = angle * Mathf.Deg2Rad;
@@ -98,7 +102,7 @@ namespace Yu5h1Lib.Game.Character
             /// simple solution
             var slopDir = right ? new Vector2(n.y, -n.x) : new Vector2(-n.y, n.x);
 #if UNITY_EDITOR
-            Debug.DrawRay(groundHit.point, slopDir.normalized * 2, Color.green);
+            Debug.DrawRay(groundHit.point, slopDir.normalized * extents.x, Color.green);
 #endif
             return slopDir;
         }
@@ -110,9 +114,14 @@ namespace Yu5h1Lib.Game.Character
             groundHit = default(RaycastHit2D);
             IsGrounded = false;
         }
+        public void MomentumCast()
+        {
+
+        }
         public void CheckGround()
         {
-            if (!IsGrounded && transform.InverseTransformDirection(rigidbody.velocity.normalized).y > 0)
+            if (!enabled || 
+                (!IsGrounded && transform.InverseTransformDirection(rigidbody.velocity.normalized).y > 0))
                 return;
             results = new RaycastHit2D[ResultsCount];
             groundHit = default(RaycastHit2D);
@@ -160,7 +169,7 @@ namespace Yu5h1Lib.Game.Character
         }
         public bool CheckCliff()
         {
-            if (!_collider || !IsGrounded)
+            if (!collider || !IsGrounded)
                 return false;
             var pos = bottom + (right * extents.x);
             var hitground = Physics2D.Raycast(pos, down, 1, layerMask.value);
@@ -193,7 +202,8 @@ namespace Yu5h1Lib.Game.Character
             //    ObstacleAngle = 0;
             //}
             return default(RaycastHit2D);
-        } 
+        }
+
         #endregion
     }
 }

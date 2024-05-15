@@ -12,7 +12,7 @@ public class Influencor : MonoBehaviourEnhance
 
     public void Affect(Collider2D other, Vector2 strength)
     {
-        if (other.TryGetComponent(out Controller2D controller))
+        if (other.TryGetComponent(out AnimatorController2D controller))
             controller.Hit(strength);
         if (other.TryGetComponent(out AttributeBehaviour stat))
             stat.Affect(affectType, info);
@@ -24,12 +24,12 @@ public class Influencor : MonoBehaviourEnhance
     }
     public void Hit(Collider2D other)
     {
-        if (other.TryGetComponent(out Controller2D controller))
+        if (other.TryGetComponent(out AnimatorController2D controller))
             controller.Hit(TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.velocity : Vector2.one * info.amount);
     }
     public void AddForce(Collider2D other)
     {
-        if (other.TryGetComponent(out Controller2D controller))
+        if (other.TryGetComponent(out AnimatorController2D controller))
             controller.AddForce(transform.up * info.amount);
         else if (other.TryGetComponent(out Rigidbody2D rigidbody)) 
             rigidbody.AddForce(transform.up * info.amount);

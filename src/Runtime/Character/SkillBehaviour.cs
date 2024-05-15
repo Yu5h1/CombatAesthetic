@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Yu5h1Lib.Game.Character
 {
     public abstract class SkillBehaviour {
-        public Controller2D owner { get; protected set; }
+        public AnimatorController2D owner { get; protected set; }
         public SkillData data { get; protected set; }
         public abstract bool IsReady { get; }
 
@@ -16,19 +16,19 @@ namespace Yu5h1Lib.Game.Character
             owner.attribute.Affect(AffectType.NEGATIVE, data.costs);
             return true;
         }
-        public void Update(Host2D host)
+        public void Update(HostData2D.HostBehaviour2D host)
         {
             if (!data.parallelizable && owner.currentSkillBehaviour != this)
                 return;
             if (!data.incantation.IsEmpty()) /// keybinding skill
-                host.GetInputState(data.incantation, owner, UpdateInput);
+                host.GetInputState(data.incantation, UpdateInput);
             else if (owner.currentSkillBehaviour == this) /// optinal skill
-                host.GetInputState(owner, UpdateInput);
+                host.GetInputState(UpdateInput);
 
         }
         protected abstract void UpdateInput(bool down, bool hold, bool up);
 
-        public static SkillBehaviour Constructor(SkillData skill, Controller2D character)
+        public static SkillBehaviour Constructor(SkillData skill, AnimatorController2D character)
         {
             var result = (SkillBehaviour)Activator.CreateInstance(skill.GetBehaviourType());
             result.owner = character;

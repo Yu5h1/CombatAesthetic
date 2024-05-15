@@ -1,43 +1,49 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using static UnityEngine.EventSystems.StandaloneInputModule;
 
 namespace Yu5h1Lib.Game.Character {
     [CreateAssetMenu(menuName = "Scriptable Objects/PlayerInput")]
-    public class PlayerHost : Host2D
+    public class PlayerHost : HostData2D
     {
-        public BaseInput input => GameManager.InputModule.input;
-        public override Vector2 GetMovement(Controller2D controller)
-        {
-            if (GameManager.IsSpeaking)
-                return Vector2.zero;
-            return new Vector2(input.GetAxisRaw("Horizontal"), input.GetAxisRaw("Vertical"));
-        }
-        public override void GetInputState(Controller2D character, UpdateInput updateInput)
-        {
-            if (GameManager.IsSpeaking)
-                return;
-            updateInput(input.GetMouseButtonDown(0), input.GetMouseButton(0), input.GetMouseButtonUp(0));
-        }
+        public override Type GetHostType() => typeof(Behaviour);
 
-        public override void GetInputState(string bindingName, Controller2D character, UpdateInput updateInput)
+        public class Behaviour : Behaviour2D<PlayerHost>
         {
-            if (GameManager.IsSpeaking)
-                return;
-            updateInput(Input.GetButtonDown(bindingName), Input.GetButton(bindingName), Input.GetButtonUp(bindingName));
-        }
-        public override bool ShiftIndexOfSkill(Controller2D character,out bool next)
-        {
-            next = false;
-            if (input.TryGetScrollWheelDelta(out float delta))
+            public override void Init(Controller2D controller) => base.Init(controller);
+
+            public BaseInput input => GameManager.InputModule.input;
+
+            public bool IsInteractionKeyDown => input.GetMouseButtonDown(0);
+            public override Vector2 GetMovement()
             {
-                next = Mathf.Sign(delta) > 0;
-                return true;
+                if (GameManager.IsSpeaking)
+                    return Vector2.zero;
+                return new Vector2(input.GetAxisRaw("Horizontal"), input.GetAxisRaw("Vertical"));
             }
-            return false;
-        }
+            public override void GetInputState(UpdateInput updateInput)
+            {
+                if (GameManager.IsSpeaking)
+                    return;
+                updateInput(input.GetMouseButtonDown(0), input.GetMouseButton(0), input.GetMouseButtonUp(0));
+            }
 
- 
+            public override void GetInputState(string bindingName, UpdateInput updateInput)
+            {
+                if (GameManager.IsSpeaking)
+                    return;
+                updateInput(Input.GetButtonDown(bindingName), Input.GetButton(bindingName), Input.GetButtonUp(bindingName));
+            }
+            public override bool ShiftIndexOfSkill(out bool next)
+            {
+                next = false;
+                if (input.TryGetScrollWheelDelta(out float delta))
+                {
+                    next = Mathf.Sign(delta) > 0;
+                    return true;
+                }
+                return false;
+            }
+        }
     }
 }

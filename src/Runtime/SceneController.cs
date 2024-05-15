@@ -7,7 +7,7 @@ using Yu5h1Lib;
 public class SceneController : SingletonComponent<SceneController>
 {
     public string[] StartLines;
-
+    public bool NoTalking;
 
     #region Scene Preset
     void Reset()
@@ -22,7 +22,7 @@ public class SceneController : SingletonComponent<SceneController>
         gameObject.layer = LayerMask.NameToLayer("Boundary");
         if (SceneController.IsLevelScene)
         {
-            if (!StartLines.IsEmpty())
+            if (!StartLines.IsEmpty() && !NoTalking)
             {
                 GameManager.IsGamePause = true;
                 GameManager.ui_Manager.Dialog_UI.lines = StartLines;
@@ -45,8 +45,6 @@ public class SceneController : SingletonComponent<SceneController>
     public static event UnityAction EndLoadSceneHandler;
     public static Scene ActiveScene => SceneManager.GetActiveScene();
     public static bool BelongToCurrentScene(GameObject gameObject) => gameObject.scene == ActiveScene;
-
-
     public static bool IsSceneName(string name, StringSearchOption comparison = StringSearchOption.Equals) => comparison switch
     {
         StringSearchOption.StartsWith => ActiveScene.name.StartsWith(name),
