@@ -23,17 +23,9 @@ namespace Yu5h1Lib.Game.Character
             public bool NeedTurnAround() {
                 if (patrol.RangeDistance < owner.detector.extents.x)
                     return false;
-                //if (Vector2.Dot(owner.detector.right, (from - owner.position).normalized) > 0)
-                //{                    
-                //    Debug.DrawLine(owner.position, from);
-                //    return Vector2.Distance(owner.detector.front, to) > distanceThreshold;
-                //}
-                //else if (Vector2.Dot(owner.detector.right, (to - owner.position).normalized) > 0)
-                //{
-                //    Debug.DrawLine(owner.position, to);
-                //    return Vector2.Distance(owner.detector.front, from) > distanceThreshold;
-                //}
-
+                var p = owner.transform.InverseTransformPoint(patrol.point);
+                if (Mathf.Abs(p.x) > patrol.RangeDistance - owner.detector.extents.x && p.x < 0) 
+                    return true;
                 return false;
             }
 

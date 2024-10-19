@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using Yu5h1Lib;
 
 public abstract class UI_DialogBase : UI_Behaviour
@@ -11,17 +13,59 @@ public abstract class UI_DialogBase : UI_Behaviour
     public int StepIndex { get; private set; }
     public bool IsPerforming { get; private set; }
     public bool NothingToSay => StepIndex >= lines.Length - 1 && !IsPerforming;
+
+    [SerializeField]
+    private UnityEvent OnSkip;
+    [SerializeField]
+    private UnityEvent OnPerformCompleted;
+    [SerializeField]
+    private UnityEvent OnBeginShowWord;
+
+    private Timer timer = new Timer();
+    private Timer.Wait<Timer> wait;
+
+    public event UnityAction PerformCompleted {
+        add => OnPerformCompleted.AddListener(value);
+        remove => OnPerformCompleted.RemoveListener(value);
+    }
+
+    public event UnityAction BeginShowWord
+    {
+        add => OnBeginShowWord.AddListener(value);
+        remove => OnBeginShowWord.RemoveListener(value);
+    }
+
+    private IEnumerator lastCoroutine;
+
+    private void Start()
+    {
+        timer.duration = speed;
+        wait = timer.Waiting();
+    }
+
     private void OnEnable()
     {
         if (lines.IsEmpty())
             return;
-        StartCoroutine(PerformVerbatim(lines[StepIndex = 0]));
+        Perform();
     }
     private void OnDisable()
     {
     
     }
-    IEnumerator PerformVerbatim(string text)
+    private void Perform()
+    {
+        if (lastCoroutine != null)
+            StopCoroutine(lastCoroutine);
+        StartCoroutine(lastCoroutine = PerformVerbatimProcess(lines[StepIndex = 0]));
+    }
+    public void PerformVerbatim(string content)
+    {
+        lines = new string[] { content };
+        Perform();
+    }
+
+    IEnumerator PerformVerbatimProcess(string text)
     {
         if (speed == 0)
         {
@@ -30,16 +74,22 @@ public abstract class UI_DialogBase : UI_Behaviour
         }
         IsPerforming = true;
         Content = "";
-        foreach (var letter in text.ToCharArray())
+
+        for (int i = 0; i < text.Length; i++)
         {
+            var letter = text[i];
             if (!IsPerforming)
             {
                 Content = text;
-                yield break; 
+                OnPerformCompleted?.Invoke();
+                yield break;
             }
             Content += letter;
-            yield return new WaitForSecondsRealtime(speed);
+            OnBeginShowWord?.Invoke();
+            yield return new WaitForSeconds(speed);
         }
+
+        OnPerformCompleted?.Invoke();
         IsPerforming = false;
     }
     #region Action
@@ -47,7 +97,7 @@ public abstract class UI_DialogBase : UI_Behaviour
     {
         if (NothingToSay)
             return false;
-        StartCoroutine(PerformVerbatim(lines[++StepIndex]));
+        StartCoroutine(PerformVerbatimProcess(lines[++StepIndex]));
         return true;
     }
 
@@ -60,8 +110,7 @@ public abstract class UI_DialogBase : UI_Behaviour
         else if (!Next())
         {
             gameObject.SetActive(false);
-            if (GameManager.IsGamePause)
-                GameManager.IsGamePause = false;
+            OnSkip?.Invoke();
         }
     } 
     #endregion

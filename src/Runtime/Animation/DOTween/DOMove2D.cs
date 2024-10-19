@@ -18,12 +18,15 @@ public class DOMove2D : DOTransform<Vector3,VectorOptions>
         => local ? transform.DOLocalMove(endValue, Duration) :
                    transform.DOMove(endValue, Duration);
 
-    protected override void OnComplete() => OnCompleteEvent?.Invoke( velocity * ValueMultiplier);
-    protected override void OnRewind() => OnRewindEvent?.Invoke( -velocity * ValueMultiplier);
+    protected override void OnComplete() => OnComplete(velocity * ValueMultiplier);
+    protected override void OnRewind() => OnRewind( -velocity * ValueMultiplier);
 
     [ContextMenu("Set End Value From Position")]
     public void SetEndValueFromPosition()
     {
-        _endValue = transform.position;
+        _endValue = local ? transform.localPosition : transform.position;
     }
+
+    public override string ToString() => tweener.ToString();
+
 }

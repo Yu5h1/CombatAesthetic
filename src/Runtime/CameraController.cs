@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using DG.Tweening;
 using System.Collections;
+using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Camera))]
 public class CameraController : SingletonComponent<CameraController>
@@ -31,10 +32,17 @@ public class CameraController : SingletonComponent<CameraController>
     private Vector3 currentPosition;
     #endregion
 
+    public ParticleSystem Cursor_Fx;
+
+    public new Light2D light;
+
     public void Start()
     {
         camera.tag = "MainCamera";
         if (SceneController.IsLevelScene) {
+            var URP_data = camera.GetUniversalAdditionalCameraData();
+            URP_data.volumeLayerMask = 1 << LayerMask.NameToLayer("PostProcess");
+            URP_data.renderPostProcessing = true;
             camera.nearClipPlane = 0.01f;
             ZoomCamera(0);
             camera.GetOrthographicSize(out float width, out float height);
@@ -77,7 +85,18 @@ public class CameraController : SingletonComponent<CameraController>
         }
         FitfadeBoardWithOrthographic();
     }
+    public void PlayCursorEffect()
+    {
+        if (!Cursor_Fx)
+            Cursor_Fx = GameObjectEx.InstantiateFromResourecs<ParticleSystem>($"UI/{nameof(Cursor_Fx)}",transform);
 
+        var pos = Input.mousePosition;
+        if (!camera.orthographic)
+            pos.z = 1;
+        var mouseWorldPosition = camera.ScreenToWorldPoint(pos);
+        Cursor_Fx.transform.position = mouseWorldPosition;
+        Cursor_Fx.Play();
+    }
     private void FitfadeBoardWithOrthographic()
     {
         camera.GetOrthographicSize(out float width, out float height);
@@ -85,6 +104,9 @@ public class CameraController : SingletonComponent<CameraController>
             item.Value.transform.localScale = new Vector3(width + 1, height + 1, 1);
     }
     public void FadeIn(string sortingLayerName,float duration)
+       => FadeIn(sortingLayerName, Color.black, duration);
+
+    public void FadeIn(string sortingLayerName,Color color, float duration)
     {
         if (!SortingLayerSprites.ContainsKey(sortingLayerName))
         {
@@ -92,11 +114,14 @@ public class CameraController : SingletonComponent<CameraController>
             return;
         }
         var s = SortingLayerSprites[sortingLayerName];
-        s.color = Color.clear;
+        color.a = 0;
+        s.color = color;
+        color.a = 1;
         s.gameObject.SetActive(true);
-        var tween = s.DOColor(Color.black, duration);
+        var tween = s.DOColor(color, duration);
         tween.SetUpdate(true);
     }
+
     /// <summary>
     /// SmoothDamp position
     /// </summary>

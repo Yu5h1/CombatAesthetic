@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EventHandler : MonoBehaviour
+public class MonoEventHandler : MonoBehaviour
 {
     public UnityEvent OnEnableEvent;
     public UnityEvent OnDisableEvent;

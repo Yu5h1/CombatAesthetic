@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Fly_SMB : CharacterSMB
+public class CannonballFly_SMB : CharacterSMB
 {
+    public float leaveStateThreshold = 0;
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -16,13 +17,18 @@ public class Fly_SMB : CharacterSMB
         var v = owner.velocity;
         if (v == Vector2.zero)
             return;
-        //owner.transform.rotation = Quaternion.LookRotation(owner.transform.forward, owner.velocity.normalized);
+        var vdir = owner.velocity.normalized;
+        var dirDelta = Vector2.Dot(Vector2.up, vdir);
+        if (dirDelta > leaveStateThreshold)
+            owner.transform.rotation = Quaternion.LookRotation(owner.transform.forward, vdir);
+        else
+            owner.animParam.TriggerExit();
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        //owner.transform.rotation = Quaternion.identity;
+        owner.ResetRotation();
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

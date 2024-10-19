@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public abstract class MonoBehaviourEnhance : MonoBehaviour
 {
@@ -11,6 +12,10 @@ public abstract class MonoBehaviourEnhance : MonoBehaviour
     public void Despawn()
     {
         PoolManager.instance.Despawn(gameObject.transform);
+    }
+    public void DestoryOnLoad(GameObject obj)
+    {
+        SceneManager.MoveGameObjectToScene(obj,SceneManager.GetActiveScene());
     }
 }
 //public abstract class MonoBehaviourEnhance<T> : MonoBehaviour where T : Component

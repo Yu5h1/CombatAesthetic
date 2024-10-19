@@ -7,7 +7,6 @@ namespace Yu5h1Lib.Game.Character {
     public class PlayerHost : HostData2D
     {
         public override Type GetHostType() => typeof(Behaviour);
-
         public class Behaviour : Behaviour2D<PlayerHost>
         {
             public override void Init(Controller2D controller) => base.Init(controller);
@@ -15,6 +14,9 @@ namespace Yu5h1Lib.Game.Character {
             public BaseInput input => GameManager.InputModule.input;
 
             public bool IsInteractionKeyDown => input.GetMouseButtonDown(0);
+            public bool IsInteractionKey => input.GetMouseButton(0);
+            public bool IsInteractionKeyUp => input.GetMouseButtonUp(0);
+
             public override Vector2 GetMovement()
             {
                 if (GameManager.IsSpeaking)
@@ -25,6 +27,7 @@ namespace Yu5h1Lib.Game.Character {
             {
                 if (GameManager.IsSpeaking)
                     return;
+                
                 updateInput(input.GetMouseButtonDown(0), input.GetMouseButton(0), input.GetMouseButtonUp(0));
             }
 
@@ -34,16 +37,23 @@ namespace Yu5h1Lib.Game.Character {
                     return;
                 updateInput(Input.GetButtonDown(bindingName), Input.GetButton(bindingName), Input.GetButtonUp(bindingName));
             }
-            public override bool ShiftIndexOfSkill(out bool next)
-            {
-                next = false;
-                if (input.TryGetScrollWheelDelta(out float delta))
-                {
-                    next = Mathf.Sign(delta) > 0;
-                    return true;
-                }
-                return false;
-            }
+
+            #region right click change skill
+            public override bool ShiftIndexOfSkill(out bool next) => next = input.GetMouseButtonDown(1);
+            #endregion
+
+            #region Mouse Wheel change skill
+            //public override bool ShiftIndexOfSkill(out bool next)
+            //{
+            //    next = false;
+            //    if (input.TryGetScrollWheelDelta(out float delta))
+            //    {
+            //        next = Mathf.Sign(delta) > 0;
+            //        return true;
+            //    }
+            //    return false;
+            //} 
+            #endregion
         }
     }
 }

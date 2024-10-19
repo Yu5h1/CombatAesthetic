@@ -25,7 +25,6 @@ namespace Yu5h1Lib.Game.Character
         #endregion
 
         public CollierCastInfo2D momentumCastInfo;
-
         public CollierScanner2D scanner;
 
         public UnityEvent<bool> OnGroundStateChangedEvent;
@@ -114,9 +113,11 @@ namespace Yu5h1Lib.Game.Character
             groundHit = default(RaycastHit2D);
             IsGrounded = false;
         }
-        public void MomentumCast()
+        public void VelocityCast(Vector2 velocity )
         {
-
+            if (velocity == Vector2.zero)
+                return;
+            momentumCastInfo.Cast(velocity.normalized);
         }
         public void CheckGround()
         {
@@ -134,8 +135,10 @@ namespace Yu5h1Lib.Game.Character
                 var p = (Vector2)transform.InverseTransformPoint(hit.point);
                 var normal = transform.InverseTransformDirection(hit.normal);
                 var localbottom = (Vector2)transform.InverseTransformPoint(bottom);
+                if (groundHit && groundHit.distance < hit.distance)
+                    continue;
                 /// normal.y > 0.5f = slop angle > 45¢X
-                if (normal.y > 0.5f && p.y <= localbottom.y + groundRayOffset && hit.distance < groundDistanceThreshold)
+                if (normal.y > 0.5f && p.y <= localbottom.y + groundRayOffset && hit.distance < groundDistanceThreshold)                    
                 {
                     groundHit = hit;
 #if UNITY_EDITOR

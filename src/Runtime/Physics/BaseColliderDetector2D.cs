@@ -43,4 +43,18 @@ public class BaseColliderDetector2D : Rigidbody2DBehaviour
         }
         extents = _collider.GetSize() * 0.5f;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="collider"></param>
+    /// <param name="Count">results count</param>
+    public virtual int Cast(Vector2 direction)
+    {
+        results = new RaycastHit2D[ResultsCount];
+        if (!collider)
+            return 0;
+        return collider.Cast(direction, filter, results, distance, ignoreSiblingColliders);
+    }
+
 }

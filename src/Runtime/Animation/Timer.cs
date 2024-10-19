@@ -1,5 +1,4 @@
-using System.Collections;
-using Unity.VisualScripting;
+﻿using System.Security.Claims;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -18,25 +17,27 @@ public class Timer : ITimer
     public int loopCount { get => LoopCount; set => LoopCount = value; }
 
     [SerializeField]
-    private UnityEvent _Update;
+    private UnityEvent? _Update;
     [SerializeField]
-    private UnityEvent _Completed;
+    private UnityEvent? _Completed;
     [SerializeField]
-    private UnityEvent _Looped;
+    private UnityEvent? _Looped;
     [SerializeField]
-    private UnityEvent _FinalLooped;
+    private UnityEvent? _FinalLooped;
     public event UnityAction Update
     {
-        add {
+        add
+        {
             if (_Update == null)
                 _Update = new UnityEvent();
             _Update.AddListener(value);
         }
-        remove {
+        remove
+        {
             if (_Update == null)
                 return;
             _Update.RemoveListener(value);
-        } 
+        }
     }
     public event UnityAction Completed
     {
@@ -99,11 +100,11 @@ public class Timer : ITimer
     public float normal => time.GetNormal(duration);
 
     public virtual void Start()
-    {        
+    {
         LastTime = GetTime() + delay;
         loopCounter = loopCount;
         IsCompleted = false;
-        
+
     }
     public virtual void Stop()
         => LastTime = time - duration;
@@ -136,33 +137,35 @@ public class Timer : ITimer
         else
             _Update?.Invoke();
     }
-    protected virtual void OnLoop() {}
-    protected virtual void OnFinalLoop(){}
-    protected virtual void OnCompleted(){}
+    protected virtual void OnLoop() { }
+    protected virtual void OnFinalLoop() { }
+    protected virtual void OnCompleted() { }
     public void EndLoop() => loopCounter = 0;
+
+    public Wait<Timer> Waiting() => new Wait<Timer>(this);
 
     public override string ToString() => $"Duration:{Duration} IsCompleted:{IsCompleted}";
 
     public class Wait<T> : CustomYieldInstruction where T : Timer
     {
-        public T timer { get; set; }
+        public T timer { get; private set; }
         public override bool keepWaiting
         {
             get
             {
                 timer.Tick();
-                if (timer.IsCompleted)
-                { 
-                    timer = null;
-                    return false;
-                }
-                return true;
+                return !timer.IsCompleted;
             }
         }
-        public Wait(T t) {
+        public Wait(T t)
+        {
             timer = t;
             timer.Start();
-        }  
+        }
+        public void Start()
+        {
+            timer.Start();
+        }
     }
 
 }

@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -56,11 +57,16 @@ namespace Yu5h1Lib
             } 
         }
         //public static bool IsGameStart;
-        public static bool IsSpeaking => ui_Manager.Dialog_UI.gameObject.activeSelf;
+        public static bool IsSpeaking => 
+            ui_Manager.Dialog_UI.gameObject.activeSelf ||
+            ui_Manager.EndCredits.gameObject.activeSelf;
 
         public static UnityAction<bool> OnPauseStateChanged;
 
-        public Controller2D Player;
+        public Controller2D playerController;
+
+
+        public Texture2D cursor;
 
         void Awake()
         {
@@ -71,16 +77,22 @@ namespace Yu5h1Lib
             TryGetComponent(out _ui_manager);
             TryGetComponent(out _InputModule);
             DontDestroyOnLoad(this);
+            
         }
         public void Start()
         {
+            Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
             var player = GameObject.FindWithTag("Player");
             //Debug.Log($"GameManager start find player:{player}");
             if (player)
             {
                 cameraController.SetTarget(player.transform, SceneController.IsLevelScene);
-                if (player.TryGetComponent(out Player))
-                    Player.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
+                if (player.TryGetComponent(out playerController))
+                {
+                    playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
+                    if (SceneController.IsLevelScene && playerController is AnimatorController2D animatorController2D)
+                        animatorController2D.SetCursorFromDrawSkill();
+                }
             }
         }
         void Update()
@@ -91,6 +103,13 @@ namespace Yu5h1Lib
                 if (SceneController.IsLevelScene)
                 {
                     cameraController.ZoomCamera(delta);
+                }
+            }
+            if (input.GetMouseButtonDown(0))
+            {
+                if (!CameraController.DoesNotExists)
+                {
+                    cameraController.PlayCursorEffect();
                 }
             }
         }

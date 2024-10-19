@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -43,6 +44,11 @@ public class SceneController : SingletonComponent<SceneController>
     public static event UnityAction BeginLoadSceneHandler;
     public static event UnityAction<float> LoadSceneAsyncHandler;
     public static event UnityAction EndLoadSceneHandler;
+
+    public static void Method()
+    {
+
+    }
     public static Scene ActiveScene => SceneManager.GetActiveScene();
     public static bool BelongToCurrentScene(GameObject gameObject) => gameObject.scene == ActiveScene;
     public static bool IsSceneName(string name, StringSearchOption comparison = StringSearchOption.Equals) => comparison switch
@@ -95,10 +101,17 @@ public class SceneController : SingletonComponent<SceneController>
     }
     private static void OnSceneUnloaded(Scene scene)
     {
+        if (GameManager.IsQuit)
+            return;
         CameraController.RemoveInstanceCache();
         PoolManager.RemoveInstanceCache();
+
+        // kill tweeners where is dontDestoryOnLoad 
+        foreach (var item in GameManager.instance.GetComponentsInChildren<TweenBehaviour>(true))
+            item.Kill();
         DG.Tweening.DOTween.KillAll();
         IsSceneTransitioning = false;
     }
+    
     #endregion
 }

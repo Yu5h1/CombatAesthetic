@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Yu5h1Lib.Game.Character
 {
-    [DisallowMultipleComponent,RequireComponent(typeof(ColliderDetector2D))]
+    [DisallowMultipleComponent, RequireComponent(typeof(ColliderDetector2D))]
     public class Controller2D : Rigidbody2DBehaviour
     {
         [SerializeField] protected float GravityScale = 0.0333f;
@@ -71,10 +71,21 @@ namespace Yu5h1Lib.Game.Character
 
         public Vector2 position => transform.position;
         public Vector2 down => -transform.up;
-        
+
 
         protected Vector2 floating_v_temp = Vector2.zero;
-        public Vector2[] gravitations = new Vector2[] { Vector2.down };
+        public Vector2[] gravitations;
+
+        public Vector2 gravityDirection
+        {
+            get
+            {
+                if (gravitations.IsEmpty())
+                    return Vector2.zero;
+                return gravitations.First().normalized;
+            }
+        }
+
         public Vector2 gravity
         {
             get
@@ -236,6 +247,12 @@ namespace Yu5h1Lib.Game.Character
             }
             InputMovement = hostBehaviour.GetMovement();
             return true;
+        }
+        public void ResetRotation()
+        {
+            var f = forwardSign;
+            transform.localRotation = Quaternion.identity;
+            CheckForward(f);
         }
     }
 }

@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UIImage = UnityEngine.UI.Image;
 
-public class UI_Statbar : UI_Behaviour
+public class UI_Statbar : UI_Stat
 {
     [SerializeField]
     private Image _background;
@@ -29,11 +27,6 @@ public class UI_Statbar : UI_Behaviour
         }
         rectTransform.SetSize(height: rectTransform.sizeDelta.x * 0.1f);
     }
-    public void Method()
-    {
-
-    }
-    private bool TryGetImageInChildren(string name, out Image image) => rectTransform.TryGetGraphInChildren(name, out image);
     private bool FindOrCreateImage(string name, out Image result)
     {
         if (TryGetImageInChildren(name, out result))
@@ -50,7 +43,7 @@ public class UI_Statbar : UI_Behaviour
         result.sprite = Resources.Load<Sprite>("Texture/Square");
         return false;
     }
-    public void UpdateStat(AttributeStat status) => _fill.fillAmount = status.normal;
+    public override void UpdateStat(AttributeStat status) => _fill.fillAmount = status.normal;
 
     public static UI_Statbar Create(Transform parent,string name, int index,
             Vector2 size, bool UpDown) {

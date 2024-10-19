@@ -13,11 +13,21 @@ public abstract class TweenBehaviour : MonoBehaviour
     public LoopType LoopType = LoopType.Yoyo;
     public Ease EaseType;
     public bool playOnEnable = true;
+    public bool RewindOnDisable = true;
     public bool UseUnscaledTime = false;
     public bool IsWaiting { get; protected set; }
-    protected Tweener tweener;
+
+    public Tweener tweener { get ; protected set; }
     protected abstract Tweener Create();
+    public bool IsInitinalized => tweener != null;
     protected abstract void Init();
+    public void Kill()
+    {
+        if (!IsInitinalized)
+            return;
+        tweener.Kill();
+        tweener = null;
+    }
 }
 public abstract class TweenBehaviour<TComponent, TValue, TPlugOptions> : TweenBehaviour
     where TComponent : Component
@@ -38,28 +48,23 @@ public abstract class TweenBehaviour<TComponent, TValue, TPlugOptions> : TweenBe
 
     [SerializeField]
     protected UnityEvent<TValue> OnCompleteEvent;
+    public event UnityAction<TweenBehaviour, TValue> CompleteEvent;
+
     [SerializeField]
     protected UnityEvent<TValue> OnRewindEvent;
+    public event UnityAction<TweenBehaviour, TValue> RewindEvent;
 
     protected override Tweener Create() => CreateTweenCore();
     protected abstract TweenerCore<TValue, TValue, TPlugOptions> CreateTweenCore();
 
-    public bool IsInitinalized => TweenerCore != null;
-    public void Kill()
-    {
-        if (!IsInitinalized)
-            return;
-        TweenerCore.Kill();
-        TweenerCore = null;
-    }
 
     protected override void Init()
-    {
+    {        
         if (IsInitinalized)
             return;
-        
         component = GetComponent<TComponent>();
         TweenerCore = CreateTweenCore();
+        
 
         if (ChangeStartValue)
             TweenerCore.ChangeStartValue(startValue);
@@ -84,39 +89,53 @@ public abstract class TweenBehaviour<TComponent, TValue, TPlugOptions> : TweenBe
         Init();
     }
     private void OnEnable()
-    {        
+    {
+        Init();
         if (!playOnEnable)
             return;
-        if (!IsInitinalized)
-            Init();
         PlayTween();
     }
-    protected virtual void OnRewind()
+    protected void OnRewind(TValue value)
     {
-        OnRewindEvent?.Invoke(TweenerCore.changeValue);
+        OnRewindEvent?.Invoke(value);
+        RewindEvent?.Invoke(this, value);
     }
+
+    protected virtual void OnRewind()
+        => OnRewind(TweenerCore.changeValue);
+    
     protected virtual void OnLoop()
     {
 
     }
-    protected virtual void OnComplete()
+    protected void OnComplete(TValue value)
     {
-        OnCompleteEvent?.Invoke(TweenerCore.changeValue);
+        OnCompleteEvent?.Invoke(value);
+        CompleteEvent?.Invoke(this, TweenerCore.changeValue);
     }
+    protected virtual void OnComplete()
+        => OnComplete(TweenerCore.changeValue);
+
     private void OnDisable()
     {
-        if (!playOnEnable && TweenerCore?.IsComplete() == true)
-        {
-            TweenerCore.Pause();
-            TweenerCore.ForceInit();
-            TweenerCore.Rewind();
-        }
+        if (RewindOnDisable)
+            tweener.Rewind();
+        else
+            tweener.Pause();
+
+        //Kill();
+
+        //if (!playOnEnable && TweenerCore?.IsComplete() == true)
+        //{
+        //    tweener.Pause();
+        //    tweener.Rewind();
+        //}
     }
     protected void PlayTween()
     {
-        TweenerCore.ForceInit();
-        TweenerCore.Rewind();
-        TweenerCore.PlayForward();
+        //tweener.ForceInit();
+        //tweener.Rewind();
+        tweener.PlayForward();
     }
     public void TryPlayTween()
     {

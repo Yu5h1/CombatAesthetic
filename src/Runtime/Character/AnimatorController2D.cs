@@ -30,17 +30,16 @@ namespace Yu5h1Lib.Game.Character
         #region  Skill
         [SerializeField]
         private SkillData[] _Skills;
-        private SkillData[] bindingskills;
+        public SkillBehaviour[] skillBehaviours { get; private set; }
 
+        private SkillData[] bindingskills;
         private SkillData[] optionalSkills;
         public int indexOfSkill;
 
         public SkillData currentSkill => optionalSkills.Validate(indexOfSkill) ? optionalSkills[indexOfSkill] : null;
-        
-        public SkillBehaviour currentSkillBehaviour => currentSkill == null ? null : 
+        public SkillBehaviour currentSkillBehaviour => currentSkill == null ? null :
             skillBehaviours[_Skills.IndexOf(optionalSkills[indexOfSkill])];
-
-        public SkillBehaviour[] skillBehaviours { get; private set; }
+        //public SkillBehaviour currentSkillBehaviour { get; set; }
         #endregion
 
         #region Event
@@ -65,9 +64,8 @@ namespace Yu5h1Lib.Game.Character
             optionalSkills = _Skills.Where(s => s != null && s.incantation.IsEmpty()).ToArray();
             skillBehaviours = new SkillBehaviour[_Skills.Length];
             for (int i = 0; i < skillBehaviours.Length; i++)
-                skillBehaviours[i] = _Skills[i].GetBehaviour(this); 
-            #endregion
-
+                skillBehaviours[i] = _Skills[i].GetBehaviour(this);
+            #endregion            
         }
         protected override void Reset()
         {
@@ -151,9 +149,19 @@ namespace Yu5h1Lib.Game.Character
             {
                 if (VelocityWeight.magnitude != 0)
                 {
-                    if (momentum.y > Physics2D.gravity.y * 2f)
-                        momentum += Physics2D.gravity * GravityScale;
-                    if (Mathf.Abs(momentum.x) < MaxAirborneSpeed && !IsInteracting)
+                    if (gravitations.IsEmpty())
+                    {
+                        if (momentum.y > Physics2D.gravity.y * 2f)
+                            momentum += Physics2D.gravity * GravityScale;
+                    }
+                    else {
+                        var localGdir = transform.InverseTransformDirection(gravityDirection);
+                        var localGQ = Quaternion.LookRotation( Vector3.forward, localGdir);
+                        var gMomentum = Quaternion.Inverse(localGQ) * momentum;
+                        if (gMomentum.y > Physics2D.gravity.y * 2f)
+                            momentum += (Vector2)(localGQ * (Physics2D.gravity * GravityScale));
+                    }
+                    if (underControl && !IsInteracting && Mathf.Abs(momentum.x) < MaxAirborneSpeed)
                         momentum += new Vector2(Mathf.Abs(InputMovement.x), InputMovement.y) * AirborneMultiplier;
                 }
             }
@@ -168,19 +176,36 @@ namespace Yu5h1Lib.Game.Character
         {
             if (!base.UpdateInputInstruction() || IsInteracting) 
                 return false;
+            //if (currentSkillBehaviour != null)
+            //{
+            //    currentSkillBehaviour.Update(hostBehaviour);
+            //    return true;
+            //}
+
             foreach (var behaviour in skillBehaviours)
                 behaviour.Update(hostBehaviour);
             if (hostBehaviour.ShiftIndexOfSkill(out bool next))
+            {
                 indexOfSkill = optionalSkills.ShiftIndex(indexOfSkill, next);
+                SetCursorFromDrawSkill();
+            }
+
             return true;
         }
-
+        public void SetCursorFromDrawSkill()
+        {
+            if (tag == "Player")
+            {
+                if (currentSkill is Draw draw && draw.cursor)
+                    Cursor.SetCursor(draw.cursor, Vector2.zero, CursorMode.Auto);
+            }
+        }
         #region Animation Events
         public void CastFX(int index)
         {
-            if (!currentSkill)
+            if (currentSkillBehaviour == null)
                 return;
-            if (currentSkill is Anim_FX_Skill fxSkill && fxSkill.effects.Validate(index) && !fxSkill.effects[index].IsEmpty()) {
+            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.effects.Validate(index) && !fxSkill.effects[index].IsEmpty()) {
                 var offsetTransform = transform.Find("FxOffset") ?? transform;
                 var fx = PoolManager.instance.Spawn<Transform>(fxSkill.effects[index], offsetTransform.position, offsetTransform.rotation);
                 foreach (var mask in fx.GetComponents<EventMask2D>())

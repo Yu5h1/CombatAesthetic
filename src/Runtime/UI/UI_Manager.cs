@@ -12,23 +12,25 @@ public class UI_Manager : UI_Behaviour
     private TweenImage_UI _Fadeboard_UI;
     public TweenImage_UI Fadeboard_UI => Build(nameof(Fadeboard_UI), ref _Fadeboard_UI);
 
-    public UI_Menu _LevelSceneMenu;
+    private UI_Menu _LevelSceneMenu;
     public UI_Menu LevelSceneMenu => Build(nameof(LevelSceneMenu), ref _LevelSceneMenu);
-    public UI_Menu _StartSceneMenu;
+    private UI_Menu _StartSceneMenu;
     public UI_Menu StartSceneMenu => Build(nameof(StartSceneMenu), ref _StartSceneMenu);
 
-    public UI_DialogBase _Dialog_UI;
+    private UI_DialogBase _Dialog_UI;
     public UI_DialogBase Dialog_UI => Build(nameof(Dialog_UI), ref _Dialog_UI);
 
     private LoadAsyncBehaviour[] loadAsyncBehaviours;
 
-    public UI_Attribute _PlayerAttribute;
+    private UI_Attribute _PlayerAttribute;
     public UI_Attribute PlayerAttribute_UI => Build(nameof(PlayerAttribute_UI), ref _PlayerAttribute);
+
+    private UI_DialogBase _EndCredits;
+    public UI_DialogBase EndCredits => Build(nameof(EndCredits), ref _EndCredits);
 
     public UI_Statbar statbar_UI_Source => Resources.Load<UI_Statbar>($"UI/BaseStatBar_UI");
     public UI_Attribute attribute_UI_Source => Resources.Load<UI_Attribute>("UI/BaseAttribute_UI");
 
-    public ParticleSystem pointerClick_UI_Fx;
     private void Awake()
     {
         if (Loading)
@@ -38,6 +40,7 @@ public class UI_Manager : UI_Behaviour
     }
     public void Start()
     {
+        GameManager.eventsystem.SetSelectedGameObject(null);
         if (Fadeboard_UI)
             Fadeboard_UI.gameObject.SetActive(false);
         if (IsStartScene)
@@ -52,10 +55,10 @@ public class UI_Manager : UI_Behaviour
             LevelSceneMenu.Engage(false);
             PlayerAttribute_UI.transform.SetSiblingIndex(0);
             PlayerAttribute_UI.FadeIn();
-            if (GameManager.instance.Player)
+            if (GameManager.instance.playerController)
             {
-                if (GameManager.instance.Player.attribute)
-                    GameManager.instance.Player.attribute.ui = PlayerAttribute_UI;
+                if (GameManager.instance.playerController.attribute)
+                    GameManager.instance.playerController.attribute.ui = PlayerAttribute_UI;
                 else
                     "Player.attribute is not assigned.".LogWarning();
             }
@@ -64,14 +67,7 @@ public class UI_Manager : UI_Behaviour
     }
     public void PointerClick()
     {
-        if (!pointerClick_UI_Fx)
-            return;
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform,
-            Input.mousePosition, null, out Vector2 localPoint)) 
-        {
-            pointerClick_UI_Fx.transform.position = localPoint;
-            pointerClick_UI_Fx.Play();
-        }
+ 
     }
     public void PauseGame(bool YesNo)
     {
@@ -84,6 +80,7 @@ public class UI_Manager : UI_Behaviour
         LevelSceneMenu.gameObject.SetActive(YesNo);
         if (YesNo)
             LevelSceneMenu.canvasGroup.alpha = 1;
+        GameManager.eventsystem.SetSelectedGameObject(null);
         GameManager.IsGamePause = YesNo;
     }
     /// <summary>

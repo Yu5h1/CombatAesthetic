@@ -7,6 +7,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+using Unity.VisualScripting;
 
 public static class TextureImporterEx 
 {
@@ -19,15 +20,24 @@ public static class TextureImporterEx
             return;
         var folder = Path.GetDirectoryName(importer.assetPath);
         var name = Path.GetFileNameWithoutExtension(importer.assetPath);
-        if (!TryParseGif(dImage.FromFile(importer.assetPath), out Bitmap[] maps, out float[] times))
+
+        var gif = dImage.FromFile(importer.assetPath);
+        if (!TryParseGif(gif, out Bitmap[] maps, out float[] times))
+        {
+            gif.Dispose();
             return;
+        }
 
         //Debug.Log(string.Join(',', times));
         //return;
         var spritesPath = maps.Select((map,i) => Path.Combine(folder, $"{name}{i:00}.png")).ToArray();
-        
+
         for (int i = 0; i < maps.Length; i++)
+        {
             maps[i].Save(spritesPath[i]);
+            maps[i].Dispose();
+        }
+        gif.Dispose();
         AssetDatabase.Refresh();
         var sprites = new Sprite[spritesPath.Length];
         var keyframes = new ObjectReferenceKeyframe[sprites.Length];
@@ -56,6 +66,7 @@ public static class TextureImporterEx
             path = "",
             propertyName = "m_Sprite"
         }, keyframes);
+
 
         EditorUtility.SetDirty(clip);
         AssetDatabase.SaveAssets(); 

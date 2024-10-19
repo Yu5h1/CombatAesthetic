@@ -14,10 +14,11 @@ namespace Yu5h1Lib.Game.Character
         private readonly int SpeedYHash = Animator.StringToHash("SpeedY");
         private readonly int IndexOfSkillHash = Animator.StringToHash("IndexOfSkill");
         private readonly int TriggerSkillHash = Animator.StringToHash("TriggerSkill");
+        private readonly int HoldSkillHash = Animator.StringToHash("HoldSkill");
         private readonly int ConsciousHash = Animator.StringToHash("Conscious");
         private readonly int HurtHash = Animator.StringToHash("Hurt");
-        private readonly int InteractHash = Animator.StringToHash("Interact");
-        
+        private readonly int TriggerExitHash = Animator.StringToHash(nameof(TriggerExit));
+
         #region Animator Parameters
         public bool Grounded
         {
@@ -34,11 +35,18 @@ namespace Yu5h1Lib.Game.Character
             get => animator.GetFloat(SpeedYHash);
             set => animator.SetFloat(SpeedYHash, value);
         }
+        #region Skill
         public int IndexOfSkill
         {
             get => animator.GetInteger(IndexOfSkillHash);
             set => animator.SetInteger(IndexOfSkillHash, value);
         }
+        public bool HoldSkill
+        {
+            get => animator.GetBool(HoldSkillHash);
+            set => animator.SetBool(HoldSkillHash, value);
+        }
+        #endregion
         public int Conscious
         {
             get => animator.GetInteger(ConsciousHash);
@@ -50,27 +58,29 @@ namespace Yu5h1Lib.Game.Character
         private AnimatorControllerParameter hurtParam;
         private AnimatorControllerParameter ConsciousParam;
         private AnimatorControllerParameter InteractParam;
+        private AnimatorControllerParameter TriggerExitParam;
         public override void Init(AnimatorController2D controller)
         {
             base.Init(controller);  
             controller.detector.OnGroundStateChangedEvent.AddListener(val => Grounded = val);
             TryGetAnimParam(nameof(Hurt), out hurtParam);
             TryGetAnimParam(nameof(Conscious), out ConsciousParam);
-            TryGetAnimParam(nameof(Interact), out InteractParam);
+            TryGetAnimParam(nameof(TriggerExitParam), out TriggerExitParam);
         }
         public void Hurt()
         {
             if (hurtParam == null)
                 return;
-            ///May cause Parameter type 'Hash ########' does not match.
-            //animator.SetTrigger(hurtParam.nameHash);
             animator.SetTrigger(HurtHash);
+
+            ///Deprecated. This May cause Parameter type 'Hash ########' does not match.
+            //animator.SetTrigger(hurtParam.nameHash);
         }
-        public void Interact()
+        public void TriggerExit()
         {
-            if (InteractParam == null)
-                return;
-            animator.SetTrigger(InteractHash);
+            //if (TriggerExitParam == null)
+            //    return;
+            animator.SetTrigger(TriggerExitHash);
         }
         public virtual void Update()
         {

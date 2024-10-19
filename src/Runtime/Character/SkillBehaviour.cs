@@ -11,9 +11,11 @@ namespace Yu5h1Lib.Game.Character
         protected abstract void Init();
         protected bool Activate()
         {
+
             if (!IsReady || !owner.underControl)
                 return false;
             owner.attribute.Affect(AffectType.NEGATIVE, data.costs);
+
             return true;
         }
         public void Update(HostData2D.HostBehaviour2D host)
