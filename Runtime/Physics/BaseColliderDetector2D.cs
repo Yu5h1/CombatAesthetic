@@ -1,11 +1,15 @@
 using UnityEngine;
+using Yu5h1Lib;
 
-public class BaseColliderDetector2D : Rigidbody2DBehaviour
+public class BaseColliderDetector2D : Rigidbody2DBehaviour , ITransform2D
 {
     #region field
     [SerializeField]
     protected Collider2D _collider;
-    public new Collider2D collider => _collider;
+#pragma warning disable 0109
+    public new Collider2D collider { get => _collider; protected set => _collider = value; }
+#pragma warning restore 0109
+
     public ContactFilter2D filter;
     public LayerMask layerMask { get => filter.layerMask; set => filter.layerMask = value; }
     public RaycastHit2D[] results;
@@ -14,19 +18,19 @@ public class BaseColliderDetector2D : Rigidbody2DBehaviour
     [SerializeField, Range(1, 10)]
     private int _resultsCount = 5;
     public int ResultsCount { get => _resultsCount; protected set => _resultsCount = value; }
-    public bool ignoreSiblingColliders = true; 
+    public bool ignoreSiblingColliders = true;
     #endregion
 
     #region property
+    public Vector2 position => rigidbody == null ? transform.position : rigidbody.position;
     public Vector2 offset => _collider.offset;
     public Vector2 extents { get; private set; }
-    public Vector2 up => (Vector2)transform.up;
-    public Vector2 down => -up;
-    public Vector2 right => transform.right;
-    public Vector2 center => rigidbody.position + (transform.right * new Vector2(offset.x, 0)) + (transform.up * new Vector2(0, offset.y));
+    public Vector2 center => position + (transform.right * new Vector2(offset.x, 0)) + (transform.up * new Vector2(0, offset.y));
     public Vector2 front => center + (right * extents.x);
     public Vector2 top => center + (up * extents.y);
     public Vector2 bottom => center + (down * extents.y);
+
+
     #endregion
 
     protected override void Reset()
@@ -38,7 +42,7 @@ public class BaseColliderDetector2D : Rigidbody2DBehaviour
     {
         if (!_collider)
         {
-            Debug.LogWarning("The collider of decteor was unassigned.");
+            Debug.LogWarning($"({name})'s collider of decteor was unassigned.");
             return;
         }
         extents = _collider.GetSize() * 0.5f;

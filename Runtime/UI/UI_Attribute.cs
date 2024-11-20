@@ -1,36 +1,45 @@
 using DG.Tweening;
 using System.Collections;
-
+using System.Collections.Generic;
 using UnityEngine;
+using Yu5h1Lib;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class UI_Attribute : UI_Behaviour
 {
-    [SerializeField]
-    private UI_Statbar[] _uI_statbars;
-    public UI_Statbar[] uI_statbars => _uI_statbars;
+
+    public UI_Stat[] uI_stats;
 
     private CanvasGroup canvasGroup;
-    private void Reset()
-    {
-        _uI_statbars = GetComponentsInChildren<UI_Statbar>();
-    }
+
     private void Awake()
     {
         TryGetComponent(out canvasGroup);
     }
+    public void Prepare(AttributeBehaviour attribute)
+    {
+        uI_stats = new UI_Stat[attribute.Keys.Length];
+
+        for (int i = 0; i < attribute.Keys.Length; i++)
+            if (transform.TryFind(attribute.Keys[i], out Transform t))
+                if (t.TryGetComponent(out UI_Stat ui_Stat))
+                {
+                    uI_stats[i] = ui_Stat;
+                    uI_stats[i].UpdateStat(attribute.stats[i]);
+                }
+    }
     public void UpdateAttribute(AttributeBehaviour attribute)
     {
-        if (!attribute || uI_statbars.Length != attribute.Keys.Length)
+        if (!attribute)
             return;
         for (int i = 0; i < attribute.Keys.Length; i++)
-            uI_statbars[i].UpdateStat(attribute.stats[i]);
+            uI_stats[i]?.UpdateStat(attribute.stats[i]);
     }
     public void Despawn()
     {
-        foreach (var item in uI_statbars)
+        foreach (var item in uI_stats)
             PoolManager.instance.Despawn(item);
-        _uI_statbars = null;
+        uI_stats = null;
     }
     //deprecated implimentation
     //public StatProperty_Deprecated.VisualItem[] CreateVisualItems(RectTransform parent, Vector2 size, bool UpDown)
@@ -39,7 +48,7 @@ public class UI_Attribute : UI_Behaviour
     {
         if (attribute.Keys.IsEmpty())
             return;
-        _uI_statbars = new UI_Statbar[attribute.Keys.Length];
+        uI_stats = new UI_Statbar[attribute.Keys.Length];
         //for (int i = 0; i < attribute.Keys.Length; i++)
         //{
         //    uI_statbars[i] = StatsManager.instance.SpawnStatbar();

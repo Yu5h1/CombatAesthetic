@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
-using UnityEngine.UIElements;
+using Yu5h1Lib.EditorExtension;
 
 [CustomEditor(typeof(UI_Statbar))]
 public class UI_statbarInspector : Editor<UI_Statbar>

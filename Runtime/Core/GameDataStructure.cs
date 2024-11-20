@@ -26,6 +26,14 @@ public struct AttributeStat
     public void Affect(AffectType affectType, float amount) => current += amount * (int)affectType;
     public override string ToString() => $"{current}";
 }
+//[System.Serializable]
+//public struct AttributeTypeStat 
+//{
+//    public string Name => type.ToString();
+//    public AttributeType type;
+//    public AttributeStat attribute;
+//}
+
 [System.Serializable]
 public struct EnergyInfo
 {
@@ -39,6 +47,9 @@ public enum AttributeType
     Health     = 1 << 0,
     Mana       = 1 << 1,
     Stamina    = 1 << 2,
+    Red        = 1 << 3,
+    Yellow     = 1 << 4,
+    Blue       = 1 << 5,
     //All        = Health | Mana | Stamina
 }
 public enum AffectType

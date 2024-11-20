@@ -6,7 +6,7 @@ namespace Yu5h1Lib.Game.Character {
     [CreateAssetMenu(menuName = "Scriptable Objects/PlayerInput")]
     public class PlayerHost : HostData2D
     {
-        public override Type GetHostType() => typeof(Behaviour);
+        public override Type GetBehaviourType() => typeof(Behaviour);
         public class Behaviour : Behaviour2D<PlayerHost>
         {
             public override void Init(Controller2D controller) => base.Init(controller);
@@ -23,12 +23,12 @@ namespace Yu5h1Lib.Game.Character {
                     return Vector2.zero;
                 return new Vector2(input.GetAxisRaw("Horizontal"), input.GetAxisRaw("Vertical"));
             }
-            public override void GetInputState(UpdateInput updateInput)
+            public override bool GetInputState(UpdateInput updateInput)
             {
                 if (GameManager.IsSpeaking)
-                    return;
-                
-                updateInput(input.GetMouseButtonDown(0), input.GetMouseButton(0), input.GetMouseButtonUp(0));
+                    return false;
+
+                return updateInput(input.GetMouseButtonDown(0), input.GetMouseButton(0), input.GetMouseButtonUp(0));
             }
 
             public override void GetInputState(string bindingName, UpdateInput updateInput)

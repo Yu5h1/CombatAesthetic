@@ -14,6 +14,8 @@ public class ImpactForce2D : MonoBehaviour
     private Vector2 _size = Vector2.one;
     public Vector2 size => _size * transform.localScale;
 
+    [SerializeField]
+    private float forceMultiplier = 1.0f;
     private void OnDrawGizmos()
     {
         var originalMatrix = Gizmos.matrix;
@@ -29,7 +31,7 @@ public class ImpactForce2D : MonoBehaviour
     }
     public void Push(Vector3 force)
     {
-       
+        force *= forceMultiplier;
         var results = Physics2D.OverlapBoxAll(impactPos, size, 0, 1 << LayerMask.NameToLayer("Character"));
         for (int i = 0; i < results.Length; i++)
         {

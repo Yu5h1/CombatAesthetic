@@ -14,8 +14,6 @@ public class UI_StatCounter : UI_Stat
     [SerializeField]
     private Image[] elements;
 
-    [SerializeField]
-    
 
     [ContextMenu("PrepareElements")]
     private void PrepareElements()
@@ -30,10 +28,11 @@ public class UI_StatCounter : UI_Stat
             rt.position = pos;
         }
     }
-
     public override void UpdateStat(AttributeStat status)
     {
-        throw new System.NotImplementedException();
+        var current = Mathf.CeilToInt(status.normal * elementCount);
+        for (int i = 0; i < elements.Length; i++)
+            elements[i].color = i >= current ? Color.gray : Color.white;
     }
 
     private bool FindOrCreateElement(string name, out Image result)

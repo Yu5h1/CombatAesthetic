@@ -36,7 +36,10 @@ public class UI_Manager : UI_Behaviour
         if (Loading)
             loadAsyncBehaviours = Loading.GetComponentsInChildren<LoadAsyncBehaviour>(true);
         if (!loadAsyncBehaviours.IsEmpty())
+        {
+            LoadSceneAsyncHandler -= OnLoadAsyncBehaviours;
             LoadSceneAsyncHandler += OnLoadAsyncBehaviours;
+        }
     }
     public void Start()
     {
@@ -50,7 +53,7 @@ public class UI_Manager : UI_Behaviour
             PlayerAttribute_UI.gameObject.SetActive(false);
         }
         else if (IsLevelScene) {
-            Dialog_UI.rectTransform.SetSiblingIndex(transform.childCount-1);
+            Dialog_UI.transform.SetSiblingIndex(transform.childCount-1);
             StartSceneMenu.Dismiss();
             LevelSceneMenu.Engage(false);
             PlayerAttribute_UI.transform.SetSiblingIndex(0);
@@ -60,7 +63,7 @@ public class UI_Manager : UI_Behaviour
                 if (GameManager.instance.playerController.attribute)
                     GameManager.instance.playerController.attribute.ui = PlayerAttribute_UI;
                 else
-                    "Player.attribute is not assigned.".LogWarning();
+                    "Player.attribute is not assigned.".printWarning();
             }
                 
         }
@@ -91,7 +94,9 @@ public class UI_Manager : UI_Behaviour
         if (result)
             return result;
         if (!this.TryGetComponentInChildren(n, out result))
+        {
             result = GameObjectEx.InstantiateFromResourecs<T>($"UI/{n}", transform);
+        }
         if (result)
         {
             (result switch

@@ -9,7 +9,7 @@ public abstract class EventMask2D : BaseEvent2D
     public TagOption tagOption;
     private void OnEnable() { }
     protected bool Validate(GameObject other) 
-        => enabled && tagOption.Compare(other.tag) && layers.Contains(other);
+        => enabled && tagOption.Compare(other.transform.tag) && layers.Contains(other);
 }
 [System.Serializable]
 public class TagOption
@@ -19,10 +19,29 @@ public class TagOption
         Equal = 0,
         NotEqual = 1
     }
-    [DropDownTag]
+    [DropDownTag(true)]
     public string tag;
+
+    private string[] _tags;
+    public string[] tags 
+    { 
+        get
+        { 
+            if (_tags == null)
+                _tags = tag.Split(',');
+            return _tags;
+        }
+    }
+
     public ComparisionType type = ComparisionType.NotEqual;
     public override string ToString() => tag;
     public bool IsUntagged => tag.IsEmpty() || tag.Equals("Untagged");
-    public bool Compare(string otherTag) => IsUntagged ? true : (type == ComparisionType.Equal ? tag == otherTag : otherTag != tag);
+    public bool Compare(string otherTag) 
+    {
+        if (IsUntagged)
+            return true;
+        return type == ComparisionType.Equal ?
+            tag.Contains(',') ? otherTag.EqualsAny(tags) : tag == otherTag :
+            tag.Contains(',') ? !otherTag.EqualsAny(tags) : tag != otherTag;
+    }
 }

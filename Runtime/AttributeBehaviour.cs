@@ -20,15 +20,29 @@ public class AttributeBehaviour : MonoBehaviour
     public Coroutine[] routines { get; private set; }
 
     public bool VisualizeStat;
-    public bool IsEmpty => attributes == AttributeType.None;
+
+    /// <summary>
+    /// stats.Length
+    /// </summary>
     public int Count => stats.Length;
 
+    #region Events
+    [SerializeField]
+    private UnityEvent<AttributeType> _onAffect;
+    public event UnityAction<AttributeType> onAffect
+    {
+        add => _onAffect.AddListener(value);
+        remove => _onAffect.RemoveListener(value);
+    }
     [SerializeField]
     private UnityEvent<AttributeType> StatDepletedEvent;
-    public event UnityAction<AttributeType> StatDepleted {
+    public event UnityAction<AttributeType> StatDepleted
+    {
         add => StatDepletedEvent.AddListener(value);
         remove => StatDepletedEvent.RemoveListener(value);
-    }
+    } 
+    #endregion
+
     public bool TryGetIndex(string key, out int index) => (index = Keys.IndexOf(key)) >= 0;
     public bool TryGetIndex(AttributeType type, out int index) => TryGetIndex($"{type}", out index);
     public bool TryGetState(AttributeType type, out AttributeStat stat) {
@@ -43,14 +57,41 @@ public class AttributeBehaviour : MonoBehaviour
 
     public bool IsEnough(string key, float amount) => TryGetIndex(key, out int index) && stats[index].current >= amount;
 
-    public UI_Attribute ui { get; set; }
+    public bool IsEmpty(AttributeType type) { 
+        if (TryGetState(type,out AttributeStat stat))
+            return stat.current < 0;
+        return true;
+    }
 
+    private UI_Attribute _ui;
+
+    public UI_Attribute ui
+    {
+        get => _ui;
+        set 
+        {
+            if (_ui == value)
+                return;
+            _ui = value;
+            if (_ui)
+                _ui.Prepare(this);
+        }
+    }
+
+
+
+
+    /// <summary>
+    /// stop update attributes while affecting
+    /// </summary>
     private bool affected;
     public void Reset()
     {
         attributes = AttributeType.Health;
     }
-    private void Awake()
+
+
+    internal void Init()
     {
         Keys = attributes.SeparateFlags().Select(flag => $"{flag}").ToArray();
         if (stats.Length != Keys.Length)
@@ -58,28 +99,17 @@ public class AttributeBehaviour : MonoBehaviour
             int previouseStatCount = stats.Length;
             System.Array.Resize(ref _stats, Keys.Length);
             if (previouseStatCount < stats.Length)
-            {
                 for (int i = previouseStatCount; i < stats.Length; i++)
-                {
                     stats[i] = AttributeStat.Default;
-                }
-            }
         }
-    }
-    private void Start()
-    {
     }
     private void OnEnable()
     {
         for (int i = 0; i < stats.Length; i++)
-            stats[i].Init();
+            stats[i].Init();        
     }
     void Update()
     {
-        #region UI
-        if (ui != null)
-            ui.UpdateAttribute(this);
-        #endregion
         if (affected)
         {
             affected = false;
@@ -90,6 +120,7 @@ public class AttributeBehaviour : MonoBehaviour
             if (stats[i].IsFull)
                 continue;
             stats[i].current += stats[i].recovery * Time.deltaTime;
+            ui?.uI_stats[i]?.UpdateStat(stats[i]);
         }
     }
     /// <summary>
@@ -101,12 +132,11 @@ public class AttributeBehaviour : MonoBehaviour
         var DepletedTypes = AttributeType.None;
         foreach (var flag in attributeType.SeparateFlags())
         {
-            var index = Keys.IndexOf($"{flag}");
+            var index = Keys.IndexOf(flag.ToString());
             if (index < 0)
                 continue;
             stats[index].Affect(affectType, amount);
-            if (ui != null)
-                ui.UpdateAttribute(this);
+            OnAffected(flag);
             if (stats[index].IsDepleted)
             {
                 OnStatDepleted(flag);
@@ -115,23 +145,29 @@ public class AttributeBehaviour : MonoBehaviour
         }
         return DepletedTypes;
     }
+    private void OnAffected(AttributeType flag)
+    {
+        _onAffect?.Invoke(flag);
+        var index = Keys.IndexOf(flag.ToString());
+        if (index < 0)
+            return;
+        ui?.uI_stats[index]?.UpdateStat(stats[index]);
+    }
     private void OnStatDepleted(AttributeType flag)
     {
         StatDepletedEvent?.Invoke(flag);
-        if (!flag.HasFlag(AttributeType.Health))
-            return;
         if (!enabled)
+            return;
+        if (!flag.HasFlag(AttributeType.Health))
             return;
         #region unorganized implmentation
         if (tag == "Player")
         {
-
-            //UIController.Fadeboard_UI.FadeIn(Color.black,true);
-            ui.FadeOut(0.3f);
+            GetComponent<SpriteRenderer>().sortingLayerName = "Front";
+            ui?.FadeOut(0.3f);
             PoolManager.canvas.sortingLayerName = "Back";
             CameraController.instance.FadeIn("Back", 1);
             GameManager.ui_Manager.LevelSceneMenu.FadeIn(5);
-            
         }
         Debug.Log($"{gameObject.name} was defeated because of {DefeatedReason.Exhausted}.");
         enabled = false;
@@ -164,12 +200,9 @@ public class AttributeBehaviour : MonoBehaviour
         return true;
     }
 
-    #region UI
-    public void GetUI_StatsBar()
+    private void OnDisable()
     {
-        //uI_Statbars = new UI_statbar[Keys.Length];
-        //    PoolManager.instance.Spawn("BaseStatBar");
+        _onAffect.RemoveAllListeners();
+        StatDepletedEvent.RemoveAllListeners();
     }
-
-    #endregion
 }

@@ -17,36 +17,38 @@ namespace Yu5h1Lib.Game.Character
             }
             public bool IsExecuting { get; private set; }
 
-            protected virtual bool keepholding
-                => ConsumeExecutionCosts() == AttributeType.None;
+            protected bool keepholding;
 
-            protected virtual AttributeType ConsumeExecutionCosts()
+            protected virtual AttributeType Activating()
                 => owner.attribute.Affect(AffectType.NEGATIVE, data.ExcutingCosts);
 
-            protected override void UpdateInput(bool down, bool hold, bool release)
+            protected override bool UpdateInput(bool down, bool hold, bool release)
             {
                 if (!IsReady && !IsExecuting)
-                    return;
+                    return false;
                 if (IsExecuting)
                 {
                     if (hold)
                         OnExcute();
                     if (!owner.underControl)
                         Exit(ExitReason.interrupt);
-                    if (release || !keepholding)
+                    if (release || !keepholding || Activating() != AttributeType.None )
                         Exit(ExitReason.release);
                 }                
                 else if (down && Activate())
                 {
+                    keepholding = true;
                     IsExecuting = true;
                     OnEnter();
                 }
+                return true;
             }
 
             protected abstract void OnEnter();
             protected abstract void OnExcute();
-            private void Exit(ExitReason reason)
+            protected void Exit(ExitReason reason)
             {
+                keepholding = false;
                 IsExecuting = false;
                 OnExit(reason);
             }

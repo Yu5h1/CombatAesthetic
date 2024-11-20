@@ -11,4 +11,8 @@ public static class Collider2DEx
         CircleCollider2D circle => Vector2.one * circle.radius,
         _ => Vector2.zero
     };
+    public static bool CompareLayer(this Collider2D col, LayerMask layerMask) 
+        => col.gameObject.CompareLayer(layerMask);
+    public static bool CompareLayer(this Collider2D col, string layerName)
+    => col.gameObject.CompareLayer(layerName);
 }

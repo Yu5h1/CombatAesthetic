@@ -6,6 +6,7 @@ using UnityEngine;
 using System.Text;
 using System.Linq;
 using TMPro;
+using Yu5h1Lib.EditorExtension;
 
 [CustomEditor(typeof(UI_Dialog_TMP))]
 public class UI_DialogInspector : Editor<UI_Dialog_TMP>

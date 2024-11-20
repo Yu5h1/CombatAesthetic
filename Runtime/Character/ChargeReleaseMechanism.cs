@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Yu5h1Lib;
 using Yu5h1Lib.Game.Character;
 
 

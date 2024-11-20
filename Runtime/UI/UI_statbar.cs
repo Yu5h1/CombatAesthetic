@@ -17,8 +17,8 @@ public class UI_Statbar : UI_Stat
 
     private void Reset()
     {
-        FindOrCreateImage(nameof(background),out _background);
-        if (!FindOrCreateImage(nameof(fill), out _fill)) {
+        FindOrCreateImage(out _background,nameof(background));
+        if (!FindOrCreateImage(out _fill,nameof(fill))) {
             _fill.type = Image.Type.Filled;
             _fill.fillMethod = Image.FillMethod.Horizontal;
 
@@ -27,7 +27,7 @@ public class UI_Statbar : UI_Stat
         }
         rectTransform.SetSize(height: rectTransform.sizeDelta.x * 0.1f);
     }
-    private bool FindOrCreateImage(string name, out Image result)
+    private bool FindOrCreateImage(out Image result,string name)
     {
         if (TryGetImageInChildren(name, out result))
             return result;
@@ -43,6 +43,7 @@ public class UI_Statbar : UI_Stat
         result.sprite = Resources.Load<Sprite>("Texture/Square");
         return false;
     }
+
     public override void UpdateStat(AttributeStat status) => _fill.fillAmount = status.normal;
 
     public static UI_Statbar Create(Transform parent,string name, int index,

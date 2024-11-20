@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Yu5h1Lib.Game.Character
@@ -7,17 +8,18 @@ namespace Yu5h1Lib.Game.Character
         public AnimatorController2D owner { get; protected set; }
         public SkillData data { get; protected set; }
         public abstract bool IsReady { get; }
-
+        
         protected abstract void Init();
+        public void Select() => OnSelect();
+        protected virtual void OnSelect(){}
         protected bool Activate()
         {
-
             if (!IsReady || !owner.underControl)
-                return false;
+                return OnActivate(false);
             owner.attribute.Affect(AffectType.NEGATIVE, data.costs);
-
-            return true;
+            return OnActivate(true);
         }
+        protected virtual bool OnActivate(bool successed) => successed;
         public void Update(HostData2D.HostBehaviour2D host)
         {
             if (!data.parallelizable && owner.currentSkillBehaviour != this)
@@ -28,7 +30,13 @@ namespace Yu5h1Lib.Game.Character
                 host.GetInputState(UpdateInput);
 
         }
-        protected abstract void UpdateInput(bool down, bool hold, bool up);
+        /// <summary>
+        /// return isexcuting
+        /// </summary>
+        /// <param name="down"></param>
+        /// <param name="hold"></param>
+        /// <param name="up"></param>
+        protected abstract bool UpdateInput(bool down, bool hold, bool up);
 
         public static SkillBehaviour Constructor(SkillData skill, AnimatorController2D character)
         {

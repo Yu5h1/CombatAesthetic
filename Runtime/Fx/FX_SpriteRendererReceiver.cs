@@ -1,10 +1,7 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Yu5h1Lib.Game;
-using DG.Tweening;
 using System.Linq;
+using Yu5h1Lib;
 
 public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
 {
@@ -12,6 +9,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     private SpriteRenderer[] spriteRenderers;
     private Material[] materials;
     private Timer timer;
+    private Timer.Wait waiter;
     private AnimationCurve curve;
     private bool IsDepleted;
 
@@ -28,6 +26,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     private void Start()
     {
         timer = new Timer();
+        waiter = timer.Waiting();
         timer.Update += Timer_Update;
 
     }
@@ -65,7 +64,8 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     {
         SetColor(sender.color);
         timer.duration = curve.keys.Last().time;
-        yield return new Timer.Wait<Timer>(timer);
+        timer.Start();
+        yield return waiter;
         if (IsDepleted)
         {
             var fx = PoolManager.instance.Spawn<Transform>(sender.Fx_Exit, transform.position, transform.rotation);

@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -9,15 +11,15 @@ using static GameObjectEx;
 
 namespace Yu5h1Lib
 {
-    [RequireComponent(typeof(Canvas))]
-    [RequireComponent(typeof(UI_Manager), typeof(EventSystem), typeof(InputSystemUIInputModule))]
-    [RequireComponent(typeof(AudioListener), typeof(AudioSource))]
+    [RequireComponent(typeof(EventSystem), typeof(Canvas), typeof(InputSystemUIInputModule))]
+    [RequireComponent(typeof(UI_Manager), typeof(SoundManager))]
     [DisallowMultipleComponent]
     public partial class GameManager : SingletonComponent<GameManager>
     {
         public static bool IsQuit = false;
         [RuntimeInitializeOnLoadMethod]
         static void RunOnStart() {
+            Application.wantsToQuit -= Application_wantsToQuit;
             Application.wantsToQuit += Application_wantsToQuit;
             IsQuit = false;
             SceneController.RegistryLoadEvents();
@@ -41,7 +43,7 @@ namespace Yu5h1Lib
         public static InputSystemUIInputModule InputModule => instance._InputModule;
         public static BaseInput input => InputModule.input;
         #endregion
-
+        
         public static CameraController cameraController => CameraController.instance;
 
         public GameSetting Setting => Resources.Load<GameSetting>(nameof(Setting));
@@ -63,11 +65,11 @@ namespace Yu5h1Lib
 
         public static UnityAction<bool> OnPauseStateChanged;
 
+
+        private string inputString;
+        [ShowInInspector]
         public Controller2D playerController;
-
-
         public Texture2D cursor;
-
         void Awake()
         {
             QualitySettings.vSyncCount = 0;
@@ -77,22 +79,23 @@ namespace Yu5h1Lib
             TryGetComponent(out _ui_manager);
             TryGetComponent(out _InputModule);
             DontDestroyOnLoad(this);
-            
         }
+        protected override void Init() {}
+
         public void Start()
         {
             Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
+            
+
             var player = GameObject.FindWithTag("Player");
             //Debug.Log($"GameManager start find player:{player}");
             if (player)
             {
                 cameraController.SetTarget(player.transform, SceneController.IsLevelScene);
                 if (player.TryGetComponent(out playerController))
-                {
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
-                    if (SceneController.IsLevelScene && playerController is AnimatorController2D animatorController2D)
-                        animatorController2D.SetCursorFromDrawSkill();
-                }
+
+                PoolManager.instance.PrepareFromResourece<Transform>("Fx");
             }
         }
         void Update()
@@ -100,10 +103,8 @@ namespace Yu5h1Lib
             if (input.GetButtonDown("Cancel"))
                 Cancel();
             if (!Input.GetKey(KeyCode.LeftControl) && input.TryGetScrollWheelDelta(out float delta)) {
-                if (SceneController.IsLevelScene)
-                {
+                if (playerController)
                     cameraController.ZoomCamera(delta);
-                }
             }
             if (input.GetMouseButtonDown(0))
             {
@@ -112,6 +113,24 @@ namespace Yu5h1Lib
                     cameraController.PlayCursorEffect();
                 }
             }
+
+            //foreach (char c in Input.inputString)
+            //{
+            //    if (c == '\b') 
+            //    {
+            //        if (inputString.Length > 0)
+            //            inputString = inputString.Substring(0, inputString.Length - 1);
+            //    }
+            //    else if (c == '\n' || c == '\r') // 判斷是否按下回車鍵
+            //    {
+            //        Debug.Log("Final Input: " + inputString);
+            //        inputString = ""; 
+            //    }
+            //    else
+            //    {
+            //        inputString += c; 
+            //    }
+            //}
         }
         public void Submit()
         {
@@ -130,32 +149,52 @@ namespace Yu5h1Lib
 #endif
         }
         #region FX
-        public void PlayAudio(AudioClip clip,float volume = 1)
+        public void PlayAudio(AudioClip clip,float volume)
         {
             if (!clip)
                 return;
             this.GetOrAdd(out AudioSource audio);
             audio.clip = clip;
             audio.volume = volume;
-            audio.Play();
+            audio.PlayOneShot(clip,volume);
+            //audio.Play();
         }
         public void PlayAudio(AudioSource source)
         {
             if (!source)
                 return;
-            PlayAudio(source.clip);
-            this.GetOrAdd(out AudioSource audio);
-            audio.clip = source.clip;
-            audio.volume = source.volume;
-            audio.Play();
+            PlayAudio(source.clip, source.volume);
+        }
+        public void DelayPlayAudio(float delay, AudioSource clip) 
+        {
+            DelayAction(delay, clip, PlayAudio);
+        }
+        private IEnumerator DelayAction<T>(float delay, T t, UnityAction<T> action)
+        { 
+            yield return new WaitForSeconds(delay);
+            action?.Invoke(t);
         }
         #endregion
         #region Scene stuffs...
+        public void StartNewGame()
+        {
+            GameManager.instance.LoadScene(1);
+            TeleportGate2D.GateStates.Clear();
+            CheckPoint.Clear();
+        }
         public void ReloadCurrentScene() => SceneController.ReloadCurrentScene();
         public void LoadScene(string SceneName) => SceneController.LoadScene(SceneName);
         public void LoadScene(int SceneIndex) => SceneController.LoadScene(SceneIndex);
         #endregion
+        #region Static
 
+        public static void MovePlayer(Vector3 pos)
+        {
+            instance.playerController.transform.position = pos;
+            cameraController.Focus();
+        }
+
+        #endregion
         //public void DetectMouseAttack()
         //{
         //    if (input.GetMouseButtonDown(0))

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public static class GameObjectEx
 {
@@ -67,6 +68,12 @@ public static class GameObjectEx
     where T : Behaviour
         => result ?? FindOrInstantiateFromResourecs(path, out result, includeInactive, OnCreated);
     #endregion
+
+    public static bool CompareLayer(this GameObject obj,LayerMask layerMask) => ((1 << obj.layer) & layerMask.value) != 0;
+
+    public static bool CompareLayer(this GameObject obj, string layerName) 
+        => ((1 << obj.layer) & LayerMask.GetMask(layerName)) != 0;
+
     public static bool EqualAnyLayer(this GameObject obj,params string[] layerNames)
     {
         foreach (var item in layerNames)
@@ -74,4 +81,5 @@ public static class GameObjectEx
                 return true;
         return false;
     }
+    public static bool IsBelongToActiveScene(this GameObject gameObject) => gameObject.scene == SceneManager.GetActiveScene();
 }

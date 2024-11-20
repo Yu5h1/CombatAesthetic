@@ -5,8 +5,10 @@
 	  "description": "Tools for third person combat game",
 	  "unity": "2019.4",
 	  "unityRelease": "",
-	  "dependencies": {},
-	 "keywords": [ "Extension", "Utility"  ],
+	  "dependencies": {
+		  "com.yu5h1.library": "1.0.1",
+	  },
+	  "keywords": [ "Extension", "Utility"  ],
 	  "author": {
 		"name": "Yu5h1",
 		"email": "jenyu5h10415@gmail.com",

@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -5,6 +6,14 @@ namespace Yu5h1Lib.Game.Character
 {
     public class ColliderDetector2D : BaseColliderDetector2D
     {
+        #region Layers
+        public static LayerMask PhysicsObject => LayerMask.GetMask("PhysicsObject");
+        public static LayerMask GravitationalObject => LayerMask.GetMask("GravitationalObject");
+        #endregion
+        public const string MovingPlatformTag = "MovingPlatform";
+
+        public bool IsValid() => collider && enabled;
+                
         #region Ground detection parameters
         public RaycastHit2D groundHit { get; private set; }
         private bool _IsGrounded;
@@ -23,13 +32,12 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField, Range(0.01f, 1.0f)]
         private float groundDistanceThreshold = 0.05f;
         #endregion
+        public ColliderScanner2D scanner;
 
-        public CollierCastInfo2D momentumCastInfo;
-        public CollierScanner2D scanner;
+        public CollierCastInfo2D forwardCastInfo = new CollierCastInfo2D();
 
         public UnityEvent<bool> OnGroundStateChangedEvent;
 
-        private int PlatformLayer;
 
         void Awake()
         {
@@ -37,41 +45,30 @@ namespace Yu5h1Lib.Game.Character
             filter = new ContactFilter2D()
             {
                 useLayerMask = true,
-                layerMask = LayerMask.GetMask("Platform", "PhysicsObject")
+                layerMask = PhysicsObject | GravitationalObject
             };
-            if (_collider == null && TryGetComponent(out CapsuleCollider2D c))
-                _collider = c;
-            PlatformLayer = LayerMask.NameToLayer("Platform");
+            if (!collider && TryGetComponent(out CapsuleCollider2D c))
+                collider = c;
             Init();
+            ignoreSiblingColliders = true;
         }
-#if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
+        protected override void OnEnable()
         {
-            if (!collider || !groundHit)
-                return;
-            var color = Gizmos.color;
-            var reverseHroundHitPoint = groundHit.point + groundHit.normal;
-            Gizmos.DrawSphere(reverseHroundHitPoint, 0.1f);
-
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(groundHit.collider.ClosestPoint(groundHit.point), 0.05f);
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(groundHit.point, 0.15f);
-            Gizmos.color = color;
+            base.OnEnable();
         }
-#endif
         private void LateUpdate()
         {
-            if (IsGrounded && groundHit.collider.gameObject.layer == PlatformLayer)
+            if (IsGrounded && groundHit && groundHit.collider.gameObject.CompareTag(MovingPlatformTag))
                 CheckPlatformStandHeight();
         }
         void OnGroundStateChanged()
         {
             OnGroundStateChangedEvent?.Invoke(IsGrounded);
-            if (IsGrounded) {
+            if (IsGrounded)
+            {
                 CheckPlatformStandHeight(0);
-                if (groundHit.collider.gameObject.layer == PlatformLayer)
-                    transform.SetParent(groundHit.collider.transform,true);
+                if (groundHit.collider.gameObject.CompareTag(MovingPlatformTag))
+                    transform.SetParent(groundHit.collider.transform, true);
             }
             else
             {
@@ -79,10 +76,6 @@ namespace Yu5h1Lib.Game.Character
                     transform.SetParent(null, true);
             }
         }
-        //private void OnCollisionEnter2D(Collision2D collision)
-        //{
-
-        //}
         #region Check Methods
         /// <summary>
         /// returb slopDir
@@ -90,13 +83,6 @@ namespace Yu5h1Lib.Game.Character
         /// <param name="right"></param>
         public Vector2 CheckSlop(bool right)
         {
-            #region Deprecated
-            //Vector2 refRir = right ? transform.up : -transform.up;
-            //var groundNormal = transform.InverseTransformDirection(groundHit.normal);
-            //float angle = Vector2.Angle(refRir, groundNormal);
-            //float s = angle * Mathf.Deg2Rad;
-            //var slopDir = new Vector2(Mathf.Cos(s), groundNormal.x > 0 ? -Mathf.Sin(s) : Mathf.Sin(s)).normalized; 
-            #endregion
             var n = groundHit.normal;
             /// simple solution
             var slopDir = right ? new Vector2(n.y, -n.x) : new Vector2(-n.y, n.x);
@@ -113,22 +99,31 @@ namespace Yu5h1Lib.Game.Character
             groundHit = default(RaycastHit2D);
             IsGrounded = false;
         }
-        public void VelocityCast(Vector2 velocity )
+        #region WIP
+        public void CheckForward()
         {
-            if (velocity == Vector2.zero)
+            if (!collider)
                 return;
-            momentumCastInfo.Cast(velocity.normalized);
+
         }
-        public void CheckGround()
+        public void CheckMomentum()
         {
-            if (!enabled || 
-                (!IsGrounded && transform.InverseTransformDirection(rigidbody.velocity.normalized).y > 0))
+            
+        }
+
+        #endregion
+        public void CheckGround(Vector2 direction)
+        {      
+            // floating
+            if (!IsGrounded && transform.InverseTransformDirection(velocity.normalized).y > 0)
                 return;
             results = new RaycastHit2D[ResultsCount];
             groundHit = default(RaycastHit2D);
 
-            for (int i = 0; i < _collider.Cast(down, filter, results, distance, true); i++)
+            for (int i = 0; i < Cast(direction); i++)
             {
+                if (Physics2D.GetIgnoreCollision(results[i].collider, collider))
+                    continue;
                 var hit = results[i];
                 if (!hit)
                     continue;
@@ -138,12 +133,11 @@ namespace Yu5h1Lib.Game.Character
                 if (groundHit && groundHit.distance < hit.distance)
                     continue;
                 /// normal.y > 0.5f = slop angle > 45¢X
-                if (normal.y > 0.5f && p.y <= localbottom.y + groundRayOffset && hit.distance < groundDistanceThreshold)                    
+                if (normal.y > 0.5f && p.y <= localbottom.y + groundRayOffset && hit.distance < groundDistanceThreshold)
                 {
                     groundHit = hit;
 #if UNITY_EDITOR
-                    Debug.DrawLine(center, hit.point, Color.green);
-                    Debug.DrawLine(center, hit.point + hit.normal, Color.magenta);
+                    Debug.DrawLine(hit.point, hit.point + hit.normal, Color.green);
 #endif
                 }
             }
@@ -206,6 +200,28 @@ namespace Yu5h1Lib.Game.Character
             //}
             return default(RaycastHit2D);
         }
+
+#if UNITY_EDITOR
+        [ContextMenu(nameof(ScanTest))]
+        private void ScanTest()
+        {
+            $"{scanner.Scan(out RaycastHit2D result)} {result}".print();
+        }
+        private void OnDrawGizmosSelected()
+        {
+            if (!collider || !groundHit)
+                return;
+            var color = Gizmos.color;
+            var reverseHroundHitPoint = groundHit.point + groundHit.normal;
+            Gizmos.DrawSphere(reverseHroundHitPoint, 0.1f);
+
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(groundHit.collider.ClosestPoint(groundHit.point), 0.05f);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundHit.point, 0.15f);
+            Gizmos.color = color;
+        }
+#endif
 
         #endregion
     }

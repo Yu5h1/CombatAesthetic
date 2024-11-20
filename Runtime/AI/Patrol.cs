@@ -1,43 +1,77 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Yu5h1Lib;
 using Yu5h1Lib.Game.Character;
 
 public class Patrol : MonoBehaviour
 {
+    public static float arriveRange = 1;
+
+    public float RangeDistance;
     [SerializeField]
-    private float _RangeDistance = 2;
-    public float RangeDistance => _RangeDistance;
+    private Vector2 DirectionScale = Vector2.one;
 
-    public Vector2 point { get; private set; }
 
-    public void Reset()
-    {
-        point = transform.position;
+    public bool SetOffsetOnStart = true;
+    [SerializeField]
+    private Vector2 _offset;
+    public Vector2 offset { get => _offset; private set => _offset = value; }
+
+    
+
+    private Quaternion _offsetQ = Quaternion.identity;
+    public Quaternion offsetQ { get => _offsetQ; private set => _offsetQ = value; }
+
+    [SerializeField]
+    private Route2D _route;
+    public Route2D route => _route;
+
+    private int _current;
+    public int current => _current;
+
+    public bool UseLocalCoordinate = true;
+
+    public Vector2 currentPoint {
+        get => offset + (Vector2)(offsetQ * route.points[current]);
+
     }
+
+    private void Start()
+    {
+        Init();
+    }
+    public void Init()
+    {
+        if (SetOffsetOnStart)
+            offset = transform.position;
+        offsetQ = UseLocalCoordinate ? transform.rotation : Quaternion.identity;
+    }
+
+    public Vector2 GetDirection()
+        => route.GetDirection(transform.position, offset, offsetQ, ref _current, arriveRange, DirectionScale);
+
+    public void MoveNext() => route.MoveNext(ref _current);
+
+    public void SetCurrentPoint(Vector2 position)
+    {
+        route.points[current] = Quaternion.Inverse(offsetQ) * (position - offset);
+    }
+
 #if UNITY_EDITOR
-    ColliderDetector2D detector;
-    Patrol patrol;
-    private void OnDrawGizmosSelected()
-    {
-        if (!Application.isPlaying)
-        {
-            if (!detector)
-            {
-                detector = GetComponent<ColliderDetector2D>();
-                detector.Init();
-            }
-            if (!patrol)
-                patrol = GetComponent<Patrol>();
-            if (!detector)
-                return;
-            var from = transform.TransformPoint(-patrol.RangeDistance, -detector.extents.y);
-            var fixedHeight = transform.up * detector.extents.y;
-            Gizmos.DrawLine(from, from + fixedHeight);
-            var to = transform.TransformPoint(patrol.RangeDistance, -detector.extents.y);
-            Gizmos.DrawLine(to, to + fixedHeight);
-        }
-    }
-#endif
 
+    private void OnDrawGizmos()
+    {
+        var originColor = Gizmos.color;
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawSphere(offset, 0.1f);
+
+        Gizmos.color = originColor;
+
+    }
+
+#endif
 }

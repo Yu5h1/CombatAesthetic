@@ -7,11 +7,19 @@ using Yu5h1Lib;
 public class TriggerEvent2D : EventMask2D
 {
     public UnityEvent<Collider2D> OnTriggerEnter2DEvent;
+    public UnityEvent<Collider2D> TriggerExit2D;
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!Validate(other.gameObject))
             return;
         OnTriggerEnter2DEvent?.Invoke(other);
+    }
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (!Validate(other.gameObject))
+            return;
+        TriggerExit2D?.Invoke(other);
     }
 }
 public abstract class TriggerEvent2D<T> : MonoBehaviourEnhance where T : Component
@@ -20,7 +28,11 @@ public abstract class TriggerEvent2D<T> : MonoBehaviourEnhance where T : Compone
     public class TEvent : UnityEvent<T> { }
     public TEvent OnTriggerEnter2DEvent;
     public TEvent OnTriggerExit2DEvent;
-    protected new Collider collider; 
+
+#pragma warning disable 0109
+    protected new Collider collider;
+#pragma warning restore 0109
+
     private void Reset()
     {
         CheckTriggerState();

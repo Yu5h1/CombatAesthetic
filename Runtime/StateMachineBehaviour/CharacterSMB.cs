@@ -10,6 +10,7 @@ public class CharacterSMB : BaseCharacterSMB
     public bool Controllable = true;
     public Vector2 rootMotionWeight = Vector2.one;
     public Vector2 rigidbodyVelocityWeight = Vector2.one;
+    public float FixAngleWeight = 1;
     public ProcessStep CheckForwardType = ProcessStep.Excute;
 
     //OnStateEnter is called when a transition starts and the state machine starts to evaluate this state

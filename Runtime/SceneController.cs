@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -7,22 +7,21 @@ using Yu5h1Lib;
 
 public class SceneController : SingletonComponent<SceneController>
 {
+    public static Vector3? startPosition;
     public string[] StartLines;
     public bool NoTalking;
 
     #region Scene Preset
-    void Reset()
-    {
-
-    }
+    void Reset() {}
+    protected override void Init() {}
     #endregion
     private void Start()
     {
-        //forceCreateGameManager
         Debug.Log(GameManager.instance);
         gameObject.layer = LayerMask.NameToLayer("Boundary");
         if (SceneController.IsLevelScene)
         {
+            CheckPoint.InitinalizeCheckPoints();
             if (!StartLines.IsEmpty() && !NoTalking)
             {
                 GameManager.IsGamePause = true;
@@ -32,6 +31,13 @@ public class SceneController : SingletonComponent<SceneController>
             Debug.Log($"{PoolManager.instance} was Created.\n{PoolManager.canvas}");
         }
     }
+    private void OnAfterLoadSceneAsync() {
+        if (startPosition != null)
+        {
+            GameManager.MovePlayer(startPosition.Value);
+            startPosition = null;
+        }    
+    }
     private void OnTriggerExit2D(Collider2D other)
     {
         // Avoiding OnTriggerExit2D triggered on EditorApplication.Exit
@@ -39,23 +45,33 @@ public class SceneController : SingletonComponent<SceneController>
             return;
         if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
             attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 1000);
-    }
+    } 
+
     #region Static 
-    public static event UnityAction BeginLoadSceneHandler;
+    public static event UnityAction BeginLoadSceneAsyncHandler;
     public static event UnityAction<float> LoadSceneAsyncHandler;
-    public static event UnityAction EndLoadSceneHandler;
-
-    public static void Method()
+    public static event UnityAction AfterLoadSceneAsyncHandler;
+    public static void ClearLoadAsyncEvent()
     {
-
+        BeginLoadSceneAsyncHandler = null;
+        LoadSceneAsyncHandler = null;
+        AfterLoadSceneAsyncHandler = null;
     }
     public static Scene ActiveScene => SceneManager.GetActiveScene();
-    public static bool BelongToCurrentScene(GameObject gameObject) => gameObject.scene == ActiveScene;
+    public static int ActiveSceneIndex => ActiveScene.buildIndex;
+
+    public enum StringSearchOption
+    {
+        Equals,
+        StartsWith,
+        Contains,
+        EndsWith
+    }
     public static bool IsSceneName(string name, StringSearchOption comparison = StringSearchOption.Equals) => comparison switch
     {
         StringSearchOption.StartsWith => ActiveScene.name.StartsWith(name),
         StringSearchOption.Contains => ActiveScene.name.Contains(name),
-        StringSearchOption.EndsWith => ActiveScene.name.Contains(name),
+        StringSearchOption.EndsWith => ActiveScene.name.EndsWith(name),
         _ => ActiveScene.name.Equals(name)
     };
     public static bool IsStartScene => IsSceneName("Start");
@@ -67,13 +83,20 @@ public class SceneController : SingletonComponent<SceneController>
     public static void LoadScene(string SceneName) => LoadScene(SceneManager.GetSceneByName(SceneName).buildIndex);
     public static void LoadScene(int SceneIndex) {
         IsSceneTransitioning = true;
-        GameManager.instance.StartCoroutine(LoadSceneAsynchronously(SceneIndex));
-    } 
+        if (LoadSceneAsyncCoroutine != null)
+            GameManager.instance.StopCoroutine(LoadSceneAsyncCoroutine);
+        LoadSceneAsyncCoroutine = GameManager.instance.StartCoroutine(LoadSceneAsynchronously(SceneIndex));
+    }
+    private static Coroutine LoadSceneAsyncCoroutine;
     private static IEnumerator LoadSceneAsynchronously(int SceneIndex)
     {
+#if UNITY_EDITOR
+        UnityEditor.Selection.activeObject = null;
+#endif
         BeginLoadSceneAsync();
         Time.timeScale = 1;
         GameManager.ui_Manager.Loading?.gameObject.SetActive(true);
+
         var LoadingAsyncOperation = SceneManager.LoadSceneAsync(SceneIndex,LoadSceneMode.Single);
         while (!LoadingAsyncOperation.isDone)
         {
@@ -82,17 +105,19 @@ public class SceneController : SingletonComponent<SceneController>
         }
         yield return new WaitUntil(IsSceneUnLoaded);
         GameManager.ui_Manager.Loading?.gameObject.SetActive(false);
-        EndLoadSceneAsync();
+        AfterLoadSceneAsync();
     }
     private static void BeginLoadSceneAsync()
     {
-        BeginLoadSceneHandler?.Invoke();
+        BeginLoadSceneAsyncHandler?.Invoke();
     }
-    private static void EndLoadSceneAsync()
+    private static void AfterLoadSceneAsync()
     {
-        EndLoadSceneHandler?.Invoke();
         GameManager.instance.Start();
         GameManager.ui_Manager.Start();
+        AfterLoadSceneAsyncHandler?.Invoke();
+        instance.OnAfterLoadSceneAsync();
+        SoundManager.instance.Start();
     }
     public static void RegistryLoadEvents()
     {
@@ -105,13 +130,16 @@ public class SceneController : SingletonComponent<SceneController>
             return;
         CameraController.RemoveInstanceCache();
         PoolManager.RemoveInstanceCache();
-
         // kill tweeners where is dontDestoryOnLoad 
         foreach (var item in GameManager.instance.GetComponentsInChildren<TweenBehaviour>(true))
             item.Kill();
         DG.Tweening.DOTween.KillAll();
+        RemoveInstanceCache();
         IsSceneTransitioning = false;
+
     }
-    
+
+
+
     #endregion
 }

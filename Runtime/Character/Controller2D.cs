@@ -1,7 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
+using Yu5h1Lib.Mathematics;
 
 
 namespace Yu5h1Lib.Game.Character
@@ -9,7 +13,18 @@ namespace Yu5h1Lib.Game.Character
     [DisallowMultipleComponent, RequireComponent(typeof(ColliderDetector2D))]
     public class Controller2D : Rigidbody2DBehaviour
     {
-        [SerializeField] protected float GravityScale = 0.0333f;
+        private static float _gravityScale = 0.03333f;
+        public static Vector2 scaledGravity { get; protected set; } = new Vector2(0, -0.32699673f);
+        public static float gravityScale 
+        { 
+            get => _gravityScale;
+            set {
+                if (_gravityScale == value)
+                    return;
+                scaledGravity = Physics2D.gravity * gravityScale;
+            }
+        }
+
         [SerializeField] protected float JumpPower = 6;
         [SerializeField] protected float MaxAirborneSpeed = 3.5f;
         [SerializeField] protected Vector2 AirborneMultiplier = new Vector2(0.1f, 0.025f);
@@ -39,7 +54,7 @@ namespace Yu5h1Lib.Game.Character
                 _Host = value;
                 if (value == null)
                     return;
-                hostBehaviour = host.Create(this);
+                hostBehaviour = host.CreateBehaviour(this);
             }
         }
         public HostData2D.HostBehaviour2D hostBehaviour;
@@ -59,7 +74,7 @@ namespace Yu5h1Lib.Game.Character
         }
         public float BoostMultiplier { get => GroundMultiplier.x; set => GroundMultiplier.x = value; }
 
-        public bool Floatable { get => _Floatable; set => _Floatable = value; }
+        public bool Floatable { get => _Floatable; protected set => _Floatable = value; }
         protected bool _underControl;
         public bool underControl { get => _underControl && Conscious > 0; protected set => _underControl = value; }
         public int Conscious { get; protected set; } = 100;
@@ -67,43 +82,24 @@ namespace Yu5h1Lib.Game.Character
 
         #region operating parameters
         public float forwardSign => IsFaceForward ? 1 : -1;
-        public bool IsFaceForward => transform.forward.z == 1;
+        public bool IsFaceForward => transform.forward.z > 0;
 
         public Vector2 position => transform.position;
-        public Vector2 down => -transform.up;
-
+        public Vector2 center => detector.center;
 
         protected Vector2 floating_v_temp = Vector2.zero;
-        public Vector2[] gravitations;
 
-        public Vector2 gravityDirection
-        {
-            get
-            {
-                if (gravitations.IsEmpty())
-                    return Vector2.zero;
-                return gravitations.First().normalized;
-            }
-        }
-
-        public Vector2 gravity
-        {
-            get
-            {
-                var g = gravitations.IsEmpty() ? Vector2.down : gravitations.First();
-                return g.normalized * Physics2D.gravity.magnitude * GravityScale;
-            }
-        }
+  
 
         #endregion
 
         #region Movement
         public bool UseCustomVelocity;
         private Vector2 _velocity;
-        public Vector2 velocity
+        public override Vector2 velocity
         {
             get => UseCustomVelocity ? _velocity : rigidbody.velocity;
-            set
+            protected set
             {
                 if (UseCustomVelocity)
                     _velocity = value;
@@ -112,8 +108,22 @@ namespace Yu5h1Lib.Game.Character
             }
         }
         public Vector2 localVelocity { get; protected set; }
+
+        [SerializeField]
+        private Vector2 _BaseGravityDirection;
+        public Vector2 baseGravityDirection
+        { 
+            get => _BaseGravityDirection.magnitude == 0 ? Vector2.up : _BaseGravityDirection;
+            protected set => _BaseGravityDirection = value;
+        }
+
+        public Vector2 overrideGravityDirection { get; set; }
+
+        public Vector2 gravityDirection => overrideGravityDirection.magnitude == 0 ? baseGravityDirection : overrideGravityDirection;
+        public bool UseTransformUpAsGravitationOnStart;
         #endregion
         public bool Initinalized { get; private set; }
+        
         private void Initinalize()
         {
             if (Initinalized)
@@ -122,19 +132,24 @@ namespace Yu5h1Lib.Game.Character
             Initinalized = true;
         }
         protected virtual void Init()
-        {
+        {            
             if (TryGetComponent(out ColliderDetector2D colliderDetector))
             {
                 detector = colliderDetector;
                 detector.OnGroundStateChangedEvent.AddListener(OnGroundStateChanged);
             }
-            TryGetComponent(out _attribute);
+            if (!$"{name}'s Attribute does not Exists ! ".printWarningIf(!TryGetComponent(out _attribute)))
+                attribute.Init();
 
             if (rigidbody)
                 rigidbody.gravityScale = 0;
 
             if (host)
-                hostBehaviour = host.Create(this);
+                hostBehaviour = host.CreateBehaviour(this);
+
+            if (UseTransformUpAsGravitationOnStart)
+                baseGravityDirection = up;
+
         }
         protected virtual void OnGroundStateChanged(bool grounded)
         {
@@ -143,13 +158,15 @@ namespace Yu5h1Lib.Game.Character
                 localVelocity *= Vector2.right;
                 rigidbody.Sleep();
                 velocity = transform.TransformVector(localVelocity);
+               
+                //ResetRotation();
             }
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            Init();
+            Initinalize();
         }
         protected virtual void Update()
         {
@@ -157,11 +174,18 @@ namespace Yu5h1Lib.Game.Character
         }
         protected virtual void FixedUpdate()
         {
-            detector.CheckGround();
+            PerformDetection();
             OnMove();
         }
+        protected void PerformDetection()
+        {
+            if (!detector.IsValid())
+                return;
+            if (!Floatable)
+                detector.CheckGround(down);
+        }
         [ContextMenu("AddForce Test")]
-        public void AddForce()
+        public void AddForceTest()
         {
             AddForce(Vector2.one * 5);
         }
@@ -170,6 +194,7 @@ namespace Yu5h1Lib.Game.Character
             velocity += force;
             detector.LeaveGround();
         }
+
         protected virtual void OnMove()
         {
             if (Time.timeScale == 0)
@@ -210,8 +235,8 @@ namespace Yu5h1Lib.Game.Character
             }
             else
             {
-                if (momentum.y > Physics2D.gravity.y * 2f)
-                    momentum += Physics2D.gravity * GravityScale;
+                if (momentum.y > Physics2D.gravity.y )
+                    momentum += scaledGravity;
                 if (Mathf.Abs(momentum.x) < MaxAirborneSpeed)
                     momentum += new Vector2(Mathf.Abs(InputMovement.x), InputMovement.y) * AirborneMultiplier;
             }
@@ -223,7 +248,7 @@ namespace Yu5h1Lib.Game.Character
                 velocity = transform.TransformDirection(momentum);
         }
 
-        public void CheckForward(float x)
+        public void CheckForwardFrom(float x)
         {
             if (x == 0)
                 return;
@@ -232,13 +257,12 @@ namespace Yu5h1Lib.Game.Character
             transform.Rotate(Vector3.up, 180, Space.Self);
             // Alternative
             //transform.rotation = Quaternion.LookRotation(new Vector3(0, 0, -forwardSign), transform.up);
-
         }
-        public void CheckForward() => CheckForward(InputMovement.x);
+        public void CheckForward() => CheckForwardFrom(InputMovement.x);
 
         protected virtual bool UpdateInputInstruction()
         {
-            if (GameManager.IsGamePause)
+            if (GameManager.IsGamePause || !Initinalized)
                 return false;
             if (host == null)
             {
@@ -252,7 +276,27 @@ namespace Yu5h1Lib.Game.Character
         {
             var f = forwardSign;
             transform.localRotation = Quaternion.identity;
-            CheckForward(f);
+            CheckForwardFrom(f);
+            //var parent = transform.parent;
+            //transform.Rotate(Vector3.forward, GetStandingAngleGap(parent ? parent.up : Vector3.up));
+        }
+
+        protected float GetStandingAngleGap(Vector3 standDirection){
+            var GdirAngleGap = Vector2.Angle(up, standDirection);
+            return GetLocalDirection(standDirection, transform.up).x > 0 ? -GdirAngleGap : GdirAngleGap;
+        }
+
+        protected Vector2 GetLocalDirection(Vector2 baseDirection, Vector2 direction)
+        {
+            baseDirection.Normalize();
+            float angle = Vector2.SignedAngle(Vector2.up, baseDirection);
+            Quaternion rotation = Quaternion.Euler(0, 0, -angle);
+            return rotation * direction;
+        }
+
+        public void ResetVelocity()
+        {
+            velocity = Vector2.zero;
         }
     }
 }

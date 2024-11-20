@@ -20,14 +20,13 @@ public abstract class SingletonComponent<T> : MonoBehaviourEnhance where T : Com
                 if (!GameObjectEx.TryInstantiateFromResourecss(out _instance, typeof(T).Name, null, false))
                     _instance = GameObjectEx.Create<T>();
             }
-
             Init(_instance);
             return _instance; 
         }
     }
     public static bool DoesNotExists => _instance;
 
-    protected virtual void Init() { }
+    protected abstract void Init();
     private static void Init(T component)
     {
         if (component is SingletonComponent<T> s)
