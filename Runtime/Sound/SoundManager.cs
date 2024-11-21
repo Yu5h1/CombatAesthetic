@@ -3,7 +3,7 @@ using UnityEngine;
 using Yu5h1Lib;
 
 [DisallowMultipleComponent]
-public class SoundManager : SingletonComponent<SoundManager>
+public class SoundManager : SingletonBehaviour<SoundManager>
 {
     public static  float bgmVolume
     {

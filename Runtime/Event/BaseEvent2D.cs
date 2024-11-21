@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Yu5h1Lib;
 
-public class BaseEvent2D : MonoBehaviourEnhance
+public class BaseEvent2D : MonoBehaviour
 {
     public void PlayAudio()
     {

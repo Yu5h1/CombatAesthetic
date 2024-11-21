@@ -8,7 +8,7 @@ using Yu5h1Lib.Runtime;
 using Yu5h1Lib;
 
 [RequireComponent(typeof(Camera))]
-public class CameraController : SingletonComponent<CameraController>
+public class CameraController : SingletonBehaviour<CameraController>
 {
     public Vector3 followOffset = new Vector3(0,0.75f,-5);
     private Camera _camera;

@@ -14,7 +14,7 @@ namespace Yu5h1Lib
     [RequireComponent(typeof(EventSystem), typeof(Canvas), typeof(InputSystemUIInputModule))]
     [RequireComponent(typeof(UI_Manager), typeof(SoundManager))]
     [DisallowMultipleComponent]
-    public partial class GameManager : SingletonComponent<GameManager>
+    public partial class GameManager : SingletonBehaviour<GameManager>
     {
         public static bool IsQuit = false;
         [RuntimeInitializeOnLoadMethod]
@@ -58,10 +58,11 @@ namespace Yu5h1Lib
                 OnPauseStateChanged?.Invoke(value);
             } 
         }
-        //public static bool IsGameStart;
         public static bool IsSpeaking => 
             ui_Manager.Dialog_UI.gameObject.activeSelf ||
             ui_Manager.EndCredits.gameObject.activeSelf;
+
+        public static bool IsBusy => IsGamePause || IsSpeaking;
 
         public static UnityAction<bool> OnPauseStateChanged;
 

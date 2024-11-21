@@ -9,10 +9,10 @@ using Yu5h1Lib.Game.Character;
 
 namespace Yu5h1Lib
 {
-    public class GameCacheEditor : EditorWindow
+    public class GameCacheWindow : EditorWindow
     {
-        private static GameCacheEditor m_GameCacheEditor;
-        private static GameCacheEditor window
+        private static GameCacheWindow m_GameCacheEditor;
+        private static GameCacheWindow window
         {
             get
             {
@@ -40,7 +40,7 @@ namespace Yu5h1Lib
         [MenuItem("Game Manager/Game Cache Editor")]
         public static void Init()
         {
-            m_GameCacheEditor = (GameCacheEditor)EditorWindow.GetWindow(typeof(GameCacheEditor));
+            m_GameCacheEditor = (GameCacheWindow)EditorWindow.GetWindow(typeof(GameCacheWindow));
             window.titleContent = new GUIContent("GameCacheEditor");
         }
 

@@ -24,6 +24,8 @@ namespace Yu5h1Lib.Game.Character
             }
         }
         public AnimParamSMB animParam { get; private set; }
+        private ActionSMB actionSMB;
+        public bool IsActing => actionSMB?.IsActing == true;
 
         #endregion        
 
@@ -46,6 +48,7 @@ namespace Yu5h1Lib.Game.Character
         #endregion
 
 
+
         public float fixedPoseDirSpeed = 5;
         protected override void Init()
         {
@@ -59,6 +62,7 @@ namespace Yu5h1Lib.Game.Character
                 item.Init(this);
             states = animator.GetBehaviours<CharacterSMB>();
             animParam = animator.GetBehaviour<AnimParamSMB>();
+            actionSMB = animator.GetBehaviour<ActionSMB>();
 
             if (animParam == null)
                 throw new NullReferenceException("animParam(AnimParamSMB) is null");

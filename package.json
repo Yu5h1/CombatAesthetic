@@ -1,14 +1,14 @@
 {
 	  "name": "com.yu5h1.combataesthetic",
 	  "version": "1.0.0",
-	  "displayName": "CombatAesthetic",
-	  "description": "Tools for third person combat game",
+	  "displayName": "Combat Aesthetic",
+	  "description": "ToolKits for third person combat game",
 	  "unity": "2019.4",
 	  "unityRelease": "",
 	  "dependencies": {
-		  "com.yu5h1.library": "1.0.1",
+		  "com.yu5h1.library": "1.0.1"
 	  },
-	  "keywords": [ "Extension", "Utility"  ],
+	  "keywords": [ "GameSystem", "Utility"  ],
 	  "author": {
 		"name": "Yu5h1",
 		"email": "jenyu5h10415@gmail.com",

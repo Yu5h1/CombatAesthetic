@@ -48,20 +48,39 @@ namespace Yu5h1Lib.Game.Character
                     BT.Call(PatrolArea)
                  );
             }
+
+            #region input
+            public override Vector2 GetMovement()
+            {
+                if (GameManager.IsBusy || "body does not exists !".printWarningIf(!Body))
+                    return Vector2.zero;
+                ai.Tick();
+
+                return movement;
+            }
+
+            public override bool GetInputState(UpdateInput updateInput)
+            {
+                if (GameManager.IsBusy || target == null)
+                    return false;
+                return updateInput(true, false, false);
+            }
+            public override void GetInputState(string bindingName, UpdateInput updateInput)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public override bool ShiftIndexOfSkill(out bool next)
+                => next = false; 
+            #endregion
+
+
             public Vector2 GetMovementFromGlobalDirection(Vector2 direction)
             {
                 var dir = transform.InverseTransformDirection(direction);
                 if (!Body.IsFaceForward)
                     dir.x *= -1;
                 return dir;
-            }
-            public override Vector2 GetMovement()
-            {
-                if ("body does not exists !".printWarningIf(!Body))
-                    return Vector2.zero;
-                ai.Tick();
- 
-                return movement;
             }
             private bool NoTarget() => target == null;
             private bool HasTarget() => !NoTarget();            
@@ -145,18 +164,6 @@ namespace Yu5h1Lib.Game.Character
                 return true;
             }
             public bool Arrived() => Mathf.Approximately(Vector2.Distance(Body.position, destination), 0);
-
-            public override bool GetInputState( UpdateInput updateInput)
-            {
-                return updateInput(false, false, false);
-            }
-            public override void GetInputState(string bindingName,UpdateInput updateInput)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            public override bool ShiftIndexOfSkill(out bool next)
-                => next = false;
 
             bool WithinPatrolRange() => Vector2.Distance(patrolPoint, Body.position) < patrol.RangeDistance;
             bool OutOfPatrolRange() => !WithinPatrolRange();

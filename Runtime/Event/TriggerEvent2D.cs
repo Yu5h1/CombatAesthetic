@@ -22,7 +22,7 @@ public class TriggerEvent2D : EventMask2D
         TriggerExit2D?.Invoke(other);
     }
 }
-public abstract class TriggerEvent2D<T> : MonoBehaviourEnhance where T : Component
+public abstract class TriggerEvent2D<T> : MonoBehaviour where T : Component
 {
     [Serializable]
     public class TEvent : UnityEvent<T> { }

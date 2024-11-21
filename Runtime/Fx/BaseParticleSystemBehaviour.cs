@@ -4,7 +4,7 @@ using UnityEngine;
 using static UnityEngine.ParticleSystem;
 
 [RequireComponent(typeof(ParticleSystem))]
-public abstract class BaseParticleSystemBehaviour : MonoBehaviourEnhance
+public abstract class BaseParticleSystemBehaviour : MonoBehaviour
 {
 #pragma warning disable 0109
     protected new ParticleSystem particleSystem;

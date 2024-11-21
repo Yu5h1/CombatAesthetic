@@ -3,7 +3,7 @@ using UnityEngine;
 using Yu5h1Lib;
 using Yu5h1Lib.Game.Character;
 
-public class Influencor : MonoBehaviourEnhance
+public class Influencor : MonoBehaviour
 {
     [SerializeField]
     public AffectType affectType;

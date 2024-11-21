@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public abstract class Rigidbody2DBehaviour : MonoBehaviourEnhance
+public abstract class Rigidbody2DBehaviour : MonoBehaviour
 {
     [SerializeField]
     private Rigidbody2D _rigidbody;

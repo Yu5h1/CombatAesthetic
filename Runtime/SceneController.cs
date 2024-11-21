@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Yu5h1Lib;
 
-public class SceneController : SingletonComponent<SceneController>
+public class SceneController : SingletonBehaviour<SceneController>
 {
     public static Vector3? startPosition;
     public string[] StartLines;

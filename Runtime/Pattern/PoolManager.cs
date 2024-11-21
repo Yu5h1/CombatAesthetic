@@ -2,9 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Yu5h1Lib;
 
 [DisallowMultipleComponent]
-public class PoolManager : SingletonComponent<PoolManager>
+public class PoolManager : SingletonBehaviour<PoolManager>
 {
     public static int prepareCount = 5;
     private static Canvas _canvas;
