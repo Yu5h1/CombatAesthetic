@@ -12,4 +12,6 @@ public static class SceneEx
             results.AddRange(rootObj.GetComponentsInChildren<T>(true));
         return results.ToArray();
     }
+
+    public static bool IsSceneInBuild(this Scene scene) => scene.buildIndex >= 0;
 }

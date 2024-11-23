@@ -6,6 +6,8 @@ namespace Yu5h1Lib.Game.Character
 {
     public class Autopilot : HostData2D
     {
+        public bool enable;
+
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
         public class Behaviour : Behaviour2D<Autopilot>
@@ -52,7 +54,7 @@ namespace Yu5h1Lib.Game.Character
             #region input
             public override Vector2 GetMovement()
             {
-                if (GameManager.IsBusy || "body does not exists !".printWarningIf(!Body))
+                if (GameManager.IsBusy || "body does not exists !".printWarningIf(!Body) || !Body.underControl)
                     return Vector2.zero;
                 ai.Tick();
 
@@ -61,8 +63,17 @@ namespace Yu5h1Lib.Game.Character
 
             public override bool GetInputState(UpdateInput updateInput)
             {
-                if (GameManager.IsBusy || target == null)
+                if (GameManager.IsBusy || target == null || !Body.underControl)
                     return false;
+
+                if (Body.detector.scanner.collider && Body.detector.scanner.Scan(out RaycastHit2D hit) &&
+                    hit.collider.TryGetComponent(out BlueLine blueLine) ||
+                    Vector2.Dot(target.position - Body.position, Body.right) < 0)
+                {
+                    target = null;
+                    return updateInput(false, false, false);
+                }
+
                 return updateInput(true, false, false);
             }
             public override void GetInputState(string bindingName, UpdateInput updateInput)
@@ -98,7 +109,7 @@ namespace Yu5h1Lib.Game.Character
                 if (hit.collider.TryGetComponent(out BlueLine blueLine))
                 {
                     target = null;
-                    var l = new Line2D(Body.transform.position, patrol.currentPoint);
+                    var l = new Line2D(Body.transform.position, patrol.Destination);
                     if (blueLine.TryGetIntersection(l, out Vector2 intersection))
                     {
                         patrol.SetCurrentPoint(intersection - (l.direction.normalized * blueLine.Width ) );

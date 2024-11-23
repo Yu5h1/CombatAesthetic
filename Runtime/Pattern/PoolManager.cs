@@ -83,20 +83,4 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         init?.Invoke(source);
         Add(source, count);
     }
-
-    
-
-    public static IEnumerator ChangeSpriteColor0_2s(GameObject target)
-    {
-        if (!target.TryGetComponent(out SpriteRenderer sprite))
-            yield return null;
-        else
-        {
-            sprite.color = Color.red;
-            yield return new WaitForSeconds(0.2f);
-            sprite.color = Color.white;
-        }
-    }
-
- 
 }

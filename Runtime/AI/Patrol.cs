@@ -11,9 +11,9 @@ public class Patrol : MonoBehaviour
     public static float arriveRange = 1;
 
     public float RangeDistance;
-    [SerializeField]
-    private Vector2 DirectionScale = Vector2.one;
-
+    //[SerializeField]
+    //private Vector2 _DirectionScale = Vector2.one;
+    //public Vector2 directionScale => _DirectionScale;
 
     public bool SetOffsetOnStart = true;
     [SerializeField]
@@ -23,7 +23,7 @@ public class Patrol : MonoBehaviour
     
 
     private Quaternion _offsetQ = Quaternion.identity;
-    public Quaternion offsetQ { get => _offsetQ; private set => _offsetQ = value; }
+    public Quaternion offsetQ { get => UseLocalCoordinate ? _offsetQ : Quaternion.identity; private set => _offsetQ = value; }
 
     [SerializeField]
     private Route2D _route;
@@ -34,10 +34,7 @@ public class Patrol : MonoBehaviour
 
     public bool UseLocalCoordinate = true;
 
-    public Vector2 currentPoint {
-        get => offset + (Vector2)(offsetQ * route.points[current]);
-
-    }
+    public Vector2 Destination => offset + route.points[current].Rotate(offsetQ);
 
     private void Start()
     {
@@ -51,7 +48,7 @@ public class Patrol : MonoBehaviour
     }
 
     public Vector2 GetDirection()
-        => route.GetDirection(transform.position, offset, offsetQ, ref _current, arriveRange, DirectionScale);
+        => route.GetDirection(transform.position, offset, offsetQ, ref _current, arriveRange);
 
     public void MoveNext() => route.MoveNext(ref _current);
 
@@ -71,6 +68,11 @@ public class Patrol : MonoBehaviour
 
         Gizmos.color = originColor;
 
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawSphere(Destination, arriveRange);
     }
 
 #endif

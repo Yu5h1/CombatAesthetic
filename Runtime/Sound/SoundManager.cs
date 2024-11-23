@@ -39,7 +39,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     }
 
     private AudioListener _AudioListener;
-    public AudioListener audioListener => this.GetOrAdd(out _AudioListener);
+    public AudioListener audioListener => this.GetOrCreate(nameof(AudioListener),ref _AudioListener);
 
     private AudioSource _Audio_bgm;
     public AudioSource Audio_bgm => this.GetOrCreate(nameof(Audio_bgm), ref _Audio_bgm);
@@ -53,6 +53,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     protected override void Init()
     {
+        $"{audioListener} was created".print();
         Audio_bgm.playOnAwake = false;
         audio_sfx.playOnAwake = false;
     }

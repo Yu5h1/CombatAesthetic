@@ -7,6 +7,7 @@ namespace Yu5h1Lib.Game.Character
     {
         public abstract class HostBehaviour2D
         {
+            public bool enable = true;
             public Controller2D Body;
             public delegate bool UpdateInput(bool down, bool hold, bool up);
             public virtual void Init(Controller2D body) => Body = body;

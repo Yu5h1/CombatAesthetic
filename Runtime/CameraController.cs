@@ -40,9 +40,9 @@ public class CameraController : SingletonBehaviour<CameraController>
     public new Light2D light;
 #pragma warning restore 0109
 
-    [ShowInInspector]
+    [ReadOnly]
     public SpriteRenderer _cursorRendererSource;
-    [ShowInInspector]
+    [ReadOnly]
     public SpriteRenderer _cursorRenderer;
     public SpriteRenderer cursorRenderer { 
         get {
@@ -158,7 +158,7 @@ public class CameraController : SingletonBehaviour<CameraController>
     {
         if (!SortingLayerSprites.ContainsKey(sortingLayerName))
         {
-            Debug.LogWarning($"Fadein with layer Nameed({sortingLayerName}) does not exsits !");
+            Debug.LogWarning($"Fade-in with layer nameed ({sortingLayerName}) does not exsits !");
             return;
         }
         var s = SortingLayerSprites[sortingLayerName];

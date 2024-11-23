@@ -11,6 +11,7 @@ public class TriggerEvent2D : EventMask2D
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        other.print();
         if (!Validate(other.gameObject))
             return;
         OnTriggerEnter2DEvent?.Invoke(other);
@@ -21,6 +22,7 @@ public class TriggerEvent2D : EventMask2D
             return;
         TriggerExit2D?.Invoke(other);
     }
+    public void log(string message) => message.print();
 }
 public abstract class TriggerEvent2D<T> : MonoBehaviour where T : Component
 {

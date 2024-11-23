@@ -2,7 +2,9 @@ using System.Collections;
 using UnityEngine;
 using System.Linq;
 using Yu5h1Lib;
+using UnityEngine.Events;
 
+[DisallowMultipleComponent]
 public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
 {
     private AttributeBehaviour attributeBehaviour;
@@ -12,6 +14,9 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     private Timer.Wait waiter;
     private AnimationCurve curve;
     private bool IsDepleted;
+
+    [SerializeField]
+    private UnityEvent Finish;
 
     private void Awake()
     {
@@ -53,12 +58,10 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     Coroutine coroutine;
     public override void Perform(Fx_SpriteRendererSender s)
     {
-        if (coroutine != null)
-            StopCoroutine(coroutine);
         sender = s;
         IsDepleted = attributeBehaviour.TryGetState(AttributeType.Health, out AttributeStat stat) && stat.IsDepleted;
         curve = IsDepleted ? sender.ExitCurve : sender.curve;
-        coroutine = StartCoroutine(PerformFx());
+        this.StartCoroutine(ref coroutine, PerformFx());
     }
     IEnumerator PerformFx()
     {
@@ -77,6 +80,8 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
                 shape.spriteRenderer = GetComponent<SpriteRenderer>();
             }
             gameObject.SetActive(false);
+            Finish?.Invoke();
+
         }
     }
 }

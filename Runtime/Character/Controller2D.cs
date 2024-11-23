@@ -250,7 +250,7 @@ namespace Yu5h1Lib.Game.Character
 
         public void CheckForwardFrom(float x)
         {
-            if (x == 0)
+            if (x == 0 )
                 return;
             if (Mathf.Sign(x) == forwardSign)
                 return;
@@ -262,7 +262,7 @@ namespace Yu5h1Lib.Game.Character
 
         protected virtual bool UpdateInputInstruction()
         {
-            if (GameManager.IsGamePause || !Initinalized)
+            if (GameManager.IsGamePause || !Initinalized || IsInteracting || !underControl || (hostBehaviour?.enable == false) )
                 return false;
             if (host == null)
             {

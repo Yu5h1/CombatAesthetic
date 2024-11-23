@@ -68,7 +68,7 @@ namespace Yu5h1Lib
 
 
         private string inputString;
-        [ShowInInspector]
+        [ReadOnly]
         public Controller2D playerController;
         public Texture2D cursor;
         void Awake()
@@ -89,7 +89,7 @@ namespace Yu5h1Lib
             
 
             var player = GameObject.FindWithTag("Player");
-            //Debug.Log($"GameManager start find player:{player}");
+            
             if (player)
             {
                 cameraController.SetTarget(player.transform, SceneController.IsLevelScene);
@@ -101,6 +101,11 @@ namespace Yu5h1Lib
         }
         void Update()
         {
+            if (playerController)
+                SoundManager.instance.audioListener.transform.position = playerController.transform.position;
+            else
+                SoundManager.instance.audioListener.transform.position = cameraController.transform.position;
+
             if (input.GetButtonDown("Cancel"))
                 Cancel();
             if (!Input.GetKey(KeyCode.LeftControl) && input.TryGetScrollWheelDelta(out float delta)) {

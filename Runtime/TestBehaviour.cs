@@ -5,7 +5,7 @@ using Yu5h1Lib;
 
 public class TestBehaviour : MonoBehaviour
 {
-    [ShowInInspector]
+    [ReadOnly]
     public string[] OK;
     public int num;
 

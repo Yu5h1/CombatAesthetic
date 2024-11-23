@@ -4,8 +4,8 @@ using UnityEditor;
 using UnityEngine;
 using Yu5h1Lib;
 
-[CustomPropertyDrawer(typeof(ShowInInspectorAttribute))]
-public class ShowInInspectorDrawer : PropertyDrawer
+[CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
+public class ReadOnlyDrawer : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {

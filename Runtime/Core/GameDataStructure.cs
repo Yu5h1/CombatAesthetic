@@ -17,7 +17,7 @@ public struct AttributeStat
         max = DefaultMax,
         recovery = 10
     };
-    public void Init() => current = max;
+    public void Init() => current = current < max ? max : current;
     public void Init(float max)
     {
         this.max = max;

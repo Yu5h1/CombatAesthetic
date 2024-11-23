@@ -1,4 +1,5 @@
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
 using NullReferenceException = System.NullReferenceException;
@@ -89,9 +90,12 @@ namespace Yu5h1Lib.Game.Character
             if (!IsInteracting)
                 animParam?.Update();
         }
-        public void Hit(Vector2 strength)
+        public void HitFrom(Vector2 v)
         {
-            Hited?.Invoke(strength);
+            //face to impact Direction
+            if (!v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
+                CheckForwardFrom(-forwardSign);
+            Hited?.Invoke(v);
             animParam.Hurt();
         }
         private void OnStatDepleted(AttributeType AttributeType)
@@ -118,7 +122,7 @@ namespace Yu5h1Lib.Game.Character
             currentState.GetMoveInfo(out bool controllable, out Vector2 rootMotionWeight,
                 out Vector2 VelocityWeight , out float fixAngleWeight);
             underControl = controllable && Conscious > 10;
-            var localAnimVelocity = transform.InverseTransformDirection(animator.velocity);
+            var localAnimVelocity = transform.InverseTransformDirection(animator.velocity);            
             localVelocity = transform.InverseTransformDirection(velocity);
             /// momentum is based on animation velocity
             var momentum = (localVelocity * VelocityWeight) + (localAnimVelocity * rootMotionWeight);
@@ -147,8 +151,10 @@ namespace Yu5h1Lib.Game.Character
                         RotateToGravitation(ref momentum,detector.groundHit.normal, fixAngleWeight);
                     else if (localAnimVelocity.x != 0)
                     {
+                        
+                        var IsVectorRight = (forwardSign * localAnimVelocity.x) > 0;
                         /// move on slop
-                        var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop(IsFaceForward).normalized);
+                        var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop(IsVectorRight).normalized);
                         momentum = momentum.magnitude * localSlopDir;
                         if (detector.groundHit.distance > 0)
                             momentum += new Vector2(0, -detector.groundHit.distance * momentum.magnitude);
@@ -214,7 +220,7 @@ namespace Yu5h1Lib.Game.Character
 
         protected override bool UpdateInputInstruction()
         {
-            if (!base.UpdateInputInstruction() || IsInteracting) 
+            if (!base.UpdateInputInstruction())
                 return false;
             foreach (var behaviour in skillBehaviours)
                 behaviour.Update(hostBehaviour);
@@ -227,6 +233,18 @@ namespace Yu5h1Lib.Game.Character
             return true;
         }
         #region Animation Events
+        private void Hit()
+        {
+            var offsetTransform = transform.Find("HitBoxOffset") ?? transform;
+
+            var hitboxType = detector.collider.bounds.size.magnitude > 2 ? "HitBoxBig" : "HitBox";
+            var fx = PoolManager.instance.Spawn<Transform>(hitboxType, detector.front, offsetTransform.rotation);
+            foreach (var mask in fx.GetComponents<EventMask2D>())
+            {
+                mask.tagOption.tag = gameObject.tag;
+                mask.tagOption.type = TagOption.ComparisionType.NotEqual;
+            }
+        }
         public void CastFX(int index)
         {
             if (currentSkillBehaviour == null)
@@ -246,6 +264,14 @@ namespace Yu5h1Lib.Game.Character
             SoundManager.Play($"footstep{index}", transform.position);
         }
         #endregion
+
+        [ContextMenu(nameof(SetPlayer))]
+        public void SetPlayer()
+        {
+            foreach (var obj in GameObject.FindGameObjectsWithTag("Player"))
+                obj.tag = "Enemy";
+            tag = "Player";
+        }
     }
 }
 
