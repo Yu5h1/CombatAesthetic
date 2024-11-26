@@ -18,6 +18,7 @@ public class SceneController : SingletonBehaviour<SceneController>
     private void Start()
     {
         Debug.Log(GameManager.instance);
+        Time.timeScale = 1;
         gameObject.layer = LayerMask.NameToLayer("Boundary");
         if (SceneController.IsLevelScene)
         {

@@ -5,7 +5,7 @@ using Yu5h1Lib;
 
 public abstract class EventMask2D : BaseEvent2D
 {
-    public Transform owner;
+    public Transform owner { get; set; }
     public LayerMask layers;
     public TagOption tagOption;
     private void OnEnable() { }
