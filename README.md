@@ -12,7 +12,7 @@
 克隆此 repo：
 bash
 複製程式碼
-git clone [https://github.com/your-username/your-repo-name.git  ](https://github.com/Yu5h1/CombatAesthetic.git)
+git clone https://github.com/Yu5h1/CombatAesthetic.git
 使用 Unity Hub 打開專案（建議版本：Unity 202x.x.x）。
 注意事項
 本專案仍在早期階段，功能和結構可能會有重大變更。
