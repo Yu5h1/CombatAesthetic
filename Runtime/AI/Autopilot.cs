@@ -98,7 +98,7 @@ namespace Yu5h1Lib.Game.Character
             private bool NoTarget() => target == null;
             private bool HasTarget() => !NoTarget();            
             //public bool IsTargetInSight() => default(bool);
-            private void OnEnemyDetected(){
+            protected void OnEnemyDetected(){
                 Body.GetComponent<EmojiController>()?.ShowEmoji("exclamation mark", 2);
             }
             public virtual bool DetectEnemy()
@@ -194,6 +194,7 @@ namespace Yu5h1Lib.Game.Character
 
 
         }
+        [System.Serializable]
         public class SkillTriggerCondition
         {
             public SkillData skill;

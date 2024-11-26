@@ -167,8 +167,8 @@ namespace Yu5h1Lib.Game.Character
             }
             else
             {
-                ProcessingGravitation(gravitation, VelocityWeight, ref momentum);
                 RotateToGravitation(ref momentum,gravitation, fixAngleWeight);
+                ProcessingGravitation(gravitation, VelocityWeight, ref momentum);
             }
 
 
