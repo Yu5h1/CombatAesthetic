@@ -101,6 +101,7 @@ namespace Yu5h1Lib.Game.Character
         {
             if (AttributeType == AttributeType.Health)
             {
+                Floatable = false;
                 Conscious = 0;
                 animParam.Hurt();
             }

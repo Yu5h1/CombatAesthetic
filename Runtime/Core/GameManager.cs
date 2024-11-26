@@ -61,8 +61,8 @@ namespace Yu5h1Lib
 
         public static bool IsBusy => IsGamePause || IsSpeaking;
 
-        public static UnityAction<bool> OnPauseStateChanged;
-
+        public static event UnityAction<bool> OnPauseStateChanged;
+        public static event UnityAction OnFoundPlayer;
 
         private string inputString;
         [ReadOnly]
@@ -94,6 +94,7 @@ namespace Yu5h1Lib
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
 
                 PoolManager.instance.PrepareFromResourece<Transform>("Fx");
+                OnFoundPlayer?.Invoke();
             }
         }
         void Update()

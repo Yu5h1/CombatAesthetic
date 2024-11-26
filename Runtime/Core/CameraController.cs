@@ -6,10 +6,12 @@ using System.Collections;
 //using UnityEngine.Rendering.Universal;
 using Yu5h1Lib.Runtime;
 using Yu5h1Lib;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(Camera))]
 public class CameraController : SingletonBehaviour<CameraController>
 {
+    public event UnityAction<SpriteRenderer,Color,float> onFoldUp;
     public Vector3 followOffset = new Vector3(0,0.75f,-5);
     private Camera _camera;
 #pragma warning disable 0109
@@ -155,20 +157,22 @@ public class CameraController : SingletonBehaviour<CameraController>
     public void FoldUp(string sortingLayerName,float duration)
        => FoldUp(sortingLayerName, Color.black, duration);
 
-    public void FoldUp(string sortingLayerName,Color color, float duration)
+    public SpriteRenderer FoldUp(string sortingLayerName,Color color, float duration)
     {
         if (!SortingLayerSprites.ContainsKey(sortingLayerName))
         {
             Debug.LogWarning($"Fade-in with layer nameed ({sortingLayerName}) does not exsits !");
-            return;
+            return null;
         }
         var s = SortingLayerSprites[sortingLayerName];
         color.a = 0;
         s.color = color;
         color.a = 1;
         s.gameObject.SetActive(true);
+        onFoldUp?.Invoke(s,color, duration);
         //var tween = s.DOColor(color, duration);
         //tween.SetUpdate(true);
+        return s;
     }
 
     /// <summary>
@@ -205,13 +209,13 @@ public class CameraController : SingletonBehaviour<CameraController>
         camera.transform.position = pos;
     }
 
-    public void FollowTargetUnscaleTime()
-    {
+    //public void FollowTargetUnscaleTime()
+    //{
 
 
-    }
-    IEnumerator Method()
-    {
-        yield return null;
-    }
+    //}
+    //IEnumerator Method()
+    //{
+    //    yield return null;
+    //}
 }

@@ -9,10 +9,22 @@ public class TriggerEvent2D : EventMask2D
     public UnityEvent<Collider2D> OnTriggerEnter2DEvent;
     public UnityEvent<Collider2D> TriggerExit2D;
 
+    [SerializeField]
+    private int _count = -1;
+    public int count => _count;
+    public int counter { get; set; }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!Validate(other.gameObject))
             return;
+
+        if (count > 0)
+        {
+            counter++;
+            if (count > 0 && counter >= count)
+                enabled = false;
+        }
         OnTriggerEnter2DEvent?.Invoke(other);
     }
     private void OnTriggerExit2D(Collider2D other)

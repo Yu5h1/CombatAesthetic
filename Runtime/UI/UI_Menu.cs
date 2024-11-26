@@ -39,7 +39,6 @@ public class UI_Menu : UI_Behaviour
         {
             Continue.interactable = CheckPoint.Exists || TeleportGate2D.GateStates.Any();
         }
-            
     }
     public Button TryFindButton(string name, ref Button button)
     {
