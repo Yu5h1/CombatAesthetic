@@ -89,7 +89,7 @@ namespace Yu5h1Lib
             
             if (player)
             {
-                cameraController.SetTarget(player.transform, SceneController.IsLevelScene);
+                cameraController.SetTarget(player.transform);
                 if (player.TryGetComponent(out playerController))
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
 

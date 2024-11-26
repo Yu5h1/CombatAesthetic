@@ -80,7 +80,7 @@ public class CameraController : SingletonBehaviour<CameraController>
     public void Start()
     {
         camera.tag = "MainCamera";
-        if (SceneController.IsLevelScene) {
+        if (SceneController.IsLevelScene || GameObject.FindGameObjectWithTag("Player") != null) {
             //var URP_data = camera.GetUniversalAdditionalCameraData();
             //URP_data.volumeLayerMask = 1 << LayerMask.NameToLayer("PostProcess");
             //URP_data.renderPostProcessing = true;
