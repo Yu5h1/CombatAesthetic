@@ -38,9 +38,7 @@ public class Patrol : MonoBehaviour
 
     private void Reset()
     {
-        scanner.layerMask = LayerMask.GetMask("Character");
-        scanner.filter.useTriggers = true;
-        scanner.direction = Vector2.right;
+        UsedefaultScannerSetting();
     }
     private void Start()
     {
@@ -54,7 +52,15 @@ public class Patrol : MonoBehaviour
             offset = transform.position;
         offsetQ = UseLocalCoordinate ? transform.rotation : Quaternion.identity;
     }
-
+    [ContextMenu(nameof(UsedefaultScannerSetting))]
+    public void UsedefaultScannerSetting()
+    {
+        scanner.layerMask = LayerMask.GetMask("Character", "PhysicsObject");
+        scanner.Tag.tag = "Player,Line";
+        scanner.Tag.type = TagOption.ComparisionType.Equal;
+        scanner.filter.useTriggers = true;
+        scanner.direction = Vector2.right;
+    }
     public Vector2 GetDirection()
         => route.GetDirection(transform.position, offset, offsetQ, ref _current, arriveRange);
 

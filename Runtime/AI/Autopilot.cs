@@ -27,7 +27,7 @@ namespace Yu5h1Lib.Game.Character
 
             public Vector2 patrolPoint => patrol.offset;
             public Vector2 destination;
-            private Vector2 movement;
+            protected Vector2 movement;
             private Transform transform => Body.transform;
 
             public Controller2D target;
@@ -40,16 +40,14 @@ namespace Yu5h1Lib.Game.Character
                 ai = BT.Root();
 
                 ai.OpenBranch(
-                    BT.If(WithinPatrolRange).OpenBranch(
-                            BT.Sequence().OpenBranch(
-                                BT.Condition(DoesTargetExits),
-                                BT.Call(StopMoving),
-                                //BT.Wait(1),
-                                BT.Call(FollowTarget)
-                                )
+                    BT.If(DoesTargetExit).OpenBranch(
+                            BT.Wait(1),
+                            BT.Call(FollowTarget)
                         )
                     ,
-                    BT.Call(PatrolArea)
+                     BT.If(DoesTargetNotExit).OpenBranch(
+                            BT.Call(PatrolArea)
+                        )
                  );
             }
 
@@ -102,10 +100,11 @@ namespace Yu5h1Lib.Game.Character
                 Body.GetComponent<EmojiController>()?.ShowEmoji("exclamation mark", 2);
             }
             public virtual bool DetectEnemy()
-            {                
+            {
+                if (target != null)
+                    return true;
                 if (!patrol.scanner.collider || !patrol.scanner.Scan(out RaycastHit2D hit))
                 {
-                    target = null;
                     return false;
                 }
                 //if (hit.collider.TryGetComponent(out BlueLine blueLine))
@@ -154,8 +153,11 @@ namespace Yu5h1Lib.Game.Character
                 movement = (patrolPoint - Body.position).normalized;
             }
             public void PatrolArea()
-            {
-                movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;
+            {                
+                if (target == null)
+                    movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;
+                else if (Vector2.Distance(patrol.offset, Body.position) < 15)
+                    movement = (target.detector.top - Body.detector.top).normalized;
                 DetectEnemy();
             }
             public void print(string msg)
@@ -184,8 +186,8 @@ namespace Yu5h1Lib.Game.Character
 
             bool WithinPatrolRange() => Vector2.Distance(patrolPoint, Body.position) < patrol.RangeDistance;
             bool OutOfPatrolRange() => !WithinPatrolRange();
-            bool DoesTargetExits() => target;
-            bool DoesTargetNotExits() => !DoesTargetExits();
+            bool DoesTargetExit() => target;
+            bool DoesTargetNotExit() => !DoesTargetExit();
 
             public void StopMoving()
             {

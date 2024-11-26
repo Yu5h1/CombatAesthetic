@@ -15,6 +15,7 @@ public class AnimatorController2DEditor : Controller2DEditor {
         if (EditorApplication.isPlaying)
         {
             EditorGUILayout.HelpBox($@"
+contoller.InputMovement:{contoller.InputMovement},
 IsActing:{contoller.IsActing}
 IsInteracting:{contoller.IsInteracting}
 IsGrounded: {contoller.IsGrounded}
