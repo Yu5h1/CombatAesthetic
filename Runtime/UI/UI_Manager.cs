@@ -8,9 +8,9 @@ public class UI_Manager : UI_Behaviour
     [SerializeField]
     public RectTransform _Loading;
     public RectTransform Loading => Build(nameof(Loading), ref _Loading);
-    [SerializeField]
-    private TweenImage_UI _Fadeboard_UI;
-    public TweenImage_UI Fadeboard_UI => Build(nameof(Fadeboard_UI), ref _Fadeboard_UI);
+    //[SerializeField]
+    //private TweenImage_UI _Fadeboard_UI;
+    //public TweenImage_UI Fadeboard_UI => Build(nameof(Fadeboard_UI), ref _Fadeboard_UI);
 
     private UI_Menu _LevelSceneMenu;
     public UI_Menu LevelSceneMenu => Build(nameof(LevelSceneMenu), ref _LevelSceneMenu);
@@ -44,20 +44,20 @@ public class UI_Manager : UI_Behaviour
     public void Start()
     {
         GameManager.eventsystem.SetSelectedGameObject(null);
-        if (Fadeboard_UI)
-            Fadeboard_UI.gameObject.SetActive(false);
+        //if (Fadeboard_UI)
+        //    Fadeboard_UI.gameObject.SetActive(false);
         if (IsStartScene)
         {
             LevelSceneMenu.Dismiss();
             StartSceneMenu.Engage();
             PlayerAttribute_UI.gameObject.SetActive(false);
         }
-        else if (IsLevelScene) {
+        else if (IsLevelScene || GameManager.instance.playerController) {
             Dialog_UI.transform.SetSiblingIndex(transform.childCount-1);
             StartSceneMenu.Dismiss();
-            LevelSceneMenu.Engage(false);
+            LevelSceneMenu.Dismiss();
             PlayerAttribute_UI.transform.SetSiblingIndex(0);
-            PlayerAttribute_UI.FadeIn();
+            PlayerAttribute_UI.Engage();
             if (GameManager.instance.playerController)
             {
                 if (GameManager.instance.playerController.attribute)

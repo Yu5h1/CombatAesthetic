@@ -21,7 +21,11 @@ namespace Yu5h1Lib.Game.Character
 
         public RaycastHit2D this[int index] => results[index];
 
-
+        public void FindCollider(Transform owner)
+        {
+            if (!collider)
+                owner.TryGetComponentInChildren("scanner", out _collider);
+        }
         public int Cast(Vector2 direction)
         {
             results = new RaycastHit2D[resultsCount];

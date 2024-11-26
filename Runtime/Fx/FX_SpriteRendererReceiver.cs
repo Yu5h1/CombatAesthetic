@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Linq;
 using Yu5h1Lib;
 using UnityEngine.Events;
+using Yu5h1Lib.Game.Character;
 
 [DisallowMultipleComponent]
 public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
@@ -56,12 +57,18 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
         }
     }
     Coroutine coroutine;
+    public bool IsFinished;
     public override void Perform(Fx_SpriteRendererSender s)
     {
+        if (IsFinished)
+            return;
         sender = s;
         IsDepleted = attributeBehaviour.TryGetState(AttributeType.Health, out AttributeStat stat) && stat.IsDepleted;
         curve = IsDepleted ? sender.ExitCurve : sender.curve;
-        this.StartCoroutine(ref coroutine, PerformFx());
+        if (IsDepleted)
+            IsFinished = true;
+        if (!curve.keys.IsEmpty() && curve.keys.Length > 1)
+            this.StartCoroutine(ref coroutine, PerformFx());
     }
     IEnumerator PerformFx()
     {
@@ -69,7 +76,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
         timer.duration = curve.keys.Last().time;
         timer.Start();
         yield return waiter;
-        if (IsDepleted)
+        if (IsDepleted && sender)
         {
             var fx = PoolManager.instance.Spawn<Transform>(sender.Fx_Exit, transform.position, transform.rotation);
             if (fx && fx.TryGetComponent(out ParticleSystem ps)) {

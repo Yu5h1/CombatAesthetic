@@ -23,6 +23,6 @@ public abstract class BaseCharacterSMB : StateMachineBehaviour
 
     protected bool TryGetAnimParam(string name,out AnimatorControllerParameter result)
         => Parameters.TryGetValue(name, out result);
-    public bool DoesParamExists(string name) => Parameters.ContainsKey(name);
-    public bool DoesParamsExists(params string[] name) => name.All(n=> DoesParamExists(n));
+    public bool DoesParamExist(string name) => Parameters.ContainsKey(name);
+    public bool DoesParamsExist(params string[] name) => name.All(n=> DoesParamExist(n));
 }

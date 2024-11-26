@@ -11,13 +11,13 @@ public static class RouteEditorUtility
     public static float lineHitDistance = 5;
 
     public static void Handle(this Route2D route, Object targetObject, ref int selectedIndex, ref bool IsDragging, int next)
-        => route.Handle(targetObject, ref selectedIndex, ref IsDragging, next, Vector2.zero, Quaternion.identity, Vector2.one);
+        => route.Handle(targetObject, ref selectedIndex, ref IsDragging, next, Vector2.zero, Quaternion.identity);
 
     public static void Handle(this Route2D route, Object targetObject, ref int selectedIndex, ref bool IsDragging, int next, Vector2 offset)
-        => route.Handle(targetObject, ref selectedIndex, ref IsDragging, next, offset, Quaternion.identity, Vector2.one);
+        => route.Handle(targetObject, ref selectedIndex, ref IsDragging, next, offset, Quaternion.identity);
 
     public static void Handle(this Route2D route,Object targetObject,ref int selectedIndex,ref bool IsDragging, int next,
-        Vector2 offset ,Quaternion offsetQ ,Vector2 scale)
+        Vector2 offset ,Quaternion offsetQ )
     {
         if (!targetObject)
             return;
@@ -33,7 +33,7 @@ public static class RouteEditorUtility
 
         if (e.type == EventType.MouseDown)
         {
-            route.MouseDown(targetObject, e, mousePos, camera, ref selectedIndex, offset);
+            route.MouseDown(targetObject, e, mousePos, camera, ref selectedIndex, offset,offsetQ);
         }
         else if (e.type == EventType.MouseDrag)
         {
@@ -46,7 +46,7 @@ public static class RouteEditorUtility
                 }
                 if (selectedIndex != -1 && Event.current.button == 0)
                 {
-                    route.UpdateSelectedPoint(sceneView, mousePos, selectedIndex, offset, offsetQ, scale);
+                    route.UpdateSelectedPoint(sceneView, mousePos, selectedIndex, offset, offsetQ);
                     SceneView.RepaintAll();
                 }
             }
@@ -67,20 +67,21 @@ public static class RouteEditorUtility
             return;
         }
         else if (e.type == EventType.Repaint)
-            route.DrawLinesAndDots(selectedIndex, next, offset);
+            route.DrawLinesAndDots(selectedIndex, next, offset,offsetQ);
     }
 
-    public static void MouseDown(this Route2D route, Object targetObject, Event e, Vector2 mousePos, Camera camera, ref int selectedIndex, Vector2 offset = default(Vector2))
+    public static void MouseDown(this Route2D route, Object targetObject, Event e, Vector2 mousePos, Camera camera, ref int selectedIndex,
+        Vector2 offset, Quaternion offsetQ)
     {
         if (route.points.IsEmpty())
             return;
         selectedIndex = -1;
         for (int i = 0; i < route.points.Length; i++)
         {
-            if (route.HitDotTest(e, i, ref selectedIndex,offset))
+            if (route.HitDotTest(e, i, ref selectedIndex,offset, offsetQ))
                 break;
             else if (e.control)
-                route.InsertPointOnLine(targetObject,i,offset);
+                route.InsertPointOnLine(targetObject,i,offset, offsetQ);
         }
         if (selectedIndex >= 0 && e.control)
         {
@@ -91,12 +92,13 @@ public static class RouteEditorUtility
         }
     }
 
-    public static bool InsertPointOnLine(this Route2D route, Object targetObject,int i, Vector2 offset = default(Vector2))
+    public static bool InsertPointOnLine(this Route2D route, Object targetObject,int i,
+        Vector2 offset , Quaternion offsetQ)
     {
         var e = Event.current;
-        var p1 = offset + route.points[i];
+        var p1 = offset + route.points[i].Rotate(offsetQ);
         var ii = i + 1 < route.points.Length ? i + 1 : 0;
-        var p2 = offset + route.points[ii];
+        var p2 = offset + route.points[ii].Rotate(offsetQ);
         var hit = HandleUtility.DistanceToLine(p1, p2) < lineHitDistance;
 
         var d1 = DistanceFromDot(p1);
@@ -106,16 +108,17 @@ public static class RouteEditorUtility
         {
             Undo.RegisterCompleteObjectUndo(targetObject, "patrol points Resized");
             var list = route.points.ToList();
-            list.Insert(ii, (route.points[i] + route.points[ii]) / 2);
+            list.Insert(ii, (route.points[i].Rotate(offsetQ) + route.points[ii].Rotate(offsetQ)) / 2);
             route.points = list.ToArray();
             return true;
         }
         return false;
     }
 
-    public static bool HitDotTest(this Route2D route, Event e, int i,ref int selectedPointIndex, Vector2 offset = default(Vector2))
+    public static bool HitDotTest(this Route2D route, Event e, int i,ref int selectedPointIndex,
+        Vector2 offset, Quaternion offsetQ)
     {
-        var distance = HandleUtility.DistanceToCube(offset + route.points[i], Quaternion.identity, dotSize * 2);
+        var distance = HandleUtility.DistanceToCube(offset + route.points[i].Rotate(offsetQ), Quaternion.identity, dotSize * 2);
         if (distance > dotSize)
             return false;
         selectedPointIndex = i;
@@ -125,7 +128,7 @@ public static class RouteEditorUtility
 
 
     public static void UpdateSelectedPoint(this Route2D route, SceneView view, Vector2 mousePoint, int selectedPointIndex,
-    Vector3 offset, Quaternion offsetQ, Vector2 scale)
+    Vector3 offset, Quaternion offsetQ)
     {
         if (!route.points.IsValid(selectedPointIndex))
             return;
@@ -137,7 +140,7 @@ public static class RouteEditorUtility
         worldPoint = camera.ScreenToWorldPoint(new Vector3(mousePoint.x, mousePoint.y, -depth));
 
         worldPoint = Quaternion.Inverse(offsetQ) * (worldPoint - offset);
-        route.points[selectedPointIndex] = Vector2.Scale(worldPoint, scale);
+        route.points[selectedPointIndex] = worldPoint;
 
     }
     private static float DistanceFromDot(Vector3 p) => HandleUtility.DistanceToCube(p, Quaternion.identity, dotSize * 2);
@@ -180,7 +183,7 @@ public static class RouteEditorUtility
         Handles.DrawDottedLine(p1, p2, DottedLineSize);
         Handles.color = originColor;
     }
-    public static void DrawLinesAndDots(this Route2D route, int selectedIndex, int next, Vector2 offset = default(Vector2))
+    public static void DrawLinesAndDots(this Route2D route, int selectedIndex, int next, Vector2 offset, Quaternion offsetQ)
     {
         var points = route.points;
         if (points.IsEmpty() || points.Length < 2)
@@ -191,14 +194,14 @@ public static class RouteEditorUtility
 
         for (int i = 0; i < points.Length - 1; i++)
         {
-            var p1 = offset + points[i];
-            var p2 = offset + points[i + 1];
+            var p1 = offset + points[i].Rotate(offsetQ);
+            var p2 = offset + points[i + 1].Rotate(offsetQ);
             DrawLine(p1, p2);
             DrawDot(p1, i, selectedIndex, next);
         }
-        DrawDot(offset + points.Last(), points.Length - 1, selectedIndex, next);
+        DrawDot(offset + points.Last().Rotate(offsetQ), points.Length - 1, selectedIndex, next);
         if (route.loop && points.Length > 2)
-            DrawLine(offset + points.First(), offset + points.Last());
+            DrawLine(offset + points.First().Rotate(offsetQ), offset + points.Last().Rotate(offsetQ));
 
         Handles.color = originColor;
     }

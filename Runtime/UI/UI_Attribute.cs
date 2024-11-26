@@ -1,15 +1,11 @@
-using DG.Tweening;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Yu5h1Lib;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class UI_Attribute : UI_Behaviour
 {
-
     public UI_Stat[] uI_stats;
-
     private CanvasGroup canvasGroup;
 
     private void Awake()
@@ -64,20 +60,5 @@ public class UI_Attribute : UI_Behaviour
     public IEnumerator PerformingStatus()
     {
         yield return new WaitForSeconds(1);
-    }
-
-    public void FadeIn(float duration = 0.5f)
-    {
-        canvasGroup.gameObject.SetActive(true);
-        canvasGroup.alpha = 0;
-        var t = canvasGroup.DOFade(1,duration);
-        t.SetUpdate(true);
-    }
-    public void FadeOut(float duration = 0.5f)
-    {
-        canvasGroup.gameObject.SetActive(true);
-        canvasGroup.alpha = 1;
-        var t = canvasGroup.DOFade(0, duration);
-        t.SetUpdate(true);
     }
 }

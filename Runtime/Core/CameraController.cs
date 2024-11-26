@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using DG.Tweening;
+//using DG.Tweening;
 using System.Collections;
-using UnityEngine.Rendering.Universal;
+//using UnityEngine.Rendering.Universal;
 using Yu5h1Lib.Runtime;
 using Yu5h1Lib;
 
@@ -36,9 +36,9 @@ public class CameraController : SingletonBehaviour<CameraController>
 
     public ParticleSystem Cursor_Fx;
 
-#pragma warning disable 0109
-    public new Light2D light;
-#pragma warning restore 0109
+//#pragma warning disable 0109
+//    public new Light2D light;
+//#pragma warning restore 0109
 
     [ReadOnly]
     public SpriteRenderer _cursorRendererSource;
@@ -47,10 +47,8 @@ public class CameraController : SingletonBehaviour<CameraController>
     public SpriteRenderer cursorRenderer { 
         get {
             if ((_cursorRenderer == null || !_cursorRenderer.gameObject.IsBelongToActiveScene()) && _cursorRendererSource )
-            {
                 _cursorRenderer = Instantiate(_cursorRendererSource);
-                _cursorRenderer.gameObject.SetActive(cursorVisible);
-            }
+
             return _cursorRenderer;
         }
     }
@@ -64,29 +62,35 @@ public class CameraController : SingletonBehaviour<CameraController>
                 return;
             _cursorVisible = value;
             if (_cursorRenderer)
-                _cursorRenderer.gameObject.SetActive(cursorVisible);
+                _cursorRenderer.enabled = cursorVisible;
         }
     }
-    public Sprite cursorSprite { get => cursorRenderer.sprite; set => cursorRenderer.sprite = value; }
+    public Sprite cursorSprite { get => cursorRenderer.sprite;
+        set {
+            if (cursorSprite == value)
+                return;
+            cursorRenderer.sprite = value;
+            cursorRenderer.enabled = cursorVisible && value;
+        }
+    }
 
     protected override void Init(){
         _cursorRendererSource = Resources.Load<SpriteRenderer>("UI/Cursor");
-
     }
-
     public void Start()
     {
         camera.tag = "MainCamera";
         if (SceneController.IsLevelScene) {
-            var URP_data = camera.GetUniversalAdditionalCameraData();
-            URP_data.volumeLayerMask = 1 << LayerMask.NameToLayer("PostProcess");
-            URP_data.renderPostProcessing = true;
+            //var URP_data = camera.GetUniversalAdditionalCameraData();
+            //URP_data.volumeLayerMask = 1 << LayerMask.NameToLayer("PostProcess");
+            //URP_data.renderPostProcessing = true;
             camera.nearClipPlane = 0.01f;
             ZoomCamera(0);
             camera.GetOrthographicSize(out float width, out float height);
             SortingLayerSprites = SortingLayer.layers.Select(layer => layer.name).
                 ToDictionary(layerName => layerName, layerName => {
-                    var s = GameObjectEx.Create<SpriteRenderer>(transform);
+                    if (!transform.TryGetComponentInChildren(layerName,out SpriteRenderer s))
+                       s = GameObjectEx.Create<SpriteRenderer>(transform);
                     s.sprite = Resources.Load<Sprite>("Texture/Square");
                     s.transform.localPosition = Vector3.forward;
                     s.sortingLayerName = s.gameObject.name = layerName;
@@ -102,12 +106,14 @@ public class CameraController : SingletonBehaviour<CameraController>
         //if ((Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0) && ScreenInteractionArea != Rect.zero)
         //    InteractPointerCameraPosition();
 
-
+        var worldPosition = GetMousePositionOnCamera();
+        if (Input.GetMouseButtonDown(0))
+            PlayCursorEffect(worldPosition);
 
         if (!cursorVisible || !cursorRenderer || !cursorRenderer.sprite)
             return;
-        var worldPosition = GetMousePositionOnCamera();
         cursorRenderer.transform.position = worldPosition;
+
     }
     private void FixedUpdate()
     {
@@ -133,16 +139,11 @@ public class CameraController : SingletonBehaviour<CameraController>
 
         FitfadeBoardWithOrthographic();
     }
-    public void PlayCursorEffect()
+    public void PlayCursorEffect(Vector3 mouseWorldPoint)
     {
         if (!Cursor_Fx)
             Cursor_Fx = GameObjectEx.InstantiateFromResourecs<ParticleSystem>($"UI/{nameof(Cursor_Fx)}",transform);
-
-        var pos = Input.mousePosition;
-        if (!camera.orthographic)
-            pos.z = 1;
-        var mouseWorldPosition = camera.ScreenToWorldPoint(pos);
-        Cursor_Fx.transform.position = mouseWorldPosition;
+        Cursor_Fx.transform.position = mouseWorldPoint;
         Cursor_Fx.Play();
     }
     private void FitfadeBoardWithOrthographic()
@@ -151,10 +152,10 @@ public class CameraController : SingletonBehaviour<CameraController>
         foreach (var item in SortingLayerSprites)
             item.Value.transform.localScale = new Vector3(width + 1, height + 1, 1);
     }
-    public void FadeIn(string sortingLayerName,float duration)
-       => FadeIn(sortingLayerName, Color.black, duration);
+    public void FoldUp(string sortingLayerName,float duration)
+       => FoldUp(sortingLayerName, Color.black, duration);
 
-    public void FadeIn(string sortingLayerName,Color color, float duration)
+    public void FoldUp(string sortingLayerName,Color color, float duration)
     {
         if (!SortingLayerSprites.ContainsKey(sortingLayerName))
         {
@@ -166,8 +167,8 @@ public class CameraController : SingletonBehaviour<CameraController>
         s.color = color;
         color.a = 1;
         s.gameObject.SetActive(true);
-        var tween = s.DOColor(color, duration);
-        tween.SetUpdate(true);
+        //var tween = s.DOColor(color, duration);
+        //tween.SetUpdate(true);
     }
 
     /// <summary>

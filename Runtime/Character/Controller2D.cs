@@ -138,7 +138,7 @@ namespace Yu5h1Lib.Game.Character
                 detector = colliderDetector;
                 detector.OnGroundStateChangedEvent.AddListener(OnGroundStateChanged);
             }
-            if (!$"{name}'s Attribute does not Exists ! ".printWarningIf(!TryGetComponent(out _attribute)))
+            if (!$"{name}'s Attribute does not Exist ! ".printWarningIf(!TryGetComponent(out _attribute)))
                 attribute.Init();
 
             if (rigidbody)
@@ -262,7 +262,7 @@ namespace Yu5h1Lib.Game.Character
 
         protected virtual bool UpdateInputInstruction()
         {
-            if (GameManager.IsGamePause || !Initinalized || IsInteracting || !underControl || (hostBehaviour?.enable == false) )
+            if (GameManager.IsGamePause || !Initinalized || (hostBehaviour?.enable == false) )
                 return false;
             if (host == null)
             {

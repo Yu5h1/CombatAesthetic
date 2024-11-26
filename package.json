@@ -1,17 +1,21 @@
 {
-	  "name": "com.yu5h1.combataesthetic",
-	  "version": "1.0.0",
-	  "displayName": "Combat Aesthetic",
-	  "description": "ToolKits for third person combat game",
-	  "unity": "2019.4",
-	  "unityRelease": "",
-	  "dependencies": {
-		  "com.yu5h1.library": "1.0.1"
-	  },
-	  "keywords": [ "GameSystem", "Utility"  ],
-	  "author": {
-		"name": "Yu5h1",
-		"email": "jenyu5h10415@gmail.com",
-		"url": "https://github.com/Yu5h1"
-	  }
+  "name": "com.yu5h1.combataesthetic",
+  "version": "1.0.0",
+  "displayName": "Combat Aesthetic",
+  "description": "ToolKits for third person combat game",
+  "unity": "2024.1",
+  "dependencies": {
+    "com.unity.inputsystem": "1.7.0",
+    "com.unity.textmeshpro": "3.0.6",
+    "com.yu5h1.library": "1.0.1"
+  },
+  "keywords": [
+    "GameSystem",
+    "Utility"
+  ],
+  "author": {
+    "name": "Yu5h1",
+    "email": "jenyu5h10415@gmail.com",
+    "url": "https://github.com/Yu5h1"
+  }
 }

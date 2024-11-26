@@ -16,21 +16,13 @@ public class ImpactForce2D : MonoBehaviour
 
     [SerializeField]
     private float forceMultiplier = 1.0f;
-    private void OnDrawGizmos()
-    {
-        var originalMatrix = Gizmos.matrix;
-        DrawGizmosWireCube(size, _impactOffset, transform, Color.magenta);
-        Gizmos.matrix = originalMatrix;
 
-    }
-    void DrawGizmosWireCube(Vector3 CubeSize, Vector3 offset, Transform target, Color color)
-    {
-        Gizmos.color = color;
-        Gizmos.matrix = Matrix4x4.TRS(target.position, target.rotation, target.lossyScale);
-        Gizmos.DrawWireCube(offset, CubeSize);
-    }
+    private void Start() {}
+
     public void Push(Vector3 force)
     {
+        if (!enabled)
+            return;
         force *= forceMultiplier;
         var results = Physics2D.OverlapBoxAll(impactPos, size, 0, 1 << LayerMask.NameToLayer("Character"));
         for (int i = 0; i < results.Length; i++)
@@ -42,4 +34,22 @@ public class ImpactForce2D : MonoBehaviour
                 otherRigidbody.AddForce(force);
         }
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        if (!enabled)
+            return;
+        var originalMatrix = Gizmos.matrix;
+        DrawGizmosWireCube(size, _impactOffset, transform, Color.magenta);
+        Gizmos.matrix = originalMatrix;
+
+    }
+    void DrawGizmosWireCube(Vector3 CubeSize, Vector3 offset, Transform target, Color color)
+    {
+        Gizmos.color = color;
+        Gizmos.matrix = Matrix4x4.TRS(target.position, target.rotation, target.lossyScale);
+        Gizmos.DrawWireCube(offset, CubeSize);
+    }
+#endif
 }

@@ -42,8 +42,10 @@ namespace GifUtility
         public static void Gif2MotionAnimClipY(MenuCommand command) => command.RunGif2AnimClip(Vector2.up);
         [MenuItem(LabelMotionAnimClip)]
         public static void Gif2MotionAnimClip(MenuCommand command) => command.RunGif2AnimClip(Vector2.one);
- 
+
         #endregion
+
+ 
 
         public static void RunGif2AnimClip(this MenuCommand command, Vector2? movementMultiplier = null)
         {

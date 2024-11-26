@@ -11,7 +11,6 @@ public class TriggerEvent2D : EventMask2D
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        other.print();
         if (!Validate(other.gameObject))
             return;
         OnTriggerEnter2DEvent?.Invoke(other);

@@ -1,9 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using Yu5h1Lib.Game.Character;
 
 public class CharacterSMB : BaseCharacterSMB
 {

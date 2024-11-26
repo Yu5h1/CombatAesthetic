@@ -60,7 +60,8 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     public void Start()
     {
         Audio_bgm.Stop();
-        if (ResourcesEx.TryLoad($"Sound/{SceneController.ActiveScene.name}", out AudioClip clip, false))
+        if (!$"bgm {SceneController.ActiveScene.name} does not exist".printWarningIf(
+            !ResourcesEx.TryLoad($"Sound/{SceneController.ActiveScene.name}", out AudioClip clip)))
             Audio_bgm.clip = clip;
 
         Audio_bgm.volume = bgmVolume;
@@ -92,7 +93,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     public void play(string name, Vector3 position , Quaternion rotation )
     {
-        if (!ResourcesEx.TryLoad($"Sound/{name}", out AudioClip clip))
+        if ("".printWarningIf(!ResourcesEx.TryLoad($"Sound/{name}", out AudioClip clip)))
             return;
         var audioSource = PoolManager.Spawn<AudioSource>(position, rotation, Init);
         audioSource.volume = sfxVolume;

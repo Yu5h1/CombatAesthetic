@@ -15,12 +15,12 @@ public class Patrol : MonoBehaviour
     //private Vector2 _DirectionScale = Vector2.one;
     //public Vector2 directionScale => _DirectionScale;
 
+    public ColliderScanner2D scanner;
+
     public bool SetOffsetOnStart = true;
     [SerializeField]
     private Vector2 _offset;
-    public Vector2 offset { get => _offset; private set => _offset = value; }
-
-    
+    public Vector2 offset { get => _offset; private set => _offset = value; }    
 
     private Quaternion _offsetQ = Quaternion.identity;
     public Quaternion offsetQ { get => UseLocalCoordinate ? _offsetQ : Quaternion.identity; private set => _offsetQ = value; }
@@ -36,9 +36,17 @@ public class Patrol : MonoBehaviour
 
     public Vector2 Destination => offset + route.points[current].Rotate(offsetQ);
 
+    private void Reset()
+    {
+        scanner.layerMask = LayerMask.GetMask("Character");
+        scanner.filter.useTriggers = true;
+        scanner.direction = Vector2.right;
+    }
     private void Start()
     {
         Init();
+        if (!scanner.collider)
+            scanner.FindCollider(transform);
     }
     public void Init()
     {
@@ -54,11 +62,16 @@ public class Patrol : MonoBehaviour
 
     public void SetCurrentPoint(Vector2 position)
     {
-        route.points[current] = Quaternion.Inverse(offsetQ) * (position - offset);
+        if (route.points.IsValid(current))
+            route.points[current] = Quaternion.Inverse(offsetQ) * (position - offset);
     }
 
 #if UNITY_EDITOR
-
+    [ContextMenu(nameof(ScanTest))]
+    private void ScanTest()
+    {
+        $"{scanner.Scan(out RaycastHit2D result)} {result}".print();
+    }
     private void OnDrawGizmos()
     {
         var originColor = Gizmos.color;
@@ -72,7 +85,9 @@ public class Patrol : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        Gizmos.DrawSphere(Destination, arriveRange);
+        if (!route.points.IsValid(current))
+            return;
+        Gizmos.DrawWireSphere(Destination, arriveRange);
     }
 
 #endif

@@ -53,6 +53,6 @@ public class PatrolEditor : Editor<Patrol>
         if (!EditorApplication.isPlaying)
             targetObject.Init();
         targetObject.route.Handle( targetObject, ref selectedPointIndex, ref IsDragging, targetObject.current,
-            targetObject.offset,targetObject.offsetQ,targetObject.transform.lossyScale);
+            targetObject.offset,targetObject.offsetQ);
     }
 };

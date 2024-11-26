@@ -1,11 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.SceneManagement;
 using Yu5h1Lib.Game.Character;
 using static GameObjectEx;
 
@@ -28,7 +25,7 @@ namespace Yu5h1Lib
         {
             IsQuit = true;
             GameManager.RemoveInstanceCache();
-            DG.Tweening.DOTween.Clear(true);
+            //DG.Tweening.DOTween.Clear(true);
             return true;
         }
         #region Components
@@ -112,14 +109,6 @@ namespace Yu5h1Lib
                 if (playerController)
                     cameraController.ZoomCamera(delta);
             }
-            if (input.GetMouseButtonDown(0))
-            {
-                if (!CameraController.DoesNotExists)
-                {
-                    cameraController.PlayCursorEffect();
-                }
-            }
-
             //foreach (char c in Input.inputString)
             //{
             //    if (c == '\b') 
@@ -143,7 +132,7 @@ namespace Yu5h1Lib
         }
         public void Cancel()
         {
-            if (SceneController.IsLevelScene)
+            if (SceneController.IsLevelScene || playerController)
                 ui_Manager.PauseGame(!ui_Manager.LevelSceneMenu.activeSelf);
         }
         public static void ExitGame()

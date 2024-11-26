@@ -1,4 +1,3 @@
-using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,35 +32,20 @@ public class UI_Menu : UI_Behaviour
     }
     private void OnEnable()
     {
-        if (SceneController.IsLevelScene)
+        if (SceneController.IsLevelScene || 
+            (GameManager.instance.playerController && GameManager.instance.playerController.gameObject.IsBelongToActiveScene()))
             Continue?.gameObject.SetActive(CheckPoint.Exists);
-        else if (Continue)
+        else
+        {
             Continue.interactable = CheckPoint.Exists || TeleportGate2D.GateStates.Any();
-        
+        }
+            
     }
     public Button TryFindButton(string name, ref Button button)
     {
         if (!rectTransform.TryGetComponentInChildren(name, out button))
             Debug.LogWarning($"({name}) Botton could not be found !");
         return button;
-    }
-    public void FadeIn(float duration)
-    {
-        if (!gameObject.activeSelf)
-            gameObject.SetActive(true);
-        canvasGroup.alpha = 0;
-        var tweener = canvasGroup.DOFade(1, duration);
-        tweener.SetUpdate(true);
-    }
-    public void Engage(bool activate = true)
-    {
-        if (gameObject.activeSelf != activate)
-            gameObject.SetActive(activate);
-    }
-    public void Dismiss()
-    {
-        if (gameObject.activeSelf)
-            gameObject.SetActive(false);
     }
     public void ExitGame() => GameManager.ExitGame();
     public void StartNewGame() => GameManager.instance.StartNewGame();

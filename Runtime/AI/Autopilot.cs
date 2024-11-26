@@ -8,6 +8,8 @@ namespace Yu5h1Lib.Game.Character
     {
         public bool enable;
 
+        public SkillTriggerCondition[] skillTriggerConditions;
+
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
         public class Behaviour : Behaviour2D<Autopilot>
@@ -42,7 +44,7 @@ namespace Yu5h1Lib.Game.Character
                             BT.Sequence().OpenBranch(
                                 BT.Condition(DoesTargetExits),
                                 BT.Call(StopMoving),
-                                BT.Wait(1),
+                                //BT.Wait(1),
                                 BT.Call(FollowTarget)
                                 )
                         )
@@ -54,7 +56,7 @@ namespace Yu5h1Lib.Game.Character
             #region input
             public override Vector2 GetMovement()
             {
-                if (GameManager.IsBusy || "body does not exists !".printWarningIf(!Body) || !Body.underControl)
+                if (GameManager.IsBusy || "body does not exist !".printWarningIf(!Body) || !Body.underControl)
                     return Vector2.zero;
                 ai.Tick();
 
@@ -66,13 +68,13 @@ namespace Yu5h1Lib.Game.Character
                 if (GameManager.IsBusy || target == null || !Body.underControl)
                     return false;
 
-                if (Body.detector.scanner.collider && Body.detector.scanner.Scan(out RaycastHit2D hit) &&
-                    hit.collider.TryGetComponent(out BlueLine blueLine) ||
-                    Vector2.Dot(target.position - Body.position, Body.right) < 0)
-                {
-                    target = null;
-                    return updateInput(false, false, false);
-                }
+                //if (patrol.scanner.collider && patrol.scanner.Scan(out RaycastHit2D hit) &&
+                //    hit.collider.TryGetComponent(out BlueLine blueLine) ||
+                //    Vector2.Dot(target.position - Body.position, Body.right) < 0)
+                //{
+                //    target = null;
+                //    return updateInput(false, false, false);
+                //}
 
                 return updateInput(true, false, false);
             }
@@ -99,23 +101,26 @@ namespace Yu5h1Lib.Game.Character
             private void OnEnemyDetected(){
                 Body.GetComponent<EmojiController>()?.ShowEmoji("exclamation mark", 2);
             }
-            public void DetectEnemy()
+            public virtual bool DetectEnemy()
             {                
-                if (!Body.detector.scanner.collider || !Body.detector.scanner.Scan(out RaycastHit2D hit))
+                if (!patrol.scanner.collider || !patrol.scanner.Scan(out RaycastHit2D hit))
                 {
                     target = null;
-                    return;
+                    return false;
                 }
-                if (hit.collider.TryGetComponent(out BlueLine blueLine))
-                {
-                    target = null;
-                    var l = new Line2D(Body.transform.position, patrol.Destination);
-                    if (blueLine.TryGetIntersection(l, out Vector2 intersection))
-                    {
-                        patrol.SetCurrentPoint(intersection - (l.direction.normalized * blueLine.Width ) );
-                        return;
-                    }
-                }
+                //if (hit.collider.TryGetComponent(out BlueLine blueLine))
+                //{
+                //    target = null;
+                //    if (patrol.route.points.Length > 1)
+                //    {
+                //        var l = new Line2D(Body.transform.position, patrol.Destination);
+                //        if (blueLine.TryGetIntersection(l, out Vector2 intersection))
+                //        {
+                //            patrol.SetCurrentPoint(intersection - (l.direction.normalized * blueLine.Width));
+                //            return;
+                //        }
+                //    }
+                //}
 
                 if (hit.collider.TryGetComponent(out Controller2D c))
                 {
@@ -135,7 +140,8 @@ namespace Yu5h1Lib.Game.Character
                     //movement = Vector2.zero;
                 }
                 //else
-                //    movement *= Vector2.left;                
+                //    movement *= Vector2.left;
+                return true;
             }
             public void FollowTarget()
             {
@@ -187,6 +193,12 @@ namespace Yu5h1Lib.Game.Character
             }
 
 
+        }
+        public class SkillTriggerCondition
+        {
+            public SkillData skill;
+            public Vector2 direction;
+            public float distance;
         }
     }
 }

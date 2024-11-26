@@ -122,6 +122,7 @@ public class SceneController : SingletonBehaviour<SceneController>
     public static void RegistryLoadEvents()
     {
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        
         SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
     private static void OnSceneUnloaded(Scene scene)
@@ -131,9 +132,9 @@ public class SceneController : SingletonBehaviour<SceneController>
         CameraController.RemoveInstanceCache();
         PoolManager.RemoveInstanceCache();
         // kill tweeners where is dontDestoryOnLoad 
-        foreach (var item in GameManager.instance.GetComponentsInChildren<TweenBehaviour>(true))
-            item.Kill();
-        DG.Tweening.DOTween.KillAll();
+        //foreach (var item in GameManager.instance.GetComponentsInChildren<TweenBehaviour>(true))
+        //    item.Kill();
+        //DG.Tweening.DOTween.KillAll();
         RemoveInstanceCache();
         IsSceneTransitioning = false;
 

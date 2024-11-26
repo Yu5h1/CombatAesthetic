@@ -22,7 +22,9 @@ namespace Yu5h1Lib.Game.Character
         protected virtual bool OnActivate(bool successed) => successed;
         public void Update(HostData2D.HostBehaviour2D host)
         {
-            if (!data.parallelizable && owner.currentSkillBehaviour != this)
+            if (owner.IsInteracting || !owner.underControl )
+                return;
+            if (!data.parallelizable && owner.currentSkillBehaviour != this )
                 return;
             if (!data.incantation.IsEmpty()) /// keybinding skill
                 host.GetInputState(data.incantation, UpdateInput);

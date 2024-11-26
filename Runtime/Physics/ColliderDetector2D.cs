@@ -32,8 +32,6 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField, Range(0.01f, 1.0f)]
         private float groundDistanceThreshold = 0.05f;
         #endregion
-        public ColliderScanner2D scanner;
-
         public CollierCastInfo2D forwardCastInfo = new CollierCastInfo2D();
 
         public UnityEvent<bool> OnGroundStateChangedEvent;
@@ -202,11 +200,7 @@ namespace Yu5h1Lib.Game.Character
         }
 
 #if UNITY_EDITOR
-        [ContextMenu(nameof(ScanTest))]
-        private void ScanTest()
-        {
-            $"{scanner.Scan(out RaycastHit2D result)} {result}".print();
-        }
+
         private void OnDrawGizmosSelected()
         {
             if (!collider || !groundHit)

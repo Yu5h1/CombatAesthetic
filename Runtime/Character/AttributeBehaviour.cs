@@ -164,10 +164,10 @@ public class AttributeBehaviour : MonoBehaviour
         if (tag == "Player")
         {
             GetComponent<SpriteRenderer>().sortingLayerName = "Front";
-            ui?.FadeOut(0.3f);
+            ui?.Dismiss();
             PoolManager.canvas.sortingLayerName = "Back";
-            CameraController.instance.FadeIn("Back", 1);
-            GameManager.ui_Manager.LevelSceneMenu.FadeIn(5);
+            CameraController.instance.FoldUp("Back", 1);
+            GameManager.ui_Manager.LevelSceneMenu.Engage();
         }
         Debug.Log($"{gameObject.name} was defeated because of {DefeatedReason.Exhausted}.");
         enabled = false;

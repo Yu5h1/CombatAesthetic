@@ -11,10 +11,10 @@ public static class GameObjectEx
             name = name.Remove(name.Length - "(Clone)".Length);
         return name;
     }
-    public static bool TryInstantiateFromResourecss<T>(out T result,string path, Transform parent = null,bool throwNullReferenceException = true) where T : Object
+    public static bool TryInstantiateFromResourecss<T>(out T result,string path, Transform parent = null) where T : Object
     {
         result = null;
-        if (!ResourcesEx.TryLoad(path, out T source,throwNullReferenceException))
+        if ($"TryInstantiateFromResourecss {path} does not exist!".printWarningIf(!ResourcesEx.TryLoad(path, out T source)))
             return false;
         result = parent == null ? GameObject.Instantiate(source) : GameObject.Instantiate(source, parent);
         if (!InstantiateWithCloneSuffix)

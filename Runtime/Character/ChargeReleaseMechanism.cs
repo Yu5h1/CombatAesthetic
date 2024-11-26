@@ -14,7 +14,7 @@ public class ChargeReleaseMechanism : SkillStateMachine<ChargeReleaseMechanism.B
     public class Behaviour : Behaviour<ChargeReleaseMechanism> 
     {        
         public AnimParamSMB animParam => owner.animParam;
-        public override bool IsReady => base.IsReady && animParam.DoesParamExists("HoldSkill");
+        public override bool IsReady => base.IsReady && animParam.DoesParamExist("HoldSkill");
         protected override void Init()
         {
             
