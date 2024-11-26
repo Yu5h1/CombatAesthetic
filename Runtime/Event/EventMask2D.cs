@@ -5,11 +5,14 @@ using Yu5h1Lib;
 
 public abstract class EventMask2D : BaseEvent2D
 {
+    public Transform owner;
     public LayerMask layers;
     public TagOption tagOption;
     private void OnEnable() { }
     protected bool Validate(GameObject other) 
-        => enabled && tagOption.Compare(other.transform.tag) && layers.Contains(other);
+        => enabled && other.transform != owner && tagOption.Compare(other.transform.tag) && layers.Contains(other);
+
+    protected virtual void OnDisable() => owner = null; 
 }
 [System.Serializable]
 public class TagOption

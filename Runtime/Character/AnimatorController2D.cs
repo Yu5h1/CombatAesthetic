@@ -240,10 +240,7 @@ namespace Yu5h1Lib.Game.Character
             var hitboxType = detector.collider.bounds.size.magnitude > 2 ? "HitBoxBig" : "HitBox";
             var fx = PoolManager.instance.Spawn<Transform>(hitboxType, detector.front, offsetTransform.rotation);
             foreach (var mask in fx.GetComponents<EventMask2D>())
-            {
-                mask.tagOption.tag = gameObject.tag;
-                mask.tagOption.type = TagOption.ComparisionType.NotEqual;
-            }
+                mask.owner = transform;
         }
         public void CastFX(int index)
         {
@@ -253,10 +250,7 @@ namespace Yu5h1Lib.Game.Character
                 var offsetTransform = transform.Find("FxOffset") ?? transform;
                 var fx = PoolManager.instance.Spawn<Transform>(fxSkill.effects[index], offsetTransform.position, offsetTransform.rotation);
                 foreach (var mask in fx.GetComponents<EventMask2D>())
-                {
-                    mask.tagOption.tag = gameObject.tag;
-                    mask.tagOption.type = TagOption.ComparisionType.NotEqual;
-                }
+                    mask.owner = transform;
             }
         }
         public void PlayAudio(int index)
