@@ -38,7 +38,7 @@ public class Patrol : MonoBehaviour
 
     private void Reset()
     {
-        UsedefaultScannerSetting();
+        
     }
     private void Start()
     {
