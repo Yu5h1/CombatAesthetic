@@ -1,5 +1,4 @@
 using UnityEngine;
-using BTAI;
 
 
 namespace Yu5h1Lib.Game.Character
@@ -51,7 +50,7 @@ namespace Yu5h1Lib.Game.Character
             {
                 if (IsNotReady)
                     return false;
-                if (Target == null)
+                if (target == null)
                     return false;
 
                 //if (patrol.scanner.collider && patrol.scanner.Scan(out RaycastHit2D hit) &&
@@ -172,10 +171,10 @@ namespace Yu5h1Lib.Game.Character
             }
             public bool Arrived() => Mathf.Approximately(Vector2.Distance(Body.position, destination), 0);
 
-            bool WithinPatrolRange() => Vector2.Distance(patrolPoint, Body.position) < patrol.RangeDistance;
-            bool OutOfPatrolRange() => !WithinPatrolRange();
-            bool DoesTargetExit() => target;
-            bool DoesTargetNotExit() => !DoesTargetExit();
+            protected bool WithinPatrolRange() => Vector2.Distance(patrolPoint, Body.position) < patrol.RangeDistance;
+            protected bool OutOfPatrolRange() => !WithinPatrolRange();
+            protected bool DoesTargetExit() => target;
+            protected bool DoesTargetNotExit() => !DoesTargetExit();
 
             public void StopMoving()
             {
