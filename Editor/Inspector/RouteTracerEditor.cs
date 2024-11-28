@@ -5,8 +5,8 @@ using UnityEditor;
 using Yu5h1Lib.EditorExtension;
 using Yu5h1Lib;
 
-[CustomEditor(typeof(MovingPlatform))]
-public class MovingPlatformEditor : Editor<MovingPlatform>
+[CustomEditor(typeof(RouteTracer))]
+public class RouteTracerEditor : Editor<RouteTracer>
 {
     Camera routeCamera;
     Vector2[] points => targetObject.route.points;

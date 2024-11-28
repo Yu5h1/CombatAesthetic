@@ -4,7 +4,7 @@ using UnityEngine;
 using Yu5h1Lib;
 using Yu5h1Lib.Game.Character;
 
-public class MovingPlatform : MonoBehaviour
+public class RouteTracer : MonoBehaviour
 {
 
     [SerializeField]
