@@ -22,7 +22,7 @@ namespace Yu5h1Lib.Game.Character
             //{
             //    return state;
             //}
-
+			public bool IsNotReady => GameManager.IsBusy || "body does not exist !".printWarningIf(!Body) || !Body.underControl;
             public Patrol patrol;
 
             public Vector2 patrolPoint => patrol.offset;
@@ -31,39 +31,27 @@ namespace Yu5h1Lib.Game.Character
             private Transform transform => Body.transform;
 
             public Controller2D target;
-            private Root ai;
 
             public override void Init(Controller2D controller)
             {
                 base.Init(controller);
                 patrol = controller.GetComponent<Patrol>();
-                ai = BT.Root();
-
-                ai.OpenBranch(
-                    BT.If(DoesTargetExit).OpenBranch(
-                            BT.Wait(1),
-                            BT.Call(FollowTarget)
-                        )
-                    ,
-                     BT.If(DoesTargetNotExit).OpenBranch(
-                            BT.Call(PatrolArea)
-                        )
-                 );
             }
 
             #region input
             public override Vector2 GetMovement()
             {
-                if (GameManager.IsBusy || "body does not exist !".printWarningIf(!Body) || !Body.underControl)
+                if (IsNotReady)
                     return Vector2.zero;
-                ai.Tick();
-
+                
                 return movement;
             }
 
             public override bool GetInputState(UpdateInput updateInput)
             {
-                if (GameManager.IsBusy || target == null || !Body.underControl)
+                if (IsNotReady)
+                    return false;
+                if (Target == null)
                     return false;
 
                 //if (patrol.scanner.collider && patrol.scanner.Scan(out RaycastHit2D hit) &&
