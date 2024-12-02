@@ -7,6 +7,7 @@ using Yu5h1Lib;
 
 public class SceneController : SingletonBehaviour<SceneController>
 {
+    public bool IsLevel;
     public static Vector3? startPosition;
     public string[] StartLines;
     public bool NoTalking;
@@ -17,7 +18,7 @@ public class SceneController : SingletonBehaviour<SceneController>
     #endregion
     private void Start()
     {
-        Debug.Log(GameManager.instance);
+        $"{GameManager.instance} is ready.".print();
         Time.timeScale = 1;
         gameObject.layer = LayerMask.NameToLayer("Boundary");
         if (SceneController.IsLevelScene)
@@ -39,13 +40,14 @@ public class SceneController : SingletonBehaviour<SceneController>
             startPosition = null;
         }    
     }
+
     private void OnTriggerExit2D(Collider2D other)
     {
         // Avoiding OnTriggerExit2D triggered on EditorApplication.Exit
         if (GameManager.IsQuit || IsSceneTransitioning)
             return;
         if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
-            attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 1000);
+            attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 100000000);
     } 
 
     #region Static 
@@ -76,7 +78,7 @@ public class SceneController : SingletonBehaviour<SceneController>
         _ => ActiveScene.name.Equals(name)
     };
     public static bool IsStartScene => IsSceneName("Start");
-    public static bool IsLevelScene => IsSceneName("Level",StringSearchOption.StartsWith);
+    public static bool IsLevelScene => instance.IsLevel;
 
     public static bool IsSceneTransitioning;
     private static bool IsSceneUnLoaded() => !IsSceneTransitioning;

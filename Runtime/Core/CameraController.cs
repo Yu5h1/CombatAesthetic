@@ -11,13 +11,22 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Camera))]
 public class CameraController : SingletonBehaviour<CameraController>
 {
-    public event UnityAction<SpriteRenderer,Color,float> onFoldUp;
-    public Vector3 followOffset = new Vector3(0,0.75f,-5);
+    public event UnityAction<SpriteRenderer,Color,float> OverrideFadeMethod;
     private Camera _camera;
 #pragma warning disable 0109
-    public new Camera camera => _camera ?? (_camera = GetComponent<Camera>());
+    public new Camera camera { 
+        get {
+            if (!_camera)
+                _camera = GetComponent<Camera>();
+            return _camera; 
+        }
+    } 
 #pragma warning restore 0109
+
     public Transform Target;
+    public Vector3 followOffset = new Vector3(0,0.75f,-5);
+    public float bg_depth = 5;
+
     public Dictionary<string,SpriteRenderer> SortingLayerSprites = new Dictionary<string, SpriteRenderer>();
 
     public bool syncAngle;
@@ -75,7 +84,9 @@ public class CameraController : SingletonBehaviour<CameraController>
             cursorRenderer.enabled = cursorVisible && value;
         }
     }
+    public Sprite squareSprite => Resources.Load<Sprite>("Texture/Square");
 
+    private bool NeedUpdateZoom;
     protected override void Init(){
         _cursorRendererSource = Resources.Load<SpriteRenderer>("UI/Cursor");
     }
@@ -93,8 +104,8 @@ public class CameraController : SingletonBehaviour<CameraController>
                 ToDictionary(layerName => layerName, layerName => {
                     if (!transform.TryGetComponentInChildren(layerName,out SpriteRenderer s))
                        s = GameObjectEx.Create<SpriteRenderer>(transform);
-                    s.sprite = Resources.Load<Sprite>("Texture/Square");
-                    s.transform.localPosition = Vector3.forward;
+                    s.sprite = squareSprite;
+                    s.transform.localPosition = new Vector3(0,0, bg_depth);
                     s.sortingLayerName = s.gameObject.name = layerName;
                     s.sortingOrder = 1;
                     s.gameObject.SetActive(false);
@@ -119,10 +130,16 @@ public class CameraController : SingletonBehaviour<CameraController>
     }
     private void FixedUpdate()
     {
-
         if (Target == null)
             return;
         FollowTarget();
+    }
+    private void LateUpdate()
+    {
+        if (!NeedUpdateZoom)
+            return;
+        FitfadeBoardWithOrthographic();
+        NeedUpdateZoom = false;
     }
     public Vector3 GetMousePositionOnCamera()
     {
@@ -139,7 +156,8 @@ public class CameraController : SingletonBehaviour<CameraController>
         if (!camera.orthographic)
             followOffset.z = -Mathf.Lerp(OrthoSize.Min, OrthoSize.Max,zoomProportion) * 2;
 
-        FitfadeBoardWithOrthographic();
+        NeedUpdateZoom = true;
+        //FitfadeBoardWithOrthographic();
     }
     public void PlayCursorEffect(Vector3 mouseWorldPoint)
     {
@@ -150,14 +168,56 @@ public class CameraController : SingletonBehaviour<CameraController>
     }
     private void FitfadeBoardWithOrthographic()
     {
-        camera.GetOrthographicSize(out float width, out float height);
-        foreach (var item in SortingLayerSprites)
-            item.Value.transform.localScale = new Vector3(width + 1, height + 1, 1);
+        float width = 0, height = 0;
+        if (camera.orthographic)
+            camera.GetOrthographicSize(out width, out height);
+        else
+            camera.GetPerspectiveSize(bg_depth, out width, out height);
+        foreach (var renderer in SortingLayerSprites.Values)
+            SetSpriteSizeByProjection(renderer, bg_depth, width, height);
+    }
+    public void FitSpriteWithProjection(SpriteRenderer renderer,float depth)
+    {
+        float width = 0, height = 0;
+        if (camera.orthographic)
+        {
+            camera.GetOrthographicSize(out width, out height);
+            SetSpriteSizeByProjection(renderer,depth, width, height);
+        }
+        else
+        {
+            camera.GetPerspectiveSize(depth, out width, out height);
+            SetSpriteSizeByProjection(renderer,depth,width,height);
+        }
+    }
+    public void SetSpriteSizeByProjection(SpriteRenderer renderer, float depth,float width,float height)
+    {
+        if (camera.orthographic)
+            renderer.transform.localScale = new Vector3(width + 1, height + 1, 1);
+        else
+        {
+            var sSize = renderer.sprite.bounds.size;
+            Vector3 newScale = renderer.transform.localScale;
+            newScale.x = width / sSize.x;
+            newScale.y = height / sSize.y;
+            renderer.transform.localScale = newScale;
+        }
+        if (renderer.transform.parent == transform)
+        {
+            var p = renderer.transform.localPosition;
+            p.z = depth;
+            renderer.transform.localPosition = p;
+        }
+        else
+        {
+            renderer.transform.rotation = transform.rotation;
+            renderer.transform.position = transform.TransformPoint(0, 0, depth);
+        }
     }
     public void FoldUp(string sortingLayerName,float duration)
        => FoldUp(sortingLayerName, Color.black, duration);
 
-    public SpriteRenderer FoldUp(string sortingLayerName,Color color, float duration)
+    public SpriteRenderer FoldUp(string sortingLayerName,Color color, float duration,Sprite sprite = null)
     {
         if (!SortingLayerSprites.ContainsKey(sortingLayerName))
         {
@@ -165,11 +225,24 @@ public class CameraController : SingletonBehaviour<CameraController>
             return null;
         }
         var s = SortingLayerSprites[sortingLayerName];
+
+        sprite = sprite ?? squareSprite;
+
+        if (s.sprite != sprite)
+        {
+            s.sprite = sprite;
+            FitfadeBoardWithOrthographic();
+        }
+
         color.a = 0;
         s.color = color;
         color.a = 1;
         s.gameObject.SetActive(true);
-        onFoldUp?.Invoke(s,color, duration);
+        if (OverrideFadeMethod == null)
+        { 
+            
+        }else
+            OverrideFadeMethod?.Invoke(s,color, duration);
         //var tween = s.DOColor(color, duration);
         //tween.SetUpdate(true);
         return s;

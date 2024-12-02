@@ -53,7 +53,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     protected override void Init()
     {
-        $"{audioListener} was created".print();
+        $"{audioListener} is ready.".print();
         Audio_bgm.playOnAwake = false;
         audio_sfx.playOnAwake = false;
     }

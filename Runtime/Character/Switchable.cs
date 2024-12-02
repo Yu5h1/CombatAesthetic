@@ -4,9 +4,8 @@ public class Switchable : SkillStateMachine<Switchable.Behaviour>
 {
     public class Behaviour : Behaviour<SkillStateMachine<Behaviour>>
     {
-        protected override void Init()
-        {
-        }
+        protected override void Init() {}
+        protected override void OnSelect() {}
         protected override bool UpdateInput(bool down, bool hold, bool stop)
         {
             return base.UpdateInput(down, hold, stop);
@@ -25,6 +24,8 @@ public class Switchable : SkillStateMachine<Switchable.Behaviour>
         {
             throw new System.NotImplementedException();
         }
+
+        
     }
 }
 

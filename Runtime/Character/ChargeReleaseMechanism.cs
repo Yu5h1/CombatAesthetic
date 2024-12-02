@@ -15,10 +15,10 @@ public class ChargeReleaseMechanism : SkillStateMachine<ChargeReleaseMechanism.B
     {        
         public AnimParamSMB animParam => owner.animParam;
         public override bool IsReady => base.IsReady && animParam.DoesParamExist("HoldSkill");
-        protected override void Init()
-        {
-            
-        }
+
+        protected override void Init() { }
+        protected override void OnSelect() { }
+
         protected override void OnEnter()
         {
             if (data.NameOfSkill.IsEmpty())

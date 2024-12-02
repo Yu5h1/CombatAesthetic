@@ -47,8 +47,6 @@ namespace Yu5h1Lib.Game.Character
         public event UnityAction<Vector2> Hited;
         #endregion
 
-
-
         public float fixedPoseDirSpeed = 5;
         protected override void Init()
         {
@@ -73,6 +71,9 @@ namespace Yu5h1Lib.Game.Character
             skillBehaviours = new SkillBehaviour[_Skills.Length];
             for (int i = 0; i < skillBehaviours.Length; i++)
                 skillBehaviours[i] = _Skills[i].GetBehaviour(this);
+
+            if (CompareTag("Player"))
+                attribute.ui = UI_Manager.instance.PlayerAttribute_UI;
             if (!optionalSkills.IsEmpty())
                 currentSkillBehaviour.Select();
             #endregion            
@@ -91,6 +92,8 @@ namespace Yu5h1Lib.Game.Character
         }
         public void HitFrom(Vector2 v)
         {
+            if (!enabled)
+                return;
             //face to impact Direction
             if (!v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
                 CheckForwardFrom(-forwardSign);

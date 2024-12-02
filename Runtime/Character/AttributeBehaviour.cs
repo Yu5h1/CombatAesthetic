@@ -62,14 +62,14 @@ public class AttributeBehaviour : MonoBehaviour
             return stat.current < 0;
         return true;
     }
-
+    [SerializeField,ReadOnly]
     private UI_Attribute _ui;
-
     public UI_Attribute ui
     {
         get => _ui;
         set 
         {
+
             if (_ui == value)
                 return;
             _ui = value;
@@ -77,20 +77,15 @@ public class AttributeBehaviour : MonoBehaviour
                 _ui.Prepare(this);
         }
     }
-
-
-
-
     /// <summary>
     /// stop update attributes while affecting
     /// </summary>
+    [SerializeField,ReadOnly]
     private bool affected;
     public void Reset()
     {
         attributes = AttributeType.Health;
     }
-
-
     internal void Init()
     {
         Keys = attributes.SeparateFlags().Select(flag => $"{flag}").ToArray();
@@ -155,23 +150,20 @@ public class AttributeBehaviour : MonoBehaviour
     }
     private void OnStatDepleted(AttributeType flag)
     {
-        StatDepletedEvent?.Invoke(flag);
         if (!enabled)
             return;
-        if (!flag.HasFlag(AttributeType.Health))
-            return;
-        #region unorganized implmentation
-        if (tag == "Player")
+        StatDepletedEvent?.Invoke(flag);
+        
+
+        
+#if UNITY_EDITOR
+        ///unorganized implmentation    
+        if (flag.HasAnyFlags(AttributeType.Health))
         {
-            GetComponent<SpriteRenderer>().sortingLayerName = "Front";
-            ui?.Dismiss();
-            PoolManager.canvas.sortingLayerName = "Back";
-            CameraController.instance.FoldUp("Back", 1);
-            GameManager.ui_Manager.LevelSceneMenu.Engage();
+            enabled = false;
+            Debug.Log($"{gameObject.name} was defeated because of {DefeatedReason.Exhausted}.");
         }
-        Debug.Log($"{gameObject.name} was defeated because of {DefeatedReason.Exhausted}.");
-        enabled = false;
-        #endregion
+#endif
     }
     public IEnumerator Affect(int index,float interval) {
         while (!stats[index].IsFull)

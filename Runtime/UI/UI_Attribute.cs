@@ -37,6 +37,21 @@ public class UI_Attribute : UI_Behaviour
             PoolManager.instance.Despawn(item);
         uI_stats = null;
     }
+
+    public void SetVisible(bool visible,params AttributeType[] attributes)
+    {
+        if (attributes.IsEmpty())
+            return;
+        foreach (var att in attributes)
+        {
+            if (transform.TryFind($"{att}", out Transform t))
+                t.gameObject.SetActive(visible);
+        }
+    }
+    public void Show(params AttributeType[] attributes) => SetVisible(true, attributes);
+    public void Hide(params AttributeType[] attributes) => SetVisible(false, attributes);
+    
+
     //deprecated implimentation
     //public StatProperty_Deprecated.VisualItem[] CreateVisualItems(RectTransform parent, Vector2 size, bool UpDown)
     //=> Keys.Select((key, order) => new StatProperty_Deprecated.VisualItem(parent, System.Enum.Parse<AttributeType>(key), order, size, UpDown)).ToArray();

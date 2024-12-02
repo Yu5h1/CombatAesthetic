@@ -10,10 +10,14 @@ public class MonoEventHandler : MonoBehaviour
 
     private void OnEnable()
     {
+        if (!enabled)
+            return;
         OnEnableEvent?.Invoke();
     }
     private void OnDisable()
     {
+        if (!enabled)
+            return;
         OnDisableEvent?.Invoke();
     }
 }

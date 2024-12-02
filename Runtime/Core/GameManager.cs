@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
 using Yu5h1Lib.Game.Character;
 using static GameObjectEx;
 
@@ -63,11 +64,14 @@ namespace Yu5h1Lib
 
         public static event UnityAction<bool> OnPauseStateChanged;
         public static event UnityAction OnFoundPlayer;
+        public static event UnityAction<Controller2D> overridePlayerFailed;
 
         private string inputString;
         [ReadOnly]
         public Controller2D playerController;
         public Texture2D cursor;
+
+        public UnityEvent CancelPressed;
         void Awake()
         {
             QualitySettings.vSyncCount = 0;
@@ -91,8 +95,11 @@ namespace Yu5h1Lib
             {
                 cameraController.SetTarget(player.transform);
                 if (player.TryGetComponent(out playerController))
+                {
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
-
+                    playerController.attribute.StatDepleted -= PlayerHealthDepleted;
+                    playerController.attribute.StatDepleted += PlayerHealthDepleted;
+                }
                 PoolManager.instance.PrepareFromResourece<Transform>("Fx");
                 OnFoundPlayer?.Invoke();
             }
@@ -103,9 +110,8 @@ namespace Yu5h1Lib
                 SoundManager.instance.audioListener.transform.position = playerController.transform.position;
             else
                 SoundManager.instance.audioListener.transform.position = cameraController.transform.position;
-
             if (input.GetButtonDown("Cancel"))
-                Cancel();
+                OnCancelPressed();
             if (!Input.GetKey(KeyCode.LeftControl) && input.TryGetScrollWheelDelta(out float delta)) {
                 if (playerController)
                     cameraController.ZoomCamera(delta);
@@ -128,13 +134,12 @@ namespace Yu5h1Lib
             //    }
             //}
         }
-        public void Submit()
+        public void OnSubmitPressed()
         {
         }
-        public void Cancel()
+        public void OnCancelPressed()
         {
-            if (SceneController.IsLevelScene || playerController)
-                ui_Manager.PauseGame(!ui_Manager.LevelSceneMenu.activeSelf);
+            CancelPressed?.Invoke();
         }
         public static void ExitGame()
         {
@@ -203,5 +208,22 @@ namespace Yu5h1Lib
         //        }
         //    }
         //}
-    }
+
+        private void PlayerHealthDepleted(AttributeType flag)
+        {
+            if (flag.HasFlag(AttributeType.Health))
+                (overridePlayerFailed ?? OnPlayerFailed).Invoke(playerController);
+        }
+        private static void OnPlayerFailed(Controller2D player)
+        {
+            player.GetComponent<SpriteRenderer>().sortingLayerName = "Front";
+            player.attribute.ui?.GetComponent<UI_Menu>()?.Dismiss();
+            PoolManager.canvas.sortingLayerName = "Back";
+            CameraController.instance.FoldUp("Back", 1);
+            GameManager.ui_Manager.LevelSceneMenu.GetComponent<MonoEventHandler>().enabled = false;
+            GameManager.ui_Manager.LevelSceneMenu.previous = null;
+            GameManager.ui_Manager.LevelSceneMenu.DisallowPreviouse = true;
+            GameManager.ui_Manager.LevelSceneMenu.Engage();
+        }
+    }    
 }

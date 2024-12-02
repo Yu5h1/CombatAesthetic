@@ -15,11 +15,9 @@ public class Anim_FX_Skill : SkillData<Anim_FX_Skill.Behaviour>
     {
         Autopilot autopilot;
         public AnimParamSMB animParam => owner.animParam;
-   
-        protected override void Init()
-        {
-            
-        }
+
+        protected override void Init() { }
+        protected override void OnSelect() { }
         protected override bool UpdateInput(bool down, bool hold, bool stop)
         {
             

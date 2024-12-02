@@ -11,7 +11,7 @@ namespace Yu5h1Lib.Game.Character
         
         protected abstract void Init();
         public void Select() => OnSelect();
-        protected virtual void OnSelect(){}
+        protected abstract void OnSelect();
         protected bool Activate()
         {
             if (!IsReady || !owner.underControl)

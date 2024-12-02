@@ -1,15 +1,26 @@
 using UnityEditor;
+using Yu5h1Lib;
 using Yu5h1Lib.EditorExtension;
 
 [CustomEditor(typeof(UI_Statbar))]
 public class UI_statbarInspector : Editor<UI_Statbar>
 {
+    AttributeStat testStat;
+    private void OnEnable()
+    {
+        testStat = AttributeStat.Default;
+    }
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        if (targetObject.fill && this.TrySlider(out float val, targetObject.fill.fillAmount, 0, 1))
+        if (EditorApplication.isPlaying || targetObject.fills.IsEmpty())
+            return;
+
+        if (this.TrySlider("SimulateValue",out float val, testStat.normal, 0, 1))
         {
-            targetObject.fill.fillAmount = val;
+            testStat.current = val * testStat.max;
+            targetObject.UpdateStat(testStat);
+            //force ui image redraw
             EditorApplication.QueuePlayerLoopUpdate();
         }
     }

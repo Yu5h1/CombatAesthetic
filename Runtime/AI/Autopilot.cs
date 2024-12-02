@@ -135,10 +135,6 @@ namespace Yu5h1Lib.Game.Character
                     return;
                 movement = (target.detector.top - Body.detector.top).normalized;
             }
-            public void ReturnToPost()
-            {
-                movement = (patrolPoint - Body.position).normalized;
-            }
             public void PatrolArea()
             {                
                 if (target == null)
@@ -180,7 +176,12 @@ namespace Yu5h1Lib.Game.Character
             {
                 movement = Vector2.zero;
             }
-
+            protected Vector2 GetDirectionToTarget()
+            {
+                if (!target)
+                    return Vector2.zero;
+                return target.transform.position - Body.transform.position;
+            }
 
         }
         [System.Serializable]

@@ -5,41 +5,65 @@ using UnityEngine;
 using UnityEngine.UI;
 using Yu5h1Lib;
 
-[RequireComponent(typeof(CanvasGroup))]
 public class UI_Menu : UI_Behaviour
 {
+    public bool DisallowPreviouse;
+    public bool DisallowDismiss;
+    [ReadOnly,SerializeField]
+    private UI_Menu _previous;
+    public UI_Menu previous { get => _previous; 
+        set {
+            if (_previous == this || _previous == value)
+                return;
+            _previous = value;
+        } 
+    }
+
     public bool activeSelf => gameObject.activeSelf;
-    //[SerializeField] private Button _Submit;
-    //public Button Submit => _Submit ?? TryFindButton(nameof(Submit), ref _Submit);
-    [SerializeField] private Button _Cancel;
-    public Button Cancel => _Cancel ?? TryFindButton(nameof(Cancel), ref _Cancel);
 
-    [SerializeField] private Button _Continue;
-    public Button Continue => _Continue ?? TryFindButton(nameof(Continue), ref _Continue);
-
-    [SerializeField] private CanvasGroup _CanvasGroup;
-    public CanvasGroup canvasGroup => _CanvasGroup;
-
-    private void Reset()
-    {
-        //TryFindButton(nameof(Submit), ref _Submit);
-        TryFindButton(nameof(Cancel), ref _Cancel);
-        TryGetComponent(out _CanvasGroup);
-    }
-    private void Start()
-    {
-        TryGetComponent(out _CanvasGroup);
-    }
     private void OnEnable()
     {
-        if (SceneController.IsLevelScene || 
-            (GameManager.instance.playerController && GameManager.instance.playerController.gameObject.IsBelongToActiveScene()))
-            Continue?.gameObject.SetActive(CheckPoint.Exists);
-        else
-        {
-            Continue.interactable = CheckPoint.Exists || TeleportGate2D.GateStates.Any();
-        }
+
     }
+    public void Engage()
+    {
+        UI_Manager.Engage(this);
+    }
+    public void Dismiss(bool force = false)
+    {
+        if (DisallowDismiss && !force)
+            return;
+        UI_Manager.Dismiss(this);
+
+    }
+    /// <summary>
+    /// close self after moving to next menu
+    /// </summary>
+    public void ChangeMenu(UI_Menu next,bool dismiss)
+    {
+        if (!next)
+            return;
+        if (!next.DisallowPreviouse && !next.previous)
+            next.previous = this;
+        if (dismiss && !next.transform.IsChildOf(transform))
+            Dismiss();
+        next.Engage();        
+    }
+    public void SwitchMenu(UI_Menu menu) => ChangeMenu(menu, true);
+    public void Popup(UI_Menu popupmenu) => ChangeMenu(popupmenu,false);
+
+    public void ChangeMenu(string MenuName, bool close)
+    {
+        if (!manager.TryGetComponentInChildren(MenuName, out UI_Menu menu))
+            return;
+        ChangeMenu(menu, close);
+    }
+    public void SwitchMenu(string MenuName) => ChangeMenu(MenuName, true);
+    public void Popup(string MenuName) => ChangeMenu(MenuName, false);
+
+
+    public void ReturnToPrevious()
+        => ChangeMenu(previous,true);
     public Button TryFindButton(string name, ref Button button)
     {
         if (!rectTransform.TryGetComponentInChildren(name, out button))
@@ -54,8 +78,18 @@ public class UI_Menu : UI_Behaviour
         if (!CheckPoint.Load())
             LoadScene(1);
     }
-    public void InteractableIfChangesRecorde(Selectable target)
+    public void ActiveIfHasAnyRecords(Selectable control)
     {
-        target.interactable = CheckPoint.Exists || TeleportGate2D.GateStates.Any();
+        if (!control)
+            return;
+        control.gameObject.SetActive(CheckPoint.Exists);
     }
+    public void SetInteractableIfHasAnyRecords(Selectable control)
+    {
+        if (!control)
+            return;
+        control.interactable = CheckPoint.Exists || TeleportGate2D.GateStates.Any();
+    }
+    public void SetGamePause(bool pause) => GameManager.IsGamePause = pause;
+
 }
