@@ -9,8 +9,12 @@ public class ColliderScanner2D : CollierCastInfo2D
 {
 	public TagOption Tag;
 	public Vector2 direction;
+    public Vector2 start { get; private set; }
 
-    
+    public void Init()
+    {
+        start = collider.transform.InverseTransformPoint(collider.GetPoint(direction));
+    }
 
     public bool Scan(out RaycastHit2D hit)
     {

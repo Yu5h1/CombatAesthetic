@@ -9,9 +9,10 @@ namespace Yu5h1Lib.Game.Character
 {
     public class AnimParamSMB : BaseCharacterSMB
     {      
-        private readonly int GroundedHash = Animator.StringToHash("Grounded");
-        private readonly int SpeedXHash = Animator.StringToHash("SpeedX");
-        private readonly int SpeedYHash = Animator.StringToHash("SpeedY");
+        private readonly int GroundedHash = Animator.StringToHash(nameof(Grounded));
+        private readonly int UnderControlHash = Animator.StringToHash(nameof(UnderControl));
+        private readonly int SpeedXHash = Animator.StringToHash(nameof(SpeedX));
+        private readonly int SpeedYHash = Animator.StringToHash(nameof(SpeedY));
         private readonly int IndexOfSkillHash = Animator.StringToHash("IndexOfSkill");
         private readonly int TriggerSkillHash = Animator.StringToHash("TriggerSkill");
         private readonly int HoldSkillHash = Animator.StringToHash("HoldSkill");
@@ -24,6 +25,11 @@ namespace Yu5h1Lib.Game.Character
         {
             get => animator.GetBool(GroundedHash);
             set => animator.SetBool(GroundedHash, value);
+        }
+        public bool UnderControl
+        {
+            get => animator.GetBool(UnderControlHash);
+            set => animator.SetBool(UnderControlHash, value);
         }
         public float SpeedX
         {
@@ -61,12 +67,15 @@ namespace Yu5h1Lib.Game.Character
         private AnimatorControllerParameter TriggerExitParam;
         public override void Init(AnimatorController2D controller)
         {
-            base.Init(controller);  
-            controller.detector.OnGroundStateChangedEvent.AddListener(val => Grounded = val);
+            base.Init(controller);
+            controller.detector.GroundStateChanged += Detector_GroundStateChanged;
             TryGetAnimParam(nameof(Hurt), out hurtParam);
             TryGetAnimParam(nameof(Conscious), out ConsciousParam);
             TryGetAnimParam(nameof(TriggerExitParam), out TriggerExitParam);
         }
+
+        private void Detector_GroundStateChanged(bool grounded) => Grounded = grounded;
+
         public void Hurt()
         {
             if (hurtParam == null)
@@ -88,6 +97,7 @@ namespace Yu5h1Lib.Game.Character
             if (!owner.IsGrounded)
                 SpeedY = owner.localVelocity.y;
             Conscious = owner.Conscious;
+            UnderControl = owner.underControl;
 
         }
     }

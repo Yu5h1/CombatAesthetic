@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering;
 using Yu5h1Lib.Mathematics;
 
@@ -32,7 +33,21 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField] protected Vector2 GroundMultiplier = new Vector2(1, 1);
         [SerializeField] protected bool _Floatable;
 
+
+        #region Events
+        [SerializeField]
+        protected Vector2Event _Hited;
+        public event UnityAction<Vector2> Hited
+        {
+            add => _Hited.AddListener(value);
+            remove => _Hited.RemoveListener(value);
+        }
+        #endregion
         #region Components   
+        [SerializeField]
+        private Collider2D _hurtBox;
+        public Collider2D hurtBox => _hurtBox;
+        [SerializeField,ReadOnly]
         private AttributeBehaviour _attribute;
         public AttributeBehaviour attribute => _attribute;
         public ColliderDetector2D detector { get; private set; }
@@ -122,6 +137,9 @@ namespace Yu5h1Lib.Game.Character
         public Vector2 gravityDirection => overrideGravityDirection.magnitude == 0 ? baseGravityDirection : overrideGravityDirection;
         public bool UseTransformUpAsGravitationOnStart;
         #endregion
+
+        public bool IsInvincible => !attribute || !attribute.isActiveAndEnabled; 
+
         public bool Initinalized { get; private set; }
         
         private void Initinalize()
@@ -136,7 +154,7 @@ namespace Yu5h1Lib.Game.Character
             if (TryGetComponent(out ColliderDetector2D colliderDetector))
             {
                 detector = colliderDetector;
-                detector.OnGroundStateChangedEvent.AddListener(OnGroundStateChanged);
+                detector.GroundStateChanged += OnGroundStateChanged;
             }
             if (!$"{name}'s Attribute does not Exist ! ".printWarningIf(!TryGetComponent(out _attribute)))
                 attribute.Init();
@@ -155,11 +173,13 @@ namespace Yu5h1Lib.Game.Character
         {
             if (grounded)
             {
+                if (localVelocity.y < -10 && attribute)
+                    attribute.Affect(AttributeType.Health, AffectType.NEGATIVE, Mathf.Abs(localVelocity.y));
                 localVelocity *= Vector2.right;
                 rigidbody.Sleep();
                 velocity = transform.TransformVector(localVelocity);
-               
                 //ResetRotation();
+                
             }
         }
 
@@ -298,6 +318,35 @@ namespace Yu5h1Lib.Game.Character
         {
             velocity = Vector2.zero;
         }
+
+        public virtual void HitFrom(Vector2 v)
+        {
+            if (!isActiveAndEnabled || IsInvincible)
+                return;
+            if (!v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
+                CheckForwardFrom(-forwardSign);
+
+        }
+        #region Coroutine
+        private Coroutine TemporarilyInvincibleCoroutine;
+        public void InvincibleHalfSecondIfHurt(Vector2 force)
+        {
+            var stateNullable = attribute[AttributeType.Health];
+            if (stateNullable == null)
+                return;
+            var state = stateNullable.Value;
+            if (state.IsDepleted)
+                return;
+            this.StartCoroutine(ref TemporarilyInvincibleCoroutine, DisableForDuration(0.5f));
+        }
+        private IEnumerator DisableForDuration(float duration)
+        {
+            hurtBox.enabled = false;
+            //attribute.enabled = false;
+            yield return new WaitForSeconds(duration);
+            hurtBox.enabled = true;
+        }
+        #endregion
     }
 }
 

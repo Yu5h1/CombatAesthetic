@@ -34,8 +34,13 @@ namespace Yu5h1Lib.Game.Character
         #endregion
         public CollierCastInfo2D forwardCastInfo = new CollierCastInfo2D();
 
-        public UnityEvent<bool> OnGroundStateChangedEvent;
-
+        [SerializeField]
+        private UnityEvent<bool> _GroundStateChanged;
+        public event UnityAction<bool> GroundStateChanged
+        { 
+            add => _GroundStateChanged.AddListener(value);
+            remove => _GroundStateChanged.RemoveListener(value);
+        }
 
         void Awake()
         {
@@ -61,7 +66,7 @@ namespace Yu5h1Lib.Game.Character
         }
         void OnGroundStateChanged()
         {
-            OnGroundStateChangedEvent?.Invoke(IsGrounded);
+            _GroundStateChanged?.Invoke(IsGrounded);
             if (IsGrounded)
             {
                 CheckPlatformStandHeight(0);

@@ -11,7 +11,7 @@ public class Fx_SpriteRendererSender : Fx_Sender
     public string Fx_Exit;
     public override void Perform(Collider2D target)
     {
-        if (target.TryGetComponent(out FX_SpriteRendererReceiver receiver) && receiver.enabled)
+        if (target.transform.root.TryGetComponent(out FX_SpriteRendererReceiver receiver) && receiver.enabled)
             receiver.Perform(this);
     }    
 }

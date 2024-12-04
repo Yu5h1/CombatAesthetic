@@ -8,6 +8,7 @@ using Yu5h1Lib.Game.Character;
 
 public class Patrol : MonoBehaviour
 {
+    public Transform target;
     public static float arriveRange = 1;
 
     public float RangeDistance;
@@ -87,6 +88,8 @@ public class Patrol : MonoBehaviour
 
         Gizmos.color = originColor;
 
+        if (target)
+            Debug.DrawLine(scanner.start, target.position, Color.red);
     }
 
     private void OnDrawGizmosSelected()

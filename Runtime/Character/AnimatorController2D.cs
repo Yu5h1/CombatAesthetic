@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -40,11 +41,7 @@ namespace Yu5h1Lib.Game.Character
 
         public SkillData currentSkill => optionalSkills.IsValid(indexOfSkill) ? optionalSkills[indexOfSkill] : null;
         public SkillBehaviour currentSkillBehaviour => currentSkill == null ? null :
-            skillBehaviours[_Skills.IndexOf(optionalSkills[indexOfSkill])]; 
-        #endregion
-
-        #region Event
-        public event UnityAction<Vector2> Hited;
+            skillBehaviours[_Skills.IndexOf(optionalSkills[indexOfSkill])];
         #endregion
 
         public float fixedPoseDirSpeed = 5;
@@ -90,15 +87,15 @@ namespace Yu5h1Lib.Game.Character
             if (!IsInteracting)
                 animParam?.Update();
         }
-        public void HitFrom(Vector2 v)
+        public override void HitFrom(Vector2 v)
         {
-            if (!enabled)
+            if (!isActiveAndEnabled || IsInvincible)
                 return;
             //face to impact Direction
             if (!v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
-                CheckForwardFrom(-forwardSign);
-            Hited?.Invoke(v);
+                CheckForwardFrom(-forwardSign);            
             animParam.Hurt();
+            _Hited?.Invoke(v);
         }
         private void OnStatDepleted(AttributeType AttributeType)
         {

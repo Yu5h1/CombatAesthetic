@@ -1,8 +1,18 @@
 using UnityEngine;
+using Yu5h1Lib.Runtime;
 
 public class CharacterSMB : BaseCharacterSMB
 {
-    public bool Controllable = true;
+    [SerializeField]
+    private bool _Controllable = true;
+    [SerializeField,Range(0.0f,1.0f)]
+    private float ResumControllableTime = 0;
+
+    private bool IsControllableTime { get; set; }
+    public bool Controllable => _Controllable && IsControllableTime;
+
+    
+
     public Vector2 rootMotionWeight = Vector2.one;
     public Vector2 rigidbodyVelocityWeight = Vector2.one;
     public float FixAngleWeight = 1;
@@ -16,6 +26,7 @@ public class CharacterSMB : BaseCharacterSMB
         owner.currentState = this;
         if (CheckForwardType == ProcessStep.Enter)
             owner.CheckForward();
+        IsControllableTime = stateInfo.normalizedTime >= ResumControllableTime;
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -25,6 +36,8 @@ public class CharacterSMB : BaseCharacterSMB
             return;
         if (CheckForwardType == ProcessStep.Excute)
             owner.CheckForward();
+        IsControllableTime = stateInfo.normalizedTime >= ResumControllableTime;
+        
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state

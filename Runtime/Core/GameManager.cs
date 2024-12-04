@@ -93,6 +93,9 @@ namespace Yu5h1Lib
             
             if (player)
             {
+                if (player.transform.root != player.transform)
+                    player = player.transform.root.gameObject;
+
                 cameraController.SetTarget(player.transform);
                 if (player.TryGetComponent(out playerController))
                 {

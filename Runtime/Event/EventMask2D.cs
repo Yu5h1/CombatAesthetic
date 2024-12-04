@@ -12,7 +12,9 @@ public abstract class EventMask2D : BaseEvent2D
     protected bool Validate(GameObject other) 
         => enabled && other.transform != owner && tagOption.Compare(other.transform.tag) && layers.Contains(other);
 
-    protected virtual void OnDisable() => owner = null; 
+    protected virtual void OnDisable() => owner = null;
+
+    public void log(string msg) => msg.print();
 }
 [System.Serializable]
 public class TagOption

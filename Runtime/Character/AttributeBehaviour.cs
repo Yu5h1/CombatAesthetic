@@ -19,7 +19,30 @@ public class AttributeBehaviour : MonoBehaviour
     public string[] Keys { get; private set; }
     public Coroutine[] routines { get; private set; }
 
-    public bool VisualizeStat;
+    public AttributeStat? this[AttributeType type]
+    {
+        get {
+            var index = (int)type;
+            return stats.IsValid(index) ? stats[index] : null;
+        }
+    }
+
+    [SerializeField, ReadOnly]
+    private UI_Attribute _ui;
+    public UI_Attribute ui
+    {
+        get => _ui;
+        set
+        {
+
+            if (_ui == value)
+                return;
+            _ui = value;
+            if (_ui)
+                _ui.Prepare(this);
+            _UI_Changed?.Invoke(_ui);
+        }
+    }
 
     /// <summary>
     /// stats.Length
@@ -40,7 +63,14 @@ public class AttributeBehaviour : MonoBehaviour
     {
         add => StatDepletedEvent.AddListener(value);
         remove => StatDepletedEvent.RemoveListener(value);
-    } 
+    }
+    [SerializeField]
+    private UnityEvent<UI_Attribute> _UI_Changed;
+    public event UnityAction<UI_Attribute> UI_Changed
+    {
+        add => _UI_Changed.AddListener(value);
+        remove => _UI_Changed.RemoveListener(value);
+    }
     #endregion
 
     public bool TryGetIndex(string key, out int index) => (index = Keys.IndexOf(key)) >= 0;
@@ -62,25 +92,9 @@ public class AttributeBehaviour : MonoBehaviour
             return stat.current < 0;
         return true;
     }
-    [SerializeField,ReadOnly]
-    private UI_Attribute _ui;
-    public UI_Attribute ui
-    {
-        get => _ui;
-        set 
-        {
-
-            if (_ui == value)
-                return;
-            _ui = value;
-            if (_ui)
-                _ui.Prepare(this);
-        }
-    }
     /// <summary>
     /// stop update attributes while affecting
     /// </summary>
-    [SerializeField,ReadOnly]
     private bool affected;
     public void Reset()
     {
@@ -123,6 +137,8 @@ public class AttributeBehaviour : MonoBehaviour
     /// </summary>
     public AttributeType Affect(AttributeType attributeType, AffectType affectType, float amount)
     {
+        if (!isActiveAndEnabled)
+            return AttributeType.None;
         affected = true;
         var DepletedTypes = AttributeType.None;
         foreach (var flag in attributeType.SeparateFlags())
@@ -140,6 +156,16 @@ public class AttributeBehaviour : MonoBehaviour
         }
         return DepletedTypes;
     }
+    public AttributeType Affect(AffectType affectType, params EnergyInfo[] infos)
+    {
+        if (!isActiveAndEnabled)
+            return AttributeType.None;
+        var DepletedTypes = AttributeType.None;
+        foreach (var info in infos)
+            DepletedTypes |= Affect(info.attributeType, affectType, info.amount);
+        return DepletedTypes;
+    }
+
     private void OnAffected(AttributeType flag)
     {
         _onAffect?.Invoke(flag);
@@ -165,23 +191,6 @@ public class AttributeBehaviour : MonoBehaviour
         }
 #endif
     }
-    public IEnumerator Affect(int index,float interval) {
-        while (!stats[index].IsFull)
-        {
-            stats[index].current += stats[index].recovery * Time.fixedDeltaTime;
-            yield return new WaitForFixedUpdate();
-        }
-        routines[index] = null;
-        yield return null;
-    }    
-    public AttributeType Affect(AffectType affectType,params EnergyInfo[] infos)
-    {
-        var DepletedTypes = AttributeType.None;
-        foreach (var info in infos)
-            DepletedTypes |= Affect(info.attributeType, affectType, info.amount);
-        return DepletedTypes;
-    }
-
     public bool Validate(Dictionary<string,int> cost)
     {
         if (stats.IsEmpty())
@@ -196,5 +205,15 @@ public class AttributeBehaviour : MonoBehaviour
     {
         _onAffect.RemoveAllListeners();
         StatDepletedEvent.RemoveAllListeners();
+    }
+    public IEnumerator Affect(int index, float interval)
+    {
+        while (!stats[index].IsFull)
+        {
+            stats[index].current += stats[index].recovery * Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+        routines[index] = null;
+        yield return null;
     }
 }

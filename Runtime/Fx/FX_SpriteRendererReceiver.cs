@@ -8,7 +8,7 @@ using Yu5h1Lib.Game.Character;
 [DisallowMultipleComponent]
 public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
 {
-    private AttributeBehaviour attributeBehaviour;
+    private Controller2D controller;
     private SpriteRenderer[] spriteRenderers;
     private Material[] materials;
     private Timer timer;
@@ -27,7 +27,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
         {
             materials[i] = spriteRenderers[i].material;
         }
-        attributeBehaviour = GetComponent<AttributeBehaviour>();
+        controller = GetComponent<Controller2D>();
     }
     private void Start()
     {
@@ -60,10 +60,10 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     public bool IsFinished;
     public override void Perform(Fx_SpriteRendererSender s)
     {
-        if (IsFinished)
+        if (IsFinished || controller.IsInvincible)
             return;
         sender = s;
-        IsDepleted = attributeBehaviour.TryGetState(AttributeType.Health, out AttributeStat stat) && stat.IsDepleted;
+        IsDepleted = controller.attribute.TryGetState(AttributeType.Health, out AttributeStat stat) && stat.IsDepleted;
         curve = IsDepleted ? sender.ExitCurve : sender.curve;
         if (IsDepleted)
             IsFinished = true;
