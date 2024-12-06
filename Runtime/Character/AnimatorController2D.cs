@@ -146,7 +146,7 @@ namespace Yu5h1Lib.Game.Character
                 if (momentum.y < JumpPower)
                 {
 
-                    if (overrideGravityDirection.magnitude != 0)
+                    if (!overrideGravityDirection.IsZero() && !Mathf.Approximately(transform.eulerAngles.z,0))
                         RotateToGravitationSmooth(detector.groundHit.normal, fixAngleWeight);
                     else if (localAnimVelocity.x != 0)
                     {
