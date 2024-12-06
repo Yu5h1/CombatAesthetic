@@ -55,8 +55,10 @@ public class Patrol : MonoBehaviour
     [ContextMenu(nameof(UsedefaultScannerSetting))]
     public void UsedefaultScannerSetting()
     {
-        scanner.layerMask = LayerMask.GetMask("Character", "PhysicsObject");
-        scanner.Tag.tag = "Player,Line";
+        scanner.Init(this);
+        scanner.layerMask = LayerMask.GetMask("Character");
+        scanner.Tag.tag = "Player";
+        scanner.ObstacleMask = LayerMask.GetMask("PhysicsObject");
         scanner.Tag.type = TagOption.ComparisionType.Equal;
         scanner.filter.useTriggers = true;
         scanner.direction = Vector2.right;

@@ -52,8 +52,6 @@ namespace Yu5h1Lib.Game.Character
             {
                 if (IsNotReady)
                     return Vector2.zero;
-                if (waiting)
-                    return Vector2.zero;
                 IsTargetInSkillRange = false;
                 if (target)
                 {
@@ -63,8 +61,8 @@ namespace Yu5h1Lib.Game.Character
                     var ClosestPointToTarget = target.detector.collider.ClosestPoint(front);
 
                     RaycastHit2D obstacleHit = default(RaycastHit2D);
-                    if (patrol.scanner.Obstaclelayer.value != 0)
-                        obstacleHit = Physics2D.Linecast(Body.center, ClosestPointToTarget, patrol.scanner.Obstaclelayer);
+                    if (patrol.scanner.ObstacleMask.value != 0)
+                        obstacleHit = Physics2D.Linecast(Body.center, ClosestPointToTarget, patrol.scanner.ObstacleMask);
                     if (obstacleHit)
                     {
                         //"obstacleHit from autopilot".print();
@@ -76,7 +74,10 @@ namespace Yu5h1Lib.Game.Character
                         movement = Vector2.zero;
                         //Debug.DrawLine(front, ClosestPointToTarget, Color.red);
                         IsTargetInSkillRange = true;
-                    }else{
+                    }else if (waiting)
+                        movement = Vector2.zero;
+                    else
+                    {
                         //Debug.DrawLine(front, ClosestPointToTarget, Color.yellow);
                         movement = (target.detector.top - Body.detector.center).normalized;
                     }
@@ -115,6 +116,8 @@ namespace Yu5h1Lib.Game.Character
                 }
                 else
                 {
+                    waiting = false;
+                    Body.StopCoroutine(waitCoroutine);
                     patrol.target = null;
                     emojiControl?.HideEmoji();
                 }
@@ -154,6 +157,8 @@ namespace Yu5h1Lib.Game.Character
 
             public virtual bool DetectEnemy()
             {
+                if (waiting)
+                    return false;
                 if (Vector2.Distance(Body.position, patrol.Destination) < 5 && target != null)
                     return true;
                 if (!patrol.scanner.collider || !patrol.scanner.Scan(out RaycastHit2D hit))
@@ -177,7 +182,7 @@ namespace Yu5h1Lib.Game.Character
             }
             public void PatrolArea()
             {
-                var obstacleHit = Physics2D.Linecast(Body.transform.position, patrol.Destination, patrol.scanner.Obstaclelayer);
+                var obstacleHit = Physics2D.Linecast(Body.transform.position, patrol.Destination, patrol.scanner.ObstacleMask);
                 if (obstacleHit)
                     patrol.SetCurrentPoint(obstacleHit.point);
                 movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;

@@ -10,10 +10,11 @@ public class ColliderScanner2D : CollierCastInfo2D
 	public TagOption Tag;
 	public Vector2 direction;
 
-    private Vector2 _localstart;
-    public Vector2 start => collider.transform.TransformPoint(_localstart);
+    [ReadOnly]
+    public Vector2 _localStart;
+    public Vector2 start => collider.transform.TransformPoint(_localStart);
     
-    public LayerMask Obstaclelayer;
+    public LayerMask ObstacleMask;
 
     public Vector2 size { get; private set; } 
 
@@ -23,7 +24,7 @@ public class ColliderScanner2D : CollierCastInfo2D
             FindCollider(patrol.transform);
         if ($"The Collider of {patrol.name}Scanner does not exist.!".PopupWarnningIf(!collider))
             return;
-        _localstart = collider.transform.InverseTransformPoint(collider.GetPoint(-direction));
+        _localStart = collider.transform.InverseTransformPoint(collider.GetPoint(collider.transform.TransformDirection(-direction)));
         size = collider.GetSize();
     }
 
@@ -36,26 +37,30 @@ public class ColliderScanner2D : CollierCastInfo2D
         }
         if (direction == Vector2.zero)
 			return false;
-        var dir = collider.transform.TransformDirection(direction);
+        var dir = (Vector2)collider.transform.TransformDirection(direction);
+        //Debug.DrawLine(start, start + (size.x * dir) + (Vector2.up * 0.5f));
 
         for (int i = 0; i < Cast(dir); i++)
 		{
-            var obstacleHit = default(RaycastHit2D);
-            if (Obstaclelayer.value != 0)
+            if (Tag.Compare(results[i].transform.tag))
             {
-                obstacleHit = Physics2D.Linecast(start, results[i].point, Obstaclelayer);
-                if (obstacleHit)
+                var obstacleHit = default(RaycastHit2D);
+                if (ObstacleMask.value != 0)
                 {
-                    Debug.DrawLine(start, collider.transform.position);
-                    //"obstacleHit from scanner".print();
+                    obstacleHit = Physics2D.Linecast(start, results[i].point, ObstacleMask);
+                    if (obstacleHit)
+                    {
+                        Debug.DrawLine(start, obstacleHit.point, Color.blue);
+                        $"{collider.transform.parent.name} obstacleHit:({obstacleHit.collider.name}) from scanner".print();
+                    }
                 }
-            }
-
-            if (!obstacleHit && Tag.Compare(results[i].transform.tag))
-            {
-                Debug.DrawLine(start, results[i].point);
-                hit = results[i];
-                return true;
+                if (!obstacleHit)
+                {
+                    $" {collider.transform.parent.name} found:{results[i].collider.name}".print();
+                    Debug.DrawLine(start, results[i].point, Color.yellow);
+                    hit = results[i];
+                    return true;
+                }
             }
         }
         return false;

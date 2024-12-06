@@ -39,6 +39,12 @@ public class PatrolEditor : Editor<Patrol>
             targetObject.Init();
         targetObject.route.Handle( targetObject, ref selectedPointIndex, ref IsDragging, targetObject.current,
             targetObject.offset,targetObject.offsetQ);
+
+        if (targetObject.scanner.collider)
+        Handles.DotHandleCap(0,
+            targetObject.scanner.collider.transform.TransformPoint(targetObject.scanner._localStart),
+            Quaternion.identity,
+            0.05f, EventType.Repaint);
     }
     private void InitPartol()
     {
