@@ -16,7 +16,7 @@ public class UI_statbarInspector : Editor<UI_Statbar>
         if (EditorApplication.isPlaying || targetObject.fills.IsEmpty())
             return;
 
-        if (this.TrySlider("SimulateValue",out float val, testStat.normal, 0, 1))
+        if (this.TrySlider("SimulateValue", testStat.normal, 0, 1, out float val))
         {
             testStat.current = val * testStat.max;
             targetObject.UpdateStat(testStat);

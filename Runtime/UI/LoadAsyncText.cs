@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using Yu5h1Lib;
 
 /// <summary>
 ///  component.text = $"{component.name}{percentage * 100:0.0}%";

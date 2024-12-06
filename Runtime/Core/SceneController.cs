@@ -97,18 +97,22 @@ public class SceneController : SingletonBehaviour<SceneController>
         UnityEditor.Selection.activeObject = null;
 #endif
         BeginLoadSceneAsync();
-        Time.timeScale = 1;
-        GameManager.ui_Manager.Loading?.gameObject.SetActive(true);
-
-        var LoadingAsyncOperation = SceneManager.LoadSceneAsync(SceneIndex,LoadSceneMode.Single);
-        while (!LoadingAsyncOperation.isDone)
+        yield return GameManager.ui_Manager.Loading.BeginLoad();
+        var operation = SceneManager.LoadSceneAsync(SceneIndex,LoadSceneMode.Single);
+        operation.allowSceneActivation = false;
+        while (!operation.isDone)
         {
-            LoadSceneAsyncHandler?.Invoke(Mathf.Clamp01(LoadingAsyncOperation.progress / 0.9f));
+            LoadSceneAsyncHandler?.Invoke(Mathf.Clamp01(operation.progress / 0.9f));
+
+            if (operation.progress >= 0.9f)
+            {
+                operation.allowSceneActivation = true;
+            }
             yield return null;
         }
         yield return new WaitUntil(IsSceneUnLoaded);
-        GameManager.ui_Manager.Loading?.gameObject.SetActive(false);
         AfterLoadSceneAsync();
+        yield return GameManager.ui_Manager.Loading.EndLoad();
     }
     private static void BeginLoadSceneAsync()
     {

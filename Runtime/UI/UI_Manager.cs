@@ -10,8 +10,8 @@ public class UI_Manager : SingletonBehaviour<UI_Manager>
     public static UI_Menu currentMenu { get => instance._currentMenu; private set => instance._currentMenu = value; }
 
     [SerializeField]
-    public RectTransform _Loading;
-    public RectTransform Loading => Build(nameof(Loading), ref _Loading);
+    public LoadAsyncAgent _Loading;
+    public LoadAsyncAgent Loading => Build(nameof(Loading), ref _Loading);
     //[SerializeField]
     //private TweenImage_UI _Fadeboard_UI;
     //public TweenImage_UI Fadeboard_UI => Build(nameof(Fadeboard_UI), ref _Fadeboard_UI);
