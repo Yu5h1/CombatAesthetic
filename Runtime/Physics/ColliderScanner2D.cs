@@ -48,16 +48,20 @@ public class ColliderScanner2D : CollierCastInfo2D
                 if (ObstacleMask.value != 0)
                 {
                     obstacleHit = Physics2D.Linecast(start, results[i].point, ObstacleMask);
+#if UNITY_EDITOR
                     if (obstacleHit)
                     {
                         Debug.DrawLine(start, obstacleHit.point, Color.blue);
                         $"{collider.transform.parent.name} obstacleHit:({obstacleHit.collider.name}) from scanner".print();
-                    }
+                    } 
+#endif
                 }
                 if (!obstacleHit)
                 {
+#if UNITY_EDITOR
                     $" {collider.transform.parent.name} found:{results[i].collider.name}".print();
-                    Debug.DrawLine(start, results[i].point, Color.yellow);
+                    Debug.DrawLine(start, results[i].point, Color.yellow); 
+#endif
                     hit = results[i];
                     return true;
                 }
