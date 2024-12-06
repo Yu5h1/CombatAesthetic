@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -6,7 +9,7 @@ namespace Yu5h1Lib.Game.Character
     public class Autopilot : HostData2D
     {
         public bool enable;
-
+        public float waitDuration = 1;
         public SkillTriggerCondition[] skillTriggerConditions;
 
         public override System.Type GetBehaviourType() => typeof(Behaviour);
@@ -14,27 +17,34 @@ namespace Yu5h1Lib.Game.Character
         public class Behaviour : Behaviour2D<Autopilot>
         {
             public enum NodeState { Success, Failure, Running, Waiting }
-
-            //protected NodeState state;
-
-            //public NodeState Evaluate()
-            //{
-            //    return state;
-            //}
 			public bool IsNotReady => GameManager.IsBusy || "body does not exist !".printWarningIf(!Body) || !Body.underControl;
-            public Patrol patrol;
+            protected Patrol patrol;
+            protected EmojiController emojiControl;
 
             public Vector2 patrolPoint => patrol.offset;
             public Vector2 destination;
             protected Vector2 movement;
             private Transform transform => Body.transform;
 
-            public Controller2D target;
-
+            private Controller2D _target;
+            public Controller2D target 
+            {
+                get => _target;
+                set {
+                    if (_target == value)
+                        return;
+                    _target = value;                                            
+                    OnTargetChanged();
+                }
+            }
+            public bool IsTargetInSkillRange;
+            public bool waiting;
+            Coroutine waitCoroutine;
             public override void Init(Controller2D controller)
             {
                 base.Init(controller);
                 patrol = controller.GetComponent<Patrol>();
+                emojiControl = controller.GetComponent<EmojiController>();
             }
 
             #region input
@@ -42,26 +52,49 @@ namespace Yu5h1Lib.Game.Character
             {
                 if (IsNotReady)
                     return Vector2.zero;
+                if (waiting)
+                    return Vector2.zero;
+                IsTargetInSkillRange = false;
+                if (target)
+                {
+                    var distanceBetweenTarget = GetDistanceBetweenTarget();
+
+                    var front = Body.detector.front;
+                    var ClosestPointToTarget = target.detector.collider.ClosestPoint(front);
+
+                    RaycastHit2D obstacleHit = default(RaycastHit2D);
+                    if (patrol.scanner.Obstaclelayer.value != 0)
+                        obstacleHit = Physics2D.Linecast(Body.center, ClosestPointToTarget, patrol.scanner.Obstaclelayer);
+                    if (obstacleHit)
+                    {
+                        //"obstacleHit from autopilot".print();
+                        target = null;
+                        return Vector2.zero;
+                    }
+                    if (IsWithinSkillRange(distanceBetweenTarget))
+                    {
+                        movement = Vector2.zero;
+                        //Debug.DrawLine(front, ClosestPointToTarget, Color.red);
+                        IsTargetInSkillRange = true;
+                    }else{
+                        //Debug.DrawLine(front, ClosestPointToTarget, Color.yellow);
+                        movement = (target.detector.top - Body.detector.center).normalized;
+                    }
+                }
+                else
+                    PatrolArea();
                 
                 return movement;
             }
 
             public override bool GetInputState(UpdateInput updateInput)
             {
-                if (IsNotReady)
+                if (IsNotReady || target == null || waiting)
                     return false;
-                if (target == null)
+                if (IsTargetInSkillRange)
+                    return updateInput(true, false, false);
+                else
                     return false;
-
-                //if (patrol.scanner.collider && patrol.scanner.Scan(out RaycastHit2D hit) &&
-                //    hit.collider.TryGetComponent(out BlueLine blueLine) ||
-                //    Vector2.Dot(target.position - Body.position, Body.right) < 0)
-                //{
-                //    target = null;
-                //    return updateInput(false, false, false);
-                //}
-
-                return updateInput(true, false, false);
             }
             public override void GetInputState(string bindingName, UpdateInput updateInput)
             {
@@ -69,9 +102,31 @@ namespace Yu5h1Lib.Game.Character
             }
 
             public override bool ShiftIndexOfSkill(out bool next)
-                => next = false; 
+                => next = false;
             #endregion
-
+            #region Events
+            protected virtual void OnTargetChanged()
+            {
+                if (target)
+                {
+                    patrol.target = target.transform;
+                    emojiControl?.ShowEmoji("exclamation mark", 2);
+                    Body.StartCoroutine(ref waitCoroutine, Wait(data.waitDuration));
+                }
+                else
+                {
+                    patrol.target = null;
+                    emojiControl?.HideEmoji();
+                }
+            }
+            #endregion
+            #region Process
+            IEnumerator Wait(float delay){
+                waiting = true;
+                yield return new WaitForSeconds(delay);
+                waiting = false;
+            }
+            #endregion
 
             public Vector2 GetMovementFromGlobalDirection(Vector2 direction)
             {
@@ -83,64 +138,49 @@ namespace Yu5h1Lib.Game.Character
             private bool NoTarget() => target == null;
             private bool HasTarget() => !NoTarget();            
             //public bool IsTargetInSight() => default(bool);
-            protected void OnEnemyDetected(){
-                Body.GetComponent<EmojiController>()?.ShowEmoji("exclamation mark", 2);
+ 
+            public float GetDistanceBetweenTarget() => Vector2.Distance(target.detector.collider.ClosestPoint(Body.detector.front), Body.detector.front);
+            public bool IsWithinSkillRange(float distanceBetweenTarget)
+            {                
+                if (!target || !(Body is AnimatorController2D animBody) || !animBody.currentSkill)
+                    return false;
+                if (!data.skillTriggerConditions.TryGet(s => s.skill == animBody.currentSkill, out SkillTriggerCondition condition))
+                    return false;
+                //var dir2target = GetDirectionToTarget();
+                //if (dir2target.IsZero() || !(Vector2.Dot(dir2target, Body.right) > 0))
+                //    return false;
+                return distanceBetweenTarget < condition.distance;
             }
+
             public virtual bool DetectEnemy()
             {
-                if (target != null)
+                if (Vector2.Distance(Body.position, patrol.Destination) < 5 && target != null)
                     return true;
                 if (!patrol.scanner.collider || !patrol.scanner.Scan(out RaycastHit2D hit))
                 {
+                    target = null;
                     return false;
                 }
-                //if (hit.collider.TryGetComponent(out BlueLine blueLine))
-                //{
-                //    target = null;
-                //    if (patrol.route.points.Length > 1)
-                //    {
-                //        var l = new Line2D(Body.transform.position, patrol.Destination);
-                //        if (blueLine.TryGetIntersection(l, out Vector2 intersection))
-                //        {
-                //            patrol.SetCurrentPoint(intersection - (l.direction.normalized * blueLine.Width));
-                //            return;
-                //        }
-                //    }
-                //}
 
                 if (hit.collider.TryGetComponent(out Controller2D c))
-                {
-                    if (target != c)
-                    {
                         target = c;
-                        OnEnemyDetected();
-                    }
-                    //var dir = GetDirection(body, c.transform);
-                    //if (dir.magnitude > 2)
-                    //{
-                    //    if (body.detector.CheckCliff())
-                    //        movement = Vector2.zero;
-                    //    else
-                    //        movement = dir.x > 0 ? Vector2.left : Vector2.right;
-                    //}
-                    //movement = Vector2.zero;
-                }
-                //else
-                //    movement *= Vector2.left;
+
                 return true;
             }
             public void FollowTarget()
             {
                 if (!target)
                     return;
-                movement = (target.detector.top - Body.detector.top).normalized;
+                if (GetDistanceBetweenTarget() < 2)
+                    movement = Vector2.zero;
+                movement = (target.detector.top - Body.detector.center).normalized;
             }
             public void PatrolArea()
-            {                
-                if (target == null)
-                    movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;
-                else if (Vector2.Distance(patrol.offset, Body.position) < 15)
-                    movement = (target.detector.top - Body.detector.top).normalized;
+            {
+                var obstacleHit = Physics2D.Linecast(Body.transform.position, patrol.Destination, patrol.scanner.Obstaclelayer);
+                if (obstacleHit)
+                    patrol.SetCurrentPoint(obstacleHit.point);
+                movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;
                 DetectEnemy();
             }
             public void print(string msg)
@@ -151,19 +191,6 @@ namespace Yu5h1Lib.Game.Character
                     msg.print();
                 }
 #endif
-            }
-            private bool TraceTarget(out Vector2 movement) 
-            {
-                movement = Vector2.zero;
-                if (!target)
-                    return false;
-                if (Vector2.Distance(Body.position, patrolPoint) > 2 || Vector2.Distance(Body.position,target.position) > 2)
-                {
-                    target = null;
-                    return false;
-                }
-                movement = (target.detector.top - Body.detector.top).normalized ;
-                return true;
             }
             public bool Arrived() => Mathf.Approximately(Vector2.Distance(Body.position, destination), 0);
 
@@ -188,7 +215,7 @@ namespace Yu5h1Lib.Game.Character
         public class SkillTriggerCondition
         {
             public SkillData skill;
-            public Vector2 direction;
+            //public Vector2 direction;
             public float distance;
         }
     }

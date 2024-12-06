@@ -129,7 +129,6 @@ namespace Yu5h1Lib.Game.Character
 
             if (IsGrounded)
             {
-                 
                 if (underControl)
                 {
                     if (TriggerJump)
@@ -148,10 +147,11 @@ namespace Yu5h1Lib.Game.Character
                 {
 
                     if (overrideGravityDirection.magnitude != 0)
-                        RotateToGravitation(ref momentum,detector.groundHit.normal, fixAngleWeight);
+                        RotateToGravitationSmooth(detector.groundHit.normal, fixAngleWeight);
                     else if (localAnimVelocity.x != 0)
                     {
-                        
+                        //if (-(Vector2)transform.up != gravitation)
+                        RotateToGravitationSmooth(gravitation, 1);
                         var IsVectorRight = (forwardSign * localAnimVelocity.x) > 0;
                         /// move on slop
                         var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop(IsVectorRight).normalized);
@@ -168,7 +168,7 @@ namespace Yu5h1Lib.Game.Character
             }
             else
             {
-                RotateToGravitation(ref momentum,gravitation, fixAngleWeight);
+                RotateToGravitationSmooth(gravitation, fixAngleWeight);
                 ProcessingGravitation(gravitation, VelocityWeight, ref momentum);
             }
 
@@ -187,8 +187,6 @@ namespace Yu5h1Lib.Game.Character
             else /// deprecated using velocity control movement . this method will causing flick movement
                 velocity = transform.TransformDirection(momentum);
         }
-
- 
         private void ProcessingGravitation(Vector2 gravitation, Vector2 VelocityWeight, ref Vector2 momentum)
         {           
             if (VelocityWeight.IsZero())
@@ -204,7 +202,7 @@ namespace Yu5h1Lib.Game.Character
                 momentum += new Vector2(Mathf.Abs(InputMovement.x), InputMovement.y) * AirborneMultiplier;
         }
 
-        protected void RotateToGravitation(ref Vector2 momentum, Vector2 gravitation,float fixAngleWeight)
+        protected void RotateToGravitationSmooth(Vector2 gravitation,float fixAngleWeight)
         {
             if (fixAngleWeight == 0)
                 return;
@@ -215,6 +213,15 @@ namespace Yu5h1Lib.Game.Character
                 GdirAngleGap *= -1;
             if (Mathf.Abs(GdirAngleGap) > 1)
                 GdirAngleGap *= Time.deltaTime * fixedPoseDirSpeed;
+            transform.Rotate(Vector3.forward, GdirAngleGap);
+        }
+        protected void RotateToGravitation(Vector2 gravitation)
+        {
+            var GdirAngleGap = GetStandingAngleGap(gravitation);
+            if (GdirAngleGap == 0)
+                return;
+            if (IsFaceForward)
+                GdirAngleGap *= -1;
             transform.Rotate(Vector3.forward, GdirAngleGap);
         }
 

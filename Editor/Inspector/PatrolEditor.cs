@@ -10,16 +10,8 @@ using System.Reflection;
 [CustomEditor(typeof(Patrol))]
 public class PatrolEditor : Editor<Patrol>
 {
-    public static float mouseHitThreshold = 5;
-    public static float dotSize = 0.1f;
-    public static float DottedLineSize = 3;
-    public static float lineHitDistance = 5;
-    
-
     private int selectedPointIndex = -1;
-
-    Vector3 position => targetObject.transform.position;
-    Vector3 lossyScale => targetObject.transform.lossyScale;
+ 
     Vector2[] points { 
         get => targetObject.route.points;
         set => targetObject.route.points = value;
@@ -28,8 +20,7 @@ public class PatrolEditor : Editor<Patrol>
 
     private void OnEnable()
     {
-        if (!EditorApplication.isPlaying)
-            targetObject.Init();
+        InitPartol();
     }
 
     public override void OnInspectorGUI()
@@ -40,14 +31,8 @@ public class PatrolEditor : Editor<Patrol>
         //    SceneView.RepaintAll();
         //}
         if (GUI.changed)
-            targetObject.Init();
+            InitPartol();
     }
-
-    //private void EditModeGUI()
-    //{
-
-
-    //}
     private void OnSceneGUI()
     {
         if (!EditorApplication.isPlaying)
@@ -55,4 +40,10 @@ public class PatrolEditor : Editor<Patrol>
         targetObject.route.Handle( targetObject, ref selectedPointIndex, ref IsDragging, targetObject.current,
             targetObject.offset,targetObject.offsetQ);
     }
+    private void InitPartol()
+    {
+        if (!EditorApplication.isPlaying)
+            targetObject.Init();
+    }
+
 };

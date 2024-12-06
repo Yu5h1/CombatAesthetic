@@ -44,8 +44,7 @@ public class Patrol : MonoBehaviour
     private void Start()
     {
         Init();
-        if (!scanner.collider)
-            scanner.FindCollider(transform);
+        scanner.Init(this);
     }
     public void Init()
     {
@@ -73,6 +72,13 @@ public class Patrol : MonoBehaviour
             route.points[current] = Quaternion.Inverse(offsetQ) * (position - offset);
     }
 
+    //public bool Scan(out RaycastHit2D hit) {
+    //    hit = default(RaycastHit2D);
+    //    if (scanner.collider)
+    //        return scanner.Scan(out hit);
+    //    return false;
+    //}
+
 #if UNITY_EDITOR
     [ContextMenu(nameof(ScanTest))]
     private void ScanTest()
@@ -88,8 +94,7 @@ public class Patrol : MonoBehaviour
 
         Gizmos.color = originColor;
 
-        if (target)
-            Debug.DrawLine(scanner.start, target.position, Color.red);
+
     }
 
     private void OnDrawGizmosSelected()

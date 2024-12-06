@@ -116,7 +116,7 @@ namespace Yu5h1Lib.Game.Character
 
         #endregion
         public void CheckGround(Vector2 direction)
-        {      
+        {
             // floating
             if (!IsGrounded && transform.InverseTransformDirection(velocity.normalized).y > 0)
                 return;

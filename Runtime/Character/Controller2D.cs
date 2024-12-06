@@ -16,7 +16,7 @@ namespace Yu5h1Lib.Game.Character
     {
         private static float _gravityScale = 0.03333f;
         public static Vector2 scaledGravity { get; protected set; } = new Vector2(0, -0.32699673f);
-        public static float gravityScale 
+        public static float gravityScale
         { 
             get => _gravityScale;
             set {
@@ -25,6 +25,19 @@ namespace Yu5h1Lib.Game.Character
                 scaledGravity = Physics2D.gravity * gravityScale;
             }
         }
+        #region Components   
+        [SerializeField]
+        private Collider2D _hurtBox;
+        public Collider2D hurtBox => _hurtBox;
+        [SerializeField, ReadOnly]
+        private AttributeBehaviour _attribute;
+        public AttributeBehaviour attribute => _attribute;
+        [SerializeField, ReadOnly]
+        private ColliderDetector2D _detector;
+        public ColliderDetector2D detector => _detector;
+        public bool IsGrounded => detector.IsGrounded;
+        public bool IsInteracting => !detector.enabled;
+        #endregion
 
         [SerializeField] protected float JumpPower = 6;
         [SerializeField] protected float MaxAirborneSpeed = 3.5f;
@@ -43,17 +56,7 @@ namespace Yu5h1Lib.Game.Character
             remove => _Hited.RemoveListener(value);
         }
         #endregion
-        #region Components   
-        [SerializeField]
-        private Collider2D _hurtBox;
-        public Collider2D hurtBox => _hurtBox;
-        [SerializeField,ReadOnly]
-        private AttributeBehaviour _attribute;
-        public AttributeBehaviour attribute => _attribute;
-        public ColliderDetector2D detector { get; private set; }
-        public bool IsGrounded => detector.IsGrounded;
-        public bool IsInteracting => !detector.enabled;
-        #endregion
+
 
         #region Instructions
         [SerializeField]
@@ -120,6 +123,13 @@ namespace Yu5h1Lib.Game.Character
                     _velocity = value;
                 else
                     rigidbody.velocity = value;
+
+                if (velocity.y > 0 || Mathf.Approximately(velocity.y, 0))
+                {
+                    lastfallingHeight = transform.position.y;
+                        //lastFallingTime = Time.time;
+                }
+                    
             }
         }
         public Vector2 localVelocity { get; protected set; }
@@ -137,11 +147,14 @@ namespace Yu5h1Lib.Game.Character
         public Vector2 gravityDirection => overrideGravityDirection.magnitude == 0 ? baseGravityDirection : overrideGravityDirection;
         public bool UseTransformUpAsGravitationOnStart;
         #endregion
+        public bool IsInvincible => !attribute || !attribute.isActiveAndEnabled;
 
-        public bool IsInvincible => !attribute || !attribute.isActiveAndEnabled; 
+        private float lastfallingHeight;
+        //protected float lastFallingTime;
+        //public float FallingTimeElapsed => Time.time - lastFallingTime;
+
 
         public bool Initinalized { get; private set; }
-        
         private void Initinalize()
         {
             if (Initinalized)
@@ -151,11 +164,8 @@ namespace Yu5h1Lib.Game.Character
         }
         protected virtual void Init()
         {            
-            if (TryGetComponent(out ColliderDetector2D colliderDetector))
-            {
-                detector = colliderDetector;
+            if (!$"{name}'s Detector does not Exist ! ".printWarningIf(!TryGetComponent(out _detector)))
                 detector.GroundStateChanged += OnGroundStateChanged;
-            }
             if (!$"{name}'s Attribute does not Exist ! ".printWarningIf(!TryGetComponent(out _attribute)))
                 attribute.Init();
 
@@ -168,18 +178,25 @@ namespace Yu5h1Lib.Game.Character
             if (UseTransformUpAsGravitationOnStart)
                 baseGravityDirection = up;
 
+            lastfallingHeight = transform.position.y;
         }
         protected virtual void OnGroundStateChanged(bool grounded)
         {
             if (grounded)
             {
-                if (localVelocity.y < -10 && attribute)
-                    attribute.Affect(AttributeType.Health, AffectType.NEGATIVE, Mathf.Abs(localVelocity.y));
+                var fallingDistance = lastfallingHeight - detector.groundHit.point.y;
+                var unbouncable = detector.groundHit.rigidbody == null || detector.groundHit.rigidbody.sharedMaterial == null || detector.groundHit.rigidbody.sharedMaterial.bounciness == 0;
+                if (unbouncable && attribute && localVelocity.y < -9.55f && fallingDistance > 5)
+                {
+                    var damage = Mathf.Floor((fallingDistance - 5) * 2) / 2; ;
+                    $"velocity.y: {localVelocity.y} || fallingDistance:{fallingDistance} || Damage:{damage}".print();
+                    attribute.Affect(AttributeType.Health, AffectType.NEGATIVE, damage);
+                }
+
                 localVelocity *= Vector2.right;
                 rigidbody.Sleep();
-                velocity = transform.TransformVector(localVelocity);
+                velocity = transform.TransformVector(localVelocity);                
                 //ResetRotation();
-                
             }
         }
 
@@ -280,11 +297,11 @@ namespace Yu5h1Lib.Game.Character
         }
         public void CheckForward() => CheckForwardFrom(InputMovement.x);
 
+        public bool DisableHostControl;
         protected virtual bool UpdateInputInstruction()
         {
-            if (GameManager.IsGamePause || !Initinalized || (hostBehaviour?.enable == false) )
-                return false;
-            if (host == null)
+            if (DisableHostControl || GameManager.IsGamePause || !Initinalized ||
+                (hostBehaviour?.enable == false) || host == null)
             {
                 InputMovement = Vector2.zero;
                 return false;
@@ -341,9 +358,19 @@ namespace Yu5h1Lib.Game.Character
         }
         private IEnumerator DisableForDuration(float duration)
         {
+            
             hurtBox.enabled = false;
+            var renderer = GetComponent<SpriteRenderer>();
+            var splitedDuration = duration / 5.0f;
+            var flashColor = new Color(.8f, .8f, .8f, 1);
+            for (int i = 0; i < 5; i++)
+            {
+                renderer.color = i % 2 == 0 ? Color.white : flashColor;
+                yield return new WaitForSeconds(splitedDuration);
+            }
+            renderer.color = Color.white;
             //attribute.enabled = false;
-            yield return new WaitForSeconds(duration);
+            //yield return new WaitForSeconds(duration);
             hurtBox.enabled = true;
         }
         #endregion

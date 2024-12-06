@@ -6,7 +6,7 @@ using Yu5h1Lib.EditorExtension;
 using Yu5h1Lib.Game.Character;
 
 [CustomEditor(typeof(ColliderDetector2D))]
-public class ColliderDetectorInspector2D : Editor<ColliderDetector2D>
+public class ColliderDetector2DEditor : Editor<ColliderDetector2D>
 {
     public Controller2D controller;
     public Rigidbody2D rigidbody => targetObject.rigidbody;
@@ -27,6 +27,8 @@ public class ColliderDetectorInspector2D : Editor<ColliderDetector2D>
         if (!collider || !rigidbody)
             return;
         Handles.Label(infoOffset+targetObject.top,$"velocity:{rigidbody.velocity}");
+
+        //Handles.DotHandleCap(0, targetObject.front, Quaternion.identity, 0.05f, EventType.Repaint);
         VisualizeAutopilot();
     }
     private void VisualizeAutopilot()

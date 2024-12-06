@@ -11,14 +11,14 @@ public static class Collider2DEx
         CapsuleCollider2D capsule => capsule.size,
         BoxCollider2D box => box.size,
         CircleCollider2D circle => Vector2.one * circle.radius,
-        _ => Vector2.zero
+        _ => c.bounds.size
     };
     public static Vector2 GetPoint(this Collider2D c,Vector2 direction) => c switch
     {
         CapsuleCollider2D capsule => GetCapsulePoint(capsule, direction),
         BoxCollider2D box => GetBoxPoint(box, direction),
         CircleCollider2D circle => GetCirclePoint(circle, direction),
-        _ => Vector2.zero 
+        _ => c.ClosestPoint((Vector2)c.bounds.center + (direction * c.bounds.size.magnitude * 2))
     };
     public static bool CompareLayer(this Collider2D col, LayerMask layerMask) 
         => col.gameObject.CompareLayer(layerMask);

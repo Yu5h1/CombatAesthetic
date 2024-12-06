@@ -95,7 +95,7 @@ namespace Yu5h1Lib.Game.Character
         {
             SpeedX = Math.Abs(owner.InputMovement.x * owner.BoostMultiplier);
             if (!owner.IsGrounded)
-                SpeedY = owner.localVelocity.y;
+                SpeedY = owner.localVelocity.y;// + owner.FallingTimeElapsed;
             Conscious = owner.Conscious;
             UnderControl = owner.underControl;
 

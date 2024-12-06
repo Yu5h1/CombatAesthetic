@@ -3,8 +3,17 @@ using static SceneController;
 using Yu5h1Lib;
 
 [DisallowMultipleComponent]
-public class UI_Manager : SingletonBehaviour<UI_Manager>
+public class UI_Manager : MonoBehaviour
 {
+    private static UI_Manager _instance;
+    public static UI_Manager instance{ 
+        get{
+            if (_instance == null)
+                _instance = GameManager.instance.GetComponent<UI_Manager>();
+            return _instance;
+        }
+    }
+
     [ReadOnly,SerializeField]
     private UI_Menu _currentMenu;
     public static UI_Menu currentMenu { get => instance._currentMenu; private set => instance._currentMenu = value; }
@@ -35,11 +44,6 @@ public class UI_Manager : SingletonBehaviour<UI_Manager>
     public UI_Statbar statbar_UI_Source => Resources.Load<UI_Statbar>($"UI/BaseStatBar_UI");
     public UI_Attribute attribute_UI_Source => Resources.Load<UI_Attribute>("UI/BaseAttribute_UI");
 
-
-    protected override void Init()
-    {
-
-    }
     private void Awake()
     {
         if (Loading)

@@ -20,8 +20,9 @@ IsActing:{contoller.IsActing}
 IsInteracting:{contoller.IsInteracting}
 IsGrounded: {contoller.IsGrounded}
 Floatable:{contoller.Floatable}
-GravityDirection:{contoller.gravityDirection}
-", MessageType.Info);
+GravityDirection:{contoller.gravityDirection},
+
+", MessageType.Info); //FallingTimeElapsed: { contoller.FallingTimeElapsed}
         }
         
 
