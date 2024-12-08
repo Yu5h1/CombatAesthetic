@@ -9,7 +9,7 @@ public class TriggerEvent2D : EventMask2D
     public UnityEvent<Collider2D> OnTriggerEnter2DEvent;
     public UnityEvent<Collider2D> TriggerExit2D;
 
-    [SerializeField]
+    [SerializeField,Header("limit of trigger")]
     private int _count = -1;
     public int count => _count;
     public int counter { get; set; }

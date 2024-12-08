@@ -137,8 +137,6 @@ public class AttributeBehaviour : MonoBehaviour
     /// </summary>
     public AttributeType Affect(AttributeType attributeType, AffectType affectType, float amount)
     {
-        if (!isActiveAndEnabled)
-            return AttributeType.None;
         affected = true;
         var DepletedTypes = AttributeType.None;
         foreach (var flag in attributeType.SeparateFlags())
@@ -158,8 +156,6 @@ public class AttributeBehaviour : MonoBehaviour
     }
     public AttributeType Affect(AffectType affectType, params EnergyInfo[] infos)
     {
-        if (!isActiveAndEnabled)
-            return AttributeType.None;
         var DepletedTypes = AttributeType.None;
         foreach (var info in infos)
             DepletedTypes |= Affect(info.attributeType, affectType, info.amount);

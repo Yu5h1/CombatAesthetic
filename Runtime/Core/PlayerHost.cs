@@ -21,7 +21,7 @@ namespace Yu5h1Lib.Game.Character {
             {
                 if (GameManager.IsSpeaking)
                     return Vector2.zero;
-                return new Vector2(input.GetAxisRaw("Horizontal"), input.GetAxisRaw("Vertical"));
+                return new Vector2(input.GetAxisRaw("Horizontal"), Mathf.Max( input.GetAxisRaw("Vertical"), input.GetAxisRaw("Jump")));
             }
             public override bool GetInputState(UpdateInput updateInput)
             {

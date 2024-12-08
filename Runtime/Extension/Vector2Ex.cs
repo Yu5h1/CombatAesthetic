@@ -15,4 +15,13 @@ public static class Vector2Ex
     public static Vector2 Multiply(this Vector2 a, Vector2 b)
         => new Vector2(a.x * b.x, a.y * b.y);
 
+    public static bool IsDirectionAngleWithinThreshold(this Vector2 referenceDirection, Vector2 targetDirection, float threshold)
+    {
+        referenceDirection.Normalize();
+        targetDirection.Normalize();
+        float dot = Vector2.Dot(referenceDirection, targetDirection);
+        float cosThreshold = Mathf.Cos(threshold * Mathf.Deg2Rad);
+        return dot >= cosThreshold;
+    }
+
 }

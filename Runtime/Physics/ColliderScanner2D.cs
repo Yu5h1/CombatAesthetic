@@ -52,14 +52,14 @@ public class ColliderScanner2D : CollierCastInfo2D
                     if (obstacleHit)
                     {
                         Debug.DrawLine(start, obstacleHit.point, Color.blue);
-                        $"{collider.transform.parent.name} obstacleHit:({obstacleHit.collider.name}) from scanner".print();
+                        //$"{collider.transform.parent.name} obstacleHit:({obstacleHit.collider.name}) from scanner".print();
                     } 
 #endif
                 }
                 if (!obstacleHit)
                 {
 #if UNITY_EDITOR
-                    $" {collider.transform.parent.name} found:{results[i].collider.name}".print();
+                    $" {collider.transform.parent.name} found:{results[i].collider.transform.root.name}".print();
                     Debug.DrawLine(start, results[i].point, Color.yellow); 
 #endif
                     hit = results[i];

@@ -282,13 +282,36 @@ public class CameraController : SingletonBehaviour<CameraController>
         camera.transform.position = pos;
     }
 
-    //public void FollowTargetUnscaleTime()
+    public float targetAspect = 16f / 9f; // 鎖定的比例，例如 16:9
+    private int lastWidth;
+    private int lastHeight;
+
+    //void Start()
     //{
-
-
+    //    lastWidth = Screen.width;
+    //    lastHeight = Screen.height;
     //}
-    //IEnumerator Method()
+
+    //void Update()
     //{
-    //    yield return null;
+    //    // 如果視窗大小發生變化
+    //    if (Screen.width != lastWidth || Screen.height != lastHeight)
+    //    {
+    //        int newWidth = Screen.width;
+    //        int newHeight = Mathf.RoundToInt(newWidth / targetAspect);
+
+    //        if (newHeight > Screen.height) // 如果計算的高度超出當前視窗
+    //        {
+    //            newHeight = Screen.height;
+    //            newWidth = Mathf.RoundToInt(newHeight * targetAspect);
+    //        }
+
+    //        // 設定新的解析度，保持視窗模式
+    //        Screen.SetResolution(newWidth, newHeight, false);
+
+    //        // 更新記錄
+    //        lastWidth = newWidth;
+    //        lastHeight = newHeight;
+    //    }
     //}
 }

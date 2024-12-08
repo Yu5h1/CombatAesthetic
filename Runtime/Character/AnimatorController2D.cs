@@ -45,6 +45,7 @@ namespace Yu5h1Lib.Game.Character
         #endregion
 
         public float fixedPoseDirSpeed = 5;
+
         protected override void Init()
         {
             base.Init();
@@ -109,9 +110,12 @@ namespace Yu5h1Lib.Game.Character
         protected override void FixedUpdate()
         {
             PerformDetection();
+            //"FixedUpdate".print();
         }
+
         void OnAnimatorMove()
         {
+            //"OnAnimatorMove".print();
             if (Time.timeScale == 0)
                 return;
             if (IsInteracting)
@@ -150,8 +154,8 @@ namespace Yu5h1Lib.Game.Character
                         RotateToGravitationSmooth(detector.groundHit.normal, fixAngleWeight);
                     else if (localAnimVelocity.x != 0)
                     {
-                        //if (-(Vector2)transform.up != gravitation)
-                        RotateToGravitationSmooth(gravitation, 1);
+                        if (gravitation == Vector2.down)
+                            RotateToGravitationSmooth(gravitation, 1);
                         var IsVectorRight = (forwardSign * localAnimVelocity.x) > 0;
                         /// move on slop
                         var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop(IsVectorRight).normalized);
@@ -174,13 +178,20 @@ namespace Yu5h1Lib.Game.Character
 
 
             #region rotate to gravityDirection
-
-
             ///remove overrideGravityDirection per update
             overrideGravityDirection = Vector2.zero;
             #endregion
 
             localVelocity = momentum;
+
+            ///     fix unknow rotation 
+            if (Mathf.Abs(transform.forward.z) != 1)
+            {
+                var euler = transform.eulerAngles;
+                euler.x = 0;
+                euler.y = forwardSign > 0 ? 0 : 180;
+                transform.eulerAngles = euler;
+            }
 
             if (UseCustomVelocity)
                 rigidbody.MovePosition(rigidbody.position + (velocity = transform.TransformDirection(momentum) * Time.fixedDeltaTime));
@@ -204,6 +215,12 @@ namespace Yu5h1Lib.Game.Character
 
         protected void RotateToGravitationSmooth(Vector2 gravitation,float fixAngleWeight)
         {
+            //if (IsGrounded && !overrideGravityDirection.IsZero() &&
+            //    !gravitation.IsDirectionAngleWithinThreshold(-detector.groundHit.normal, 30))
+            //{
+            //    return;
+            //}
+
             if (fixAngleWeight == 0)
                 return;
             var GdirAngleGap = GetStandingAngleGap(gravitation);

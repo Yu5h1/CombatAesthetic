@@ -21,7 +21,9 @@ IsInteracting:{contoller.IsInteracting}
 IsGrounded: {contoller.IsGrounded}
 Floatable:{contoller.Floatable}
 GravityDirection:{contoller.gravityDirection},
-
+eulerAngles:{contoller.transform.eulerAngles},
+forward:{contoller.transform.forward}
+forward.z:{contoller.transform.forward.z}
 ", MessageType.Info); //FallingTimeElapsed: { contoller.FallingTimeElapsed}
         }
         

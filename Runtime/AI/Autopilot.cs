@@ -55,30 +55,28 @@ namespace Yu5h1Lib.Game.Character
                 IsTargetInSkillRange = false;
                 if (target)
                 {
-                    var distanceBetweenTarget = GetDistanceBetweenTarget();
-
-                    var front = Body.detector.front;
-                    var ClosestPointToTarget = target.detector.collider.ClosestPoint(front);
+                    var distanceBetweenTarget = GetDistanceBetweenTarget(out Vector2 selfPoint,out Vector2 targetPoint);
 
                     RaycastHit2D obstacleHit = default(RaycastHit2D);
                     if (patrol.scanner.ObstacleMask.value != 0)
-                        obstacleHit = Physics2D.Linecast(Body.center, ClosestPointToTarget, patrol.scanner.ObstacleMask);
+                        obstacleHit = Physics2D.Linecast(Body.position, target.position, patrol.scanner.ObstacleMask);
                     if (obstacleHit)
                     {
                         //"obstacleHit from autopilot".print();
                         target = null;
                         return Vector2.zero;
                     }
+
                     if (IsWithinSkillRange(distanceBetweenTarget))
                     {
                         movement = Vector2.zero;
-                        //Debug.DrawLine(front, ClosestPointToTarget, Color.red);
+                        Debug.DrawLine(selfPoint, targetPoint, Color.red);
                         IsTargetInSkillRange = true;
                     }else if (waiting)
                         movement = Vector2.zero;
                     else
                     {
-                        //Debug.DrawLine(front, ClosestPointToTarget, Color.yellow);
+                        Debug.DrawLine(selfPoint, targetPoint, Color.yellow);
                         movement = (target.detector.top - Body.detector.center).normalized;
                     }
                 }
@@ -142,11 +140,18 @@ namespace Yu5h1Lib.Game.Character
             private bool HasTarget() => !NoTarget();            
             //public bool IsTargetInSight() => default(bool);
  
-            public float GetDistanceBetweenTarget() => Vector2.Distance(target.detector.collider.ClosestPoint(Body.detector.front), Body.detector.front);
+            public float GetDistanceBetweenTarget(out Vector2 selfPoint, out Vector2 targetPoint)
+            {
+                selfPoint = Body.detector.ClosestPoint(target.position);
+                targetPoint  = target.detector.ClosestPoint(Body.position);
+                return Vector2.Distance(selfPoint, targetPoint);
+            }
             public bool IsWithinSkillRange(float distanceBetweenTarget)
             {                
                 if (!target || !(Body is AnimatorController2D animBody) || !animBody.currentSkill)
                     return false;
+                if (data.skillTriggerConditions.IsEmpty())
+                    return true;
                 if (!data.skillTriggerConditions.TryGet(s => s.skill == animBody.currentSkill, out SkillTriggerCondition condition))
                     return false;
                 //var dir2target = GetDirectionToTarget();
@@ -172,14 +177,14 @@ namespace Yu5h1Lib.Game.Character
 
                 return true;
             }
-            public void FollowTarget()
-            {
-                if (!target)
-                    return;
-                if (GetDistanceBetweenTarget() < 2)
-                    movement = Vector2.zero;
-                movement = (target.detector.top - Body.detector.center).normalized;
-            }
+            //public void FollowTarget()
+            //{
+            //    if (!target)
+            //        return;
+            //    if (GetDistanceBetweenTarget() < 2)
+            //        movement = Vector2.zero;
+            //    movement = (target.detector.top - Body.detector.center).normalized;
+            //}
             public void PatrolArea()
             {
                 var obstacleHit = Physics2D.Linecast(Body.transform.position, patrol.Destination, patrol.scanner.ObstacleMask);

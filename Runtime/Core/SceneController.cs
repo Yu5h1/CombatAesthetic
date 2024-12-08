@@ -102,7 +102,7 @@ public class SceneController : SingletonBehaviour<SceneController>
         operation.allowSceneActivation = false;
         while (!operation.isDone)
         {
-            LoadSceneAsyncHandler?.Invoke(Mathf.Clamp01(operation.progress / 0.9f));
+            LoadSceneAsyncHandler?.Invoke(Mathf.Clamp01(operation.progress / 0.9f) * 0.9f);
 
             if (operation.progress >= 0.9f)
             {
@@ -110,8 +110,10 @@ public class SceneController : SingletonBehaviour<SceneController>
             }
             yield return null;
         }
+        LoadSceneAsyncHandler?.Invoke(0.99f);
         yield return new WaitUntil(IsSceneUnLoaded);
         AfterLoadSceneAsync();
+        LoadSceneAsyncHandler?.Invoke(1.0f);
         yield return GameManager.ui_Manager.Loading.EndLoad();
     }
     private static void BeginLoadSceneAsync()

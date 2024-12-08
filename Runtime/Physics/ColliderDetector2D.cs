@@ -71,12 +71,12 @@ namespace Yu5h1Lib.Game.Character
             {
                 CheckPlatformStandHeight(0);
                 if (groundHit.collider.gameObject.CompareTag(MovingPlatformTag))
-                    transform.SetParent(groundHit.collider.transform, true);
+                    transform.SetParentAndUnitScale(groundHit.collider.transform, true);
             }
             else
             {
                 if (transform.parent != null)
-                    transform.SetParent(null, true);
+                    transform.SetParentAndUnitScale(null, true);
             }
         }
         #region Check Methods
@@ -203,7 +203,7 @@ namespace Yu5h1Lib.Game.Character
             //}
             return default(RaycastHit2D);
         }
-
+        public Vector2 ClosestPoint(Vector2 position) => collider.ClosestPoint(position);
 #if UNITY_EDITOR
 
         private void OnDrawGizmosSelected()
