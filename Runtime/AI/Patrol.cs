@@ -104,6 +104,8 @@ public class Patrol : MonoBehaviour
         if (!route.points.IsValid(current))
             return;
         Gizmos.DrawWireSphere(Destination, arriveRange);
+        if (scanner.useCircleCast)
+            Gizmos.DrawWireSphere(transform.position, scanner.radius );
     }
 
 #endif

@@ -17,14 +17,17 @@ public class ImpactForce2D : MonoBehaviour
     [SerializeField]
     private float forceMultiplier = 1.0f;
 
-    private void Start() {}
+    public LayerMask validlayers { get; private set; }
+    private void Start() {
+        validlayers = LayerMask.GetMask("Character", "PhysicsObject");
+    }
 
     public void Push(Vector3 force)
     {
         if (!enabled)
             return;
         force *= forceMultiplier;
-        var results = Physics2D.OverlapBoxAll(impactPos, size, 0, 1 << LayerMask.NameToLayer("Character"));
+        var results = Physics2D.OverlapBoxAll(impactPos, size, 0, validlayers);
         for (int i = 0; i < results.Length; i++)
         {
             var col = results[i];
@@ -33,6 +36,11 @@ public class ImpactForce2D : MonoBehaviour
             else if (col.TryGetComponent(out Rigidbody2D otherRigidbody) && otherRigidbody.transform.root != transform.root)
                 otherRigidbody.AddForce(force);
         }
+    }
+    [ContextMenu(nameof(PushTest))]
+    public void PushTest()
+    {
+        Push(Vector2.up * 5);
     }
 
 #if UNITY_EDITOR

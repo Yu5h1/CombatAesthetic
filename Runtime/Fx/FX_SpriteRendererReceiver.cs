@@ -40,7 +40,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     {
         if (sender == null)
             return;
-        SetAmount(curve.Evaluate(timer.normal));
+        SetAmount(curve.Evaluate(timer.normalized));
     }
     public void SetColor(Color color)
     {

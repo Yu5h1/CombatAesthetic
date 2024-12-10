@@ -67,11 +67,10 @@ namespace Yu5h1Lib.Game.Character
                         return Vector2.zero;
                     }
 
-                    if (IsWithinSkillRange(distanceBetweenTarget))
+                    if (IsTargetInSkillRange = IsWithinSkillRange(distanceBetweenTarget))
                     {
                         movement = Vector2.zero;
                         Debug.DrawLine(selfPoint, targetPoint, Color.red);
-                        IsTargetInSkillRange = true;
                     }else if (waiting)
                         movement = Vector2.zero;
                     else
@@ -91,8 +90,15 @@ namespace Yu5h1Lib.Game.Character
                 if (IsNotReady || target == null || waiting)
                     return false;
                 if (IsTargetInSkillRange)
+                {
+                    if (target.attribute.exhausted)
+                    {
+                        target = null;
+                        IsTargetInSkillRange = false;
+                        return false;
+                    }
                     return updateInput(true, false, false);
-                else
+                }else
                     return false;
             }
             public override void GetInputState(string bindingName, UpdateInput updateInput)
@@ -147,7 +153,7 @@ namespace Yu5h1Lib.Game.Character
                 return Vector2.Distance(selfPoint, targetPoint);
             }
             public bool IsWithinSkillRange(float distanceBetweenTarget)
-            {                
+            {
                 if (!target || !(Body is AnimatorController2D animBody) || !animBody.currentSkill)
                     return false;
                 if (data.skillTriggerConditions.IsEmpty())
@@ -185,11 +191,8 @@ namespace Yu5h1Lib.Game.Character
             //        movement = Vector2.zero;
             //    movement = (target.detector.top - Body.detector.center).normalized;
             //}
-            public void PatrolArea()
+            public virtual void PatrolArea()
             {
-                var obstacleHit = Physics2D.Linecast(Body.transform.position, patrol.Destination, patrol.scanner.ObstacleMask);
-                if (obstacleHit)
-                    patrol.SetCurrentPoint(obstacleHit.point);
                 movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;
                 DetectEnemy();
             }

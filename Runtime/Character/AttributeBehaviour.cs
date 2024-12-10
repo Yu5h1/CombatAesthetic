@@ -83,8 +83,10 @@ public class AttributeBehaviour : MonoBehaviour
             return true;
         }
         return false;
-    } 
-
+    }
+    [SerializeField,ReadOnly]
+    private bool _exhausted;
+    public bool exhausted => _exhausted;    
     public bool IsEnough(string key, float amount) => TryGetIndex(key, out int index) && stats[index].current >= amount;
 
     public bool IsEmpty(AttributeType type) { 
@@ -119,14 +121,19 @@ public class AttributeBehaviour : MonoBehaviour
     }
     void Update()
     {
+        if (exhausted)
+            return;
         if (affected)
         {
             affected = false;
             return;
         }
+        if (!exhausted && stats[0].IsDepleted)
+            OnStatDepleted(AttributeType.Health);
+
         for (int i = 0; i < stats.Length; i++)
         {
-            if (stats[i].IsFull)
+            if (stats[i].recovery == 0 || stats[i].IsFull)
                 continue;
             stats[i].current += stats[i].recovery * Time.deltaTime;
             ui?.uI_stats[i]?.UpdateStat(stats[i]);
@@ -175,9 +182,8 @@ public class AttributeBehaviour : MonoBehaviour
         if (!enabled)
             return;
         StatDepletedEvent?.Invoke(flag);
-        
-
-        
+        if (flag.HasAnyFlags(AttributeType.Health))
+            _exhausted = true;
 #if UNITY_EDITOR
         ///unorganized implmentation    
         if (flag.HasAnyFlags(AttributeType.Health))
@@ -197,7 +203,7 @@ public class AttributeBehaviour : MonoBehaviour
         return true;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         _onAffect.RemoveAllListeners();
         StatDepletedEvent.RemoveAllListeners();

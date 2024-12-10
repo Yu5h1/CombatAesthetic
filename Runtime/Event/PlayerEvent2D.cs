@@ -9,4 +9,6 @@ public class PlayerEvent2D : MonoBehaviour
 
     public bool Validate(Collider2D other) => enabled && EqualPlayerTag.Compare(other.tag) && CharacterLayer.Contains(other.gameObject);
 
+
+
 }

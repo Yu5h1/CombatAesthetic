@@ -81,7 +81,7 @@ public class RouteTracer : MonoBehaviour
         //    Vector3.Lerp(GetPoint(current), GetPoint(route.GetNext(current)), timer.normal),
         //    ref currentVelocity, smoothTime);
 
-        transform.position = Vector3.Lerp(GetPoint(current), GetPoint(route.GetNext(current)), timer.normal);
+        transform.position = Vector3.Lerp(GetPoint(current), GetPoint(route.GetNext(current)), timer.normalized);
     }
 
     private Vector2 GetPoint(int index) => offset + route.points[index];

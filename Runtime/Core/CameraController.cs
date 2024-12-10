@@ -141,11 +141,11 @@ public class CameraController : SingletonBehaviour<CameraController>
         FitfadeBoardWithOrthographic();
         NeedUpdateZoom = false;
     }
-    public Vector3 GetMousePositionOnCamera()
+    public Vector3 GetMousePositionOnCamera(float? depth = null)
     {
         var pos = Input.mousePosition;
         if (!camera.orthographic)
-            pos.z = -camera.transform.position.z;
+            pos.z = depth ?? -camera.transform.position.z;
         return camera.ScreenToWorldPoint(pos);
     }
     public void ZoomCamera(float delta)

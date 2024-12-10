@@ -128,6 +128,10 @@ namespace Yu5h1Lib.Game.Character
             underControl = controllable && Conscious > 10;
             var localAnimVelocity = transform.InverseTransformDirection(animator.velocity);            
             localVelocity = transform.InverseTransformDirection(velocity);
+
+            if (localVelocity.y < -5f)
+                VelocityWeight.y = 1;
+
             /// momentum is based on animation velocity
             var momentum = (localVelocity * VelocityWeight) + (localAnimVelocity * rootMotionWeight);
 
@@ -149,7 +153,6 @@ namespace Yu5h1Lib.Game.Character
                 }
                 if (momentum.y < JumpPower)
                 {
-
                     if (!overrideGravityDirection.IsZero() && !Mathf.Approximately(transform.eulerAngles.z,0))
                         RotateToGravitationSmooth(detector.groundHit.normal, fixAngleWeight);
                     else if (localAnimVelocity.x != 0)
@@ -257,6 +260,16 @@ namespace Yu5h1Lib.Game.Character
             return true;
         }
         #region Animation Events
+        public void TriggerAction(string actionName)
+        {
+            animParam.IndexOfSkill = Animator.StringToHash(actionName);
+            animParam.TriggerAction();
+        }
+        public void TriggerAction(int index)
+        {
+            animParam.IndexOfSkill = index;
+            animParam.TriggerAction();
+        }
         private void Hit()
         {
             var offsetTransform = transform.Find("HitBoxOffset") ?? transform;

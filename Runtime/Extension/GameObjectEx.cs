@@ -14,7 +14,7 @@ public static class GameObjectEx
     public static bool TryInstantiateFromResourecss<T>(out T result,string path, Transform parent = null) where T : Object
     {
         result = null;
-        if ($"TryInstantiateFromResourecss {path} does not exist!".printWarningIf(!ResourcesEx.TryLoad(path, out T source)))
+        if ($"TryInstantiateFromResourecss {path} does not exist!".printWarningIf(!ResourcesUtility.TryLoad(path, out T source)))
             return false;
         result = parent == null ? GameObject.Instantiate(source) : GameObject.Instantiate(source, parent);
         if (!InstantiateWithCloneSuffix)

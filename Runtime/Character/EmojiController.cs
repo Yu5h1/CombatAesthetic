@@ -34,7 +34,7 @@ public class EmojiController : MonoBehaviour
     }
     public void ShowEmoji(string name,float lifeTime)
     {
-        if (ResourcesEx.TryLoad(@$"Texture\{name}", out Sprite sprite))
+        if (ResourcesUtility.TryLoad(@$"Texture\{name}", out Sprite sprite))
             this.StartCoroutine(ref showEmojiProcCoroutine, ShowEmojiProc(sprite, lifeTime));
     }
     public void HideEmoji()

@@ -62,14 +62,9 @@ namespace Yu5h1Lib
         }
         void OnGUI()
         {
-            Controller2D.gravityScale = EditorGUILayout.FloatField(nameof(Controller2D.gravityScale),Controller2D.gravityScale);
-
             //foreach (var cp in checkPoints.First().Value)
             //    GUILayout.Button(cp.name);
-
-
             //EditorGUILayout.ObjectField(LevelsLabel);
-
             //var checkedScene = EditorGUILayout.IntField("Scene", CheckPoint.scene);
             //EditorGUILayout.Popup(CheckPoint.scene,)
             //if (GUI.changed)

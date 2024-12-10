@@ -15,6 +15,13 @@ namespace Yu5h1Lib
     public partial class GameManager : SingletonBehaviour<GameManager>
     {
         public static bool IsQuit = false;
+        public static GameSetting Setting => GameSetting.instance;
+        public static DebugSetting debugSetting => DebugSetting.instance;
+        public static bool DebugMode
+        {
+            get => debugSetting.enable;
+            set => debugSetting.enable = value;
+        }
         [RuntimeInitializeOnLoadMethod]
         static void RunOnStart() {
             Application.wantsToQuit -= Application_wantsToQuit;
@@ -44,7 +51,8 @@ namespace Yu5h1Lib
         
         public static CameraController cameraController => CameraController.instance;
 
-        public GameSetting Setting => Resources.Load<GameSetting>(nameof(Setting));
+  
+
         public static bool IsGamePause 
         { 
             get => Time.timeScale == 0; 
@@ -56,9 +64,7 @@ namespace Yu5h1Lib
                 OnPauseStateChanged?.Invoke(value);
             } 
         }
-        public static bool IsSpeaking => 
-            ui_Manager.Dialog_UI.gameObject.activeSelf ||
-            ui_Manager.EndCredits.gameObject.activeSelf;
+        public static bool IsSpeaking => UI_Manager.IsSpeaking;
 
         public static bool IsBusy => IsGamePause || IsSpeaking;
 
@@ -192,10 +198,15 @@ namespace Yu5h1Lib
         #endregion
         #region Static
 
+        public static bool IsMovingPlayer { get; private set; }
         public static void MovePlayer(Vector3 pos)
         {
+            IsMovingPlayer = true;
+            instance.playerController.rigidbody.simulated = false;
             instance.playerController.transform.position = pos;
+            instance.playerController.rigidbody.simulated = true;
             cameraController.Focus();
+            IsMovingPlayer = false; 
         }
 
         #endregion

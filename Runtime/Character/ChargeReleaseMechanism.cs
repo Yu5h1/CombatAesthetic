@@ -27,7 +27,7 @@ public class ChargeReleaseMechanism : SkillStateMachine<ChargeReleaseMechanism.B
                 animParam.IndexOfSkill = Animator.StringToHash(data.NameOfSkill);
 
             owner.animParam.HoldSkill = true;
-            animParam.TriggerSkill();
+            animParam.TriggerAction();
         }
         protected override void OnExcute() {}
         protected override void OnExit(ExitReason reason)

@@ -24,4 +24,17 @@ public class BaseEvent2D : MonoBehaviour
         GameManager.ui_Manager.Dialog_UI.lines = lines;
         GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
     }
+    Coroutine SetActiveCoroutine;
+    public void Deactivate(float delay)
+        => this.StartCoroutine(ref SetActiveCoroutine, DelaySetActive(delay, false));
+    public void Activate(float delay)
+        => this.StartCoroutine(ref SetActiveCoroutine, DelaySetActive(delay, true));
+    private IEnumerator DelaySetActive(float delay,bool active)
+    { 
+        if (delay > 0)
+            yield return new WaitForSeconds(delay);
+        gameObject.SetActive(active);
+
+    }
+
 }

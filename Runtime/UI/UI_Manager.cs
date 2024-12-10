@@ -18,7 +18,7 @@ public class UI_Manager : MonoBehaviour
     private UI_Menu _currentMenu;
     public static UI_Menu currentMenu { get => instance._currentMenu; private set => instance._currentMenu = value; }
 
-    [SerializeField]
+    [SerializeField,ReadOnly]
     public LoadAsyncAgent _Loading;
     public LoadAsyncAgent Loading => Build(nameof(Loading), ref _Loading);
     //[SerializeField]
@@ -44,6 +44,9 @@ public class UI_Manager : MonoBehaviour
     public UI_Statbar statbar_UI_Source => Resources.Load<UI_Statbar>($"UI/BaseStatBar_UI");
     public UI_Attribute attribute_UI_Source => Resources.Load<UI_Attribute>("UI/BaseAttribute_UI");
 
+    public static bool IsSpeaking =>
+       (instance._Dialog_UI?.gameObject?.activeInHierarchy == true) || (instance._EndCredits?.gameObject?.activeSelf == true);
+
     private void Awake()
     {
         if (Loading)
@@ -57,8 +60,10 @@ public class UI_Manager : MonoBehaviour
     public void Start()
     {
         GameManager.eventsystem.SetSelectedGameObject(null);
-        //if (Fadeboard_UI)
-        //    Fadeboard_UI.gameObject.SetActive(false);
+
+        if (EndCredits.transform.gameObject.activeSelf)
+            EndCredits.gameObject.SetActive(false);
+
         if (IsStartScene)
         {
             //LevelSceneMenu.Dismiss();
@@ -162,6 +167,7 @@ public class UI_Manager : MonoBehaviour
         if (!this.TryGetComponentInChildren(n, out result))
         {
             result = GameObjectEx.InstantiateFromResourecs<T>($"UI/{n}", transform);
+            //$"{n} was Instantiated.".print();
         }
         if (result)
         {

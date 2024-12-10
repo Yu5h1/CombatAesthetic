@@ -21,7 +21,7 @@ public class SceneController : SingletonBehaviour<SceneController>
         $"{GameManager.instance} is ready.".print();
         Time.timeScale = 1;
         gameObject.layer = LayerMask.NameToLayer("Boundary");
-        if (SceneController.IsLevelScene)
+        if (SceneController.IsLevelScene || GameManager.instance.playerController)
         {
             CheckPoint.InitinalizeCheckPoints();
             if (!StartLines.IsEmpty() && !NoTalking)
@@ -44,7 +44,7 @@ public class SceneController : SingletonBehaviour<SceneController>
     private void OnTriggerExit2D(Collider2D other)
     {
         // Avoiding OnTriggerExit2D triggered on EditorApplication.Exit
-        if (GameManager.IsQuit || IsSceneTransitioning)
+        if (GameManager.IsQuit || GameManager.IsMovingPlayer || IsSceneTransitioning)
             return;
         if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
             attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 100000000);

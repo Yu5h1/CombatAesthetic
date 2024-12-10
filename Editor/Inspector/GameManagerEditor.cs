@@ -15,6 +15,7 @@ namespace Yu5h1Lib
         {
             EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
         }
+        
 
         private static void EditorApplication_playModeStateChanged(PlayModeStateChange state)
         {
@@ -44,6 +45,16 @@ namespace Yu5h1Lib
             DrawDefaultInspector();
         }
         #region MenuItems
+        public const string ToggleDebugMode_Label = "Game Manager/DebugMode";
+        [MenuItem(ToggleDebugMode_Label)]
+        private static void ToggleDebugMode() => GameManager.DebugMode = !GameManager.DebugMode;
+        [MenuItem(ToggleDebugMode_Label, true)]
+        private static bool ToggleDebugModeItemChecked()
+        {
+            Menu.SetChecked(ToggleDebugMode_Label, GameManager.DebugMode);
+            return true;
+        }
+
         [MenuItem("Game Manager/Clear Level Cache")]
         public static void ClearLevelCache()
         {

@@ -59,7 +59,7 @@ namespace Yu5h1Lib.Game.Character
             set => animator.SetInteger(ConsciousHash, value);
         }
 
-        public void TriggerSkill() => animator.SetTrigger(TriggerSkillHash);
+        public void TriggerAction() => animator.SetTrigger(TriggerSkillHash);
         #endregion
         private AnimatorControllerParameter hurtParam;
         private AnimatorControllerParameter ConsciousParam;

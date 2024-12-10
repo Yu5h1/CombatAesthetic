@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Yu5h1Lib;
 
@@ -75,6 +76,13 @@ public class UI_Menu : UI_Behaviour
     public void LoadScene(int index) => GameManager.instance.LoadScene(index);
     public void ReloadCurrentScene() => SceneController.ReloadCurrentScene();
     public void StartFromCheckPoint() {
+#if UNITY_EDITOR 
+        if (GameManager.DebugMode && GameManager.debugSetting.reloadCurrentSceneWhileLoadCheckPoint)
+        {
+            ReloadCurrentScene();
+            return;
+        }
+#endif
         if (!CheckPoint.Load())
             LoadScene(1);
     }

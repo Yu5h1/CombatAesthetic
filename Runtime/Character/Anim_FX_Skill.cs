@@ -27,7 +27,7 @@ public class Anim_FX_Skill : SkillData<Anim_FX_Skill.Behaviour>
                     animParam.IndexOfSkill = data.IndexOfSkillParam;
                 else
                     animParam.IndexOfSkill = Animator.StringToHash(data.NameOfSkill);
-                animParam.TriggerSkill();
+                animParam.TriggerAction();
                 return true;
             }
             return false;
