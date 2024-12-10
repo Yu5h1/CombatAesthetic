@@ -16,16 +16,12 @@ public class ColliderScanner2D : CollierCastInfo2D
     [ReadOnly]
     public Vector2 _localStart;
     public Vector2 start => transform.TransformPoint(_localStart);
-    
     public LayerMask ObstacleMask;
-
     public Vector2 size { get; private set; }
-
-
-    
     public float radius => distance * 10;
     [SerializeField]
     private bool _useCircleCast;
+    public bool InfiniteDistance;
     public bool useCircleCast => _useCircleCast || !collider;
 
     public void Init(Patrol patrol)
@@ -47,7 +43,9 @@ public class ColliderScanner2D : CollierCastInfo2D
         if (!useCircleCast && collider)
             return Cast(dir);
         results = new RaycastHit2D[resultsCount];
-        return Physics2D.CircleCast(transform.position, radius, dir, filter, results);
+        return InfiniteDistance ? 
+                Physics2D.CircleCast(transform.position, radius, dir, filter, results):
+                Physics2D.CircleCast(transform.position, radius, dir, filter, results,distance);
     }
 
     public bool Scan(out RaycastHit2D hit)
@@ -55,9 +53,7 @@ public class ColliderScanner2D : CollierCastInfo2D
         hit = default(RaycastHit2D);
 
         if ("The collider of CollierScanner2D is not assigned".printWarningIf(!collider))
-        {
             return false;
-        }
         if (direction == Vector2.zero)
 			return false;
         var dir = (Vector2)transform.TransformDirection(direction);
