@@ -12,6 +12,8 @@ public class SceneController : SingletonBehaviour<SceneController>
     public string[] StartLines;
     public bool NoTalking;
 
+    public Vector3 defaultStartPoint;
+
     #region Scene Preset
     void Reset() {}
     protected override void Init() {}
@@ -30,6 +32,7 @@ public class SceneController : SingletonBehaviour<SceneController>
                 GameManager.ui_Manager.Dialog_UI.lines = StartLines;
                 GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
             }
+            CameraController.instance.PrepareSortingLayerSprites();
             Debug.Log($"{PoolManager.instance} was Created.\n{PoolManager.canvas}");
         }
     }
@@ -48,8 +51,7 @@ public class SceneController : SingletonBehaviour<SceneController>
             return;
         if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
             attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 100000000);
-    } 
-
+    }
     #region Static 
     public static event UnityAction BeginLoadSceneAsyncHandler;
     public static event UnityAction<float> LoadSceneAsyncHandler;
@@ -131,7 +133,6 @@ public class SceneController : SingletonBehaviour<SceneController>
     public static void RegistryLoadEvents()
     {
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
-        
         SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
     private static void OnSceneUnloaded(Scene scene)
@@ -140,13 +141,8 @@ public class SceneController : SingletonBehaviour<SceneController>
             return;
         CameraController.RemoveInstanceCache();
         PoolManager.RemoveInstanceCache();
-        // kill tweeners where is dontDestoryOnLoad 
-        //foreach (var item in GameManager.instance.GetComponentsInChildren<TweenBehaviour>(true))
-        //    item.Kill();
-        //DG.Tweening.DOTween.KillAll();
         RemoveInstanceCache();
         IsSceneTransitioning = false;
-
     }
 
 

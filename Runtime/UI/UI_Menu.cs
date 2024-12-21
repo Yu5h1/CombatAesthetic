@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Yu5h1Lib;
 
-public class UI_Menu : UI_Behaviour
+public class UI_Menu : UIControl
 {
     public bool DisallowPreviouse;
     public bool DisallowDismiss;

@@ -136,7 +136,7 @@ public class AttributeBehaviour : MonoBehaviour
             if (stats[i].recovery == 0 || stats[i].IsFull)
                 continue;
             stats[i].current += stats[i].recovery * Time.deltaTime;
-            ui?.uI_stats[i]?.UpdateStat(stats[i]);
+            ui?.uI_stats[i]?.Refresh(stats[i]);
         }
     }
     /// <summary>
@@ -175,7 +175,7 @@ public class AttributeBehaviour : MonoBehaviour
         var index = Keys.IndexOf(flag.ToString());
         if (index < 0)
             return;
-        ui?.uI_stats[index]?.UpdateStat(stats[index]);
+        ui?.uI_stats[index]?.Refresh(stats[index]);
     }
     private void OnStatDepleted(AttributeType flag)
     {

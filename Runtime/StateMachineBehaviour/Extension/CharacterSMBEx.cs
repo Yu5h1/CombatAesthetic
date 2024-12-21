@@ -1,20 +1,23 @@
 using UnityEngine;
+using Yu5h1Lib.Game.Character;
 
 public static class CharacterSMBEx
 {
-
-	public static void GetMoveInfo(this CharacterSMB csmb,
-        out bool Controllable, out Vector2 rootMotionWeight, out Vector2 VelocityWeight,out float fixAngleWeight)
+	public static bool GetMoveInfo(this CharacterSMB csmb,out StateInfo info)
 	{
-        Controllable = false;
-        rootMotionWeight = Vector2.zero;
-        VelocityWeight = Vector2.one;
-        fixAngleWeight = 1f;
+        info = new StateInfo()
+        {
+            controllable = false,
+            rootMotionWeight = Vector2.zero,
+            VelocityWeight = Vector2.one,
+            fixAngleWeight = 1f
+        };
         if (csmb == null)
-            return;
-        Controllable = csmb.Controllable;
-        rootMotionWeight = csmb.rootMotionWeight;
-        VelocityWeight = csmb.rigidbodyVelocityWeight;
-        fixAngleWeight = csmb.FixAngleWeight;
+            return false;
+        info.controllable = csmb.Controllable;
+        info.rootMotionWeight = csmb.rootMotionWeight;
+        info.VelocityWeight = csmb.rigidbodyVelocityWeight;
+        info.fixAngleWeight = csmb.FixAngleWeight;
+        return true;
     }
 }

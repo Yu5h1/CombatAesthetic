@@ -87,19 +87,22 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     //}
 
-    private void Init(AudioSource audio)
+    private void InitAudioSource(AudioSource audio)
     {
         audio.spatialBlend = 1f;
+        audio.spread = 180;
+        audio.minDistance = 0.1f;
+        audio.maxDistance = 10f;
     }
 
     public void play(string name, Vector3 position , Quaternion rotation )
     {
         if ("".printWarningIf(!ResourcesUtility.TryLoad($"Sound/{name}", out AudioClip clip)))
             return;
-        var audioSource = PoolManager.Spawn<AudioSource>(position, rotation, Init);
+        var audioSource = PoolManager.Spawn<AudioSource>(position, rotation, InitAudioSource);
         audioSource.volume = sfxVolume;
         audioSource.clip = clip;
-        audioSource.enabled = true;
+        //audioSource.enabled = true;
         audioSource.Play();
         StartCoroutine(WaitForSoundToEnd(audioSource));
     }
@@ -114,7 +117,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         if (audioSource)
         {
             audioSource.Stop();
-            audioSource.enabled = false;
+            //audioSource.enabled = false;
             PoolManager.instance.Despawn(audioSource);
         }
     }

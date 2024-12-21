@@ -23,8 +23,7 @@ namespace Yu5h1Lib.Game.Character
 
             public Vector2 patrolPoint => patrol.offset;
             public Vector2 destination;
-            protected Vector2 movement;
-            private Transform transform => Body.transform;
+            protected Vector2 movement;         
 
             private Controller2D _target;
             public Controller2D target 

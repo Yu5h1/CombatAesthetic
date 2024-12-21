@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SceneMenu : MonoBehaviour
+public interface IUIEmelent 
 {
-
+    void Show();
+    void Hide();
+    void Refresh();
 }

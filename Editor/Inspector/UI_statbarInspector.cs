@@ -19,7 +19,7 @@ public class UI_statbarInspector : Editor<UI_Statbar>
         if (this.TrySlider("SimulateValue", testStat.normal, 0, 1, out float val))
         {
             testStat.current = val * testStat.max;
-            targetObject.UpdateStat(testStat);
+            targetObject.Refresh(testStat);
             //force ui image redraw
             EditorApplication.QueuePlayerLoopUpdate();
         }

@@ -72,7 +72,6 @@ namespace Yu5h1Lib
         public static event UnityAction OnFoundPlayer;
         public static event UnityAction<Controller2D> overridePlayerFailed;
 
-        private string inputString;
         [ReadOnly]
         public Controller2D playerController;
         public Texture2D cursor;
@@ -115,33 +114,16 @@ namespace Yu5h1Lib
         }
         void Update()
         {
-            if (playerController)
-                SoundManager.instance.audioListener.transform.position = playerController.transform.position;
-            else
-                SoundManager.instance.audioListener.transform.position = cameraController.transform.position;
+            SoundManager.instance.audioListener.transform.Sync(playerController ? 
+                playerController.transform : cameraController.transform, true, false, false);
+
             if (input.GetButtonDown("Cancel"))
                 OnCancelPressed();
-            if (!Input.GetKey(KeyCode.LeftControl) && input.TryGetScrollWheelDelta(out float delta)) {
+            if (!Input.GetKey(KeyCode.LeftControl) && input.TryGetScrollWheelDelta(out float delta)) 
+            {
                 if (playerController)
                     cameraController.ZoomCamera(delta);
             }
-            //foreach (char c in Input.inputString)
-            //{
-            //    if (c == '\b') 
-            //    {
-            //        if (inputString.Length > 0)
-            //            inputString = inputString.Substring(0, inputString.Length - 1);
-            //    }
-            //    else if (c == '\n' || c == '\r') // 判斷是否按下回車鍵
-            //    {
-            //        Debug.Log("Final Input: " + inputString);
-            //        inputString = ""; 
-            //    }
-            //    else
-            //    {
-            //        inputString += c; 
-            //    }
-            //}
         }
         public void OnSubmitPressed()
         {

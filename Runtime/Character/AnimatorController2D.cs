@@ -28,6 +28,7 @@ namespace Yu5h1Lib.Game.Character
         private ActionSMB actionSMB;
         public bool IsActing => actionSMB?.IsActing == true;
 
+        private StateInfo stateInfo;
         #endregion        
 
         #region  Skill
@@ -84,56 +85,31 @@ namespace Yu5h1Lib.Game.Character
         }
         protected override void Update()
         {
-            UpdateInputInstruction();
+            base.Update();
             if (!IsInteracting)
                 animParam?.Update();
         }
-        public override void HitFrom(Vector2 v)
+        private void OnAnimatorMove()
         {
-            if (!isActiveAndEnabled || IsInvincible)
-                return;
-            //face to impact Direction
-            if (!v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
-                CheckForwardFrom(-forwardSign);            
-            animParam.Hurt();
-            _Hited?.Invoke(v);
+            currentState.GetMoveInfo(out stateInfo);
+            underControl = stateInfo.controllable && Conscious > 10;
         }
-        private void OnStatDepleted(AttributeType AttributeType)
+        protected override void ProcessMovement()
         {
-            if (AttributeType == AttributeType.Health)
-            {
-                Floatable = false;
-                Conscious = 0;
-                animParam.Hurt();
-            }
-        }
-        protected override void FixedUpdate()
-        {
-            PerformDetection();
-            //"FixedUpdate".print();
-        }
-
-        void OnAnimatorMove()
-        {
-            //"OnAnimatorMove".print();
             if (Time.timeScale == 0)
                 return;
             if (IsInteracting)
                 return;
             var gravitation = gravityDirection;
-
-
-            currentState.GetMoveInfo(out bool controllable, out Vector2 rootMotionWeight,
-                out Vector2 VelocityWeight , out float fixAngleWeight);
-            underControl = controllable && Conscious > 10;
-            var localAnimVelocity = transform.InverseTransformDirection(animator.velocity);            
+ 
+            var localAnimVelocity = transform.InverseTransformDirection(animator.velocity);
             localVelocity = transform.InverseTransformDirection(velocity);
 
             if (localVelocity.y < -5f)
-                VelocityWeight.y = 1;
+                stateInfo.VelocityWeight.y = 1;
 
             /// momentum is based on animation velocity
-            var momentum = (localVelocity * VelocityWeight) + (localAnimVelocity * rootMotionWeight);
+            var momentum = (localVelocity * stateInfo.VelocityWeight) + (localAnimVelocity * stateInfo.rootMotionWeight);
 
             if (IsGrounded)
             {
@@ -153,12 +129,12 @@ namespace Yu5h1Lib.Game.Character
                 }
                 if (momentum.y < JumpPower)
                 {
-                    if (!overrideGravityDirection.IsZero() && !Mathf.Approximately(transform.eulerAngles.z,0))
-                        RotateToGravitationSmooth(detector.groundHit.normal, fixAngleWeight);
-                    else if (localAnimVelocity.x != 0)
+                    RotateToGravitationSmooth(overrideGravityDirection.IsZero() ? gravitation : detector.groundHit.normal, 1);
+                    if (localAnimVelocity.x != 0)
                     {
-                        if (gravitation == Vector2.down)
-                            RotateToGravitationSmooth(gravitation, 1);
+                        //always stick on ground
+                        //RotateToGravitationSmooth(detector.groundHit.normal, 1);
+                        //RotateToGravitationSmooth(overrideGravityDirection.IsZero() ? gravitation : detector.groundHit.normal, 1);
                         var IsVectorRight = (forwardSign * localAnimVelocity.x) > 0;
                         /// move on slop
                         var localSlopDir = transform.InverseTransformDirection(detector.CheckSlop(IsVectorRight).normalized);
@@ -175,8 +151,8 @@ namespace Yu5h1Lib.Game.Character
             }
             else
             {
-                RotateToGravitationSmooth(gravitation, fixAngleWeight);
-                ProcessingGravitation(gravitation, VelocityWeight, ref momentum);
+                RotateToGravitationSmooth(gravitation, stateInfo.fixAngleWeight);
+                ProcessingGravitation(gravitation, stateInfo.VelocityWeight, ref momentum);
             }
 
 
@@ -216,14 +192,8 @@ namespace Yu5h1Lib.Game.Character
                 momentum += new Vector2(Mathf.Abs(InputMovement.x), InputMovement.y) * AirborneMultiplier;
         }
 
-        protected void RotateToGravitationSmooth(Vector2 gravitation,float fixAngleWeight)
+        protected void RotateToGravitationSmooth(Vector2 gravitation,float fixAngleWeight,bool fade= true)
         {
-            //if (IsGrounded && !overrideGravityDirection.IsZero() &&
-            //    !gravitation.IsDirectionAngleWithinThreshold(-detector.groundHit.normal, 30))
-            //{
-            //    return;
-            //}
-
             if (fixAngleWeight == 0)
                 return;
             var GdirAngleGap = GetStandingAngleGap(gravitation);
@@ -231,7 +201,7 @@ namespace Yu5h1Lib.Game.Character
                 return;
             if (IsFaceForward)
                 GdirAngleGap *= -1;
-            if (Mathf.Abs(GdirAngleGap) > 1)
+            if (fade && Mathf.Abs(GdirAngleGap) > 1)
                 GdirAngleGap *= Time.deltaTime * fixedPoseDirSpeed;
             transform.Rotate(Vector3.forward, GdirAngleGap);
         }
@@ -244,7 +214,12 @@ namespace Yu5h1Lib.Game.Character
                 GdirAngleGap *= -1;
             transform.Rotate(Vector3.forward, GdirAngleGap);
         }
-
+        protected override void OnGroundStateChanged(bool grounded)
+        {
+            base.OnGroundStateChanged(grounded);
+            //if (grounded)
+            //    RotateToGravitation(gravityDirection);
+        }
         protected override bool UpdateInputInstruction()
         {
             if (!base.UpdateInputInstruction())
@@ -258,6 +233,25 @@ namespace Yu5h1Lib.Game.Character
                 currentSkillBehaviour.Select();
             }
             return true;
+        }
+        public override void HitFrom(Vector2 v)
+        {
+            if (!isActiveAndEnabled || IsInvincible)
+                return;
+            //face to impact Direction
+            if (!v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
+                CheckForwardFrom(-forwardSign);
+            animParam.Hurt();
+            _Hited?.Invoke(v);
+        }
+        private void OnStatDepleted(AttributeType AttributeType)
+        {
+            if (AttributeType == AttributeType.Health)
+            {
+                Floatable = false;
+                Conscious = 0;
+                animParam.Hurt();
+            }
         }
         #region Animation Events
         public void TriggerAction(string actionName)
@@ -303,6 +297,13 @@ namespace Yu5h1Lib.Game.Character
                 obj.tag = "Enemy";
             tag = "Player";
         }
+    }
+    public struct StateInfo
+    {
+        public bool controllable;
+        public Vector2 rootMotionWeight;
+        public Vector2 VelocityWeight;
+        public float fixAngleWeight;
     }
 }
 

@@ -13,7 +13,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         get{
             if (_canvas == null || !_canvas.gameObject.IsBelongToActiveScene())
             {
-                _canvas = GameObjectEx.InstantiateFromResourecs<Canvas>($"UI/PoolManager_Canvas(Camera)");
+                _canvas = ResourcesUtility.InstantiateFromResourecs<Canvas>($"UI/PoolManager_Canvas(Camera)");
                 _canvas.renderMode = RenderMode.ScreenSpaceCamera;
                 _canvas.worldCamera = CameraController.instance.camera;
                 _canvas.sortingLayerID = SortingLayer.NameToID("Back");
@@ -48,14 +48,16 @@ public class PoolManager : SingletonBehaviour<PoolManager>
 
     public bool Exists(string key) => pools.ContainsKey(key);
 
-    public T Spawn<T>(string key, Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion)) where T : Component
-        => Exists(key) ? pools[key].Spawn<T>(position, rotation) : null;
 
-    public T Spawn<T>(Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion),Action<T> init = null) where T : Component
+
+    public T Spawn<T>(string key, Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion),Transform parent = null) where T : Component
+        => Exists(key) ? pools[key].Spawn<T>(position, rotation, parent) : null;
+
+    public T Spawn<T>(Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion),Action<T> Init = null,Transform parent = null) where T : Component
     {
         if (!Exists(typeof(T).Name))
-            Add(prepareCount,init);
-        return Spawn<T>(typeof(T).Name,position, rotation);
+            Add(prepareCount,Init);
+        return Spawn<T>(typeof(T).Name,position, rotation, parent);
     }
 
     public string GetPoolKey<T>(T obj) where T : Component => obj.GetNameWithOutClone().Substring(obj.name.IndexOf('.') + 1);
@@ -68,19 +70,20 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         pools[key].Despawn(obj);
     }
 
-    public void Add<T>(T source,int count) where T : Component
+    public Pool Add<T>(T source,int count) where T : Component
     {
         var root = source.GetComponent<RectTransform>() == null ? transform : canvas.transform;
         if (!pools.ContainsKey(source.name) && Pool.TryCreate(source, root, count,out Pool result))
             pools.Add(source.name, result);
+        return pools[source.name];
     }
-    public void Add<T>(int count,Action<T> init = null) where T : Component
+    public Pool Add<T>(int count,Action<T> init = null) where T : Component
     {
         var typeName = typeof(T).Name;
         if ($"{typeName} already exists.".printWarningIf(Exists(typeName)))
-            return;
-        var source = new GameObject(typeName).AddComponent<T>();
+            return pools[typeName];
+        var source = GameObjectUtility.Create<T>();
         init?.Invoke(source);
-        Add(source, count);
+        return Add(source, count);
     }
 }

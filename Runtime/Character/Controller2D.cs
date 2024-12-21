@@ -71,6 +71,7 @@ namespace Yu5h1Lib.Game.Character
         public HostData2D.HostBehaviour2D hostBehaviour;
 
         protected bool TriggerJump = false;
+        [SerializeField,ReadOnly]
         protected Vector2 _Movement;
         public Vector2 InputMovement
         {
@@ -86,6 +87,7 @@ namespace Yu5h1Lib.Game.Character
         public float BoostMultiplier { get => GroundMultiplier.x; set => GroundMultiplier.x = value; }
 
         public bool Floatable { get => _Floatable; protected set => _Floatable = value; }
+        [SerializeField,ReadOnly]
         protected bool _underControl;
         public bool underControl { get => _underControl && Conscious > 0; protected set => _underControl = value; }
         public int Conscious { get; protected set; } = 100;
@@ -128,16 +130,16 @@ namespace Yu5h1Lib.Game.Character
         public Vector2 localVelocity { get; protected set; }
 
         [SerializeField]
-        private Vector2 _BaseGravityDirection;
-        public Vector2 baseGravityDirection
+        private Vector2 _defaultGravityDirection;
+        public Vector2 defaultGravityDirection
         { 
-            get => _BaseGravityDirection.magnitude == 0 ? Vector2.up : _BaseGravityDirection;
-            protected set => _BaseGravityDirection = value;
+            get => _defaultGravityDirection.magnitude == 0 ? Vector2.up : _defaultGravityDirection;
+            protected set => _defaultGravityDirection = value;
         }
 
         public Vector2 overrideGravityDirection { get; set; }
 
-        public Vector2 gravityDirection => overrideGravityDirection.magnitude == 0 ? baseGravityDirection : overrideGravityDirection;
+        public Vector2 gravityDirection => overrideGravityDirection.magnitude == 0 ? defaultGravityDirection : overrideGravityDirection;
         public bool UseTransformUpAsGravitationOnStart;
         #endregion
         public bool IsInvincible => !attribute || !attribute.isActiveAndEnabled;
@@ -169,7 +171,7 @@ namespace Yu5h1Lib.Game.Character
                 hostBehaviour = host.CreateBehaviour(this);
 
             if (UseTransformUpAsGravitationOnStart)
-                baseGravityDirection = up;
+                defaultGravityDirection = up;
 
             lastfallingHeight = transform.position.y;
         }
@@ -182,7 +184,9 @@ namespace Yu5h1Lib.Game.Character
                 if (unbouncable && attribute && localVelocity.y < -9.55f && fallingDistance > 5)
                 {
                     var damage = Mathf.Floor((fallingDistance - 5) * 2) / 2; ;
+#if  UNITY_EDITOR
                     $"velocity.y: {localVelocity.y} || fallingDistance:{fallingDistance} || Damage:{damage}".print();
+#endif
                     attribute.Affect(AttributeType.Health, AffectType.NEGATIVE, damage);
                 }
 
@@ -205,7 +209,7 @@ namespace Yu5h1Lib.Game.Character
         protected virtual void FixedUpdate()
         {
             PerformDetection();
-            OnMove();
+            ProcessMovement();
         }
         protected void PerformDetection()
         {
@@ -222,10 +226,10 @@ namespace Yu5h1Lib.Game.Character
         public void AddForce(Vector2 force)
         {
             velocity += force;
-            detector.LeaveGround();
+            if (Vector2.Dot(force.normalized,down) < 0)
+                detector.LeaveGround();
         }
-
-        protected virtual void OnMove()
+        protected virtual void ProcessMovement()
         {
             if (Time.timeScale == 0)
                 return;
@@ -293,8 +297,9 @@ namespace Yu5h1Lib.Game.Character
         public bool DisableHostControl;
         protected virtual bool UpdateInputInstruction()
         {
-            if (DisableHostControl || GameManager.IsGamePause || !Initinalized ||
-                (hostBehaviour?.enable == false) || host == null)
+
+            if (GameManager.IsGamePause || !Initinalized || DisableHostControl ||
+               host == null)
             {
                 InputMovement = Vector2.zero;
                 return false;
@@ -367,6 +372,15 @@ namespace Yu5h1Lib.Game.Character
             hurtBox.enabled = true;
         }
         #endregion
+
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            if (InputMovement.IsZero() || !CompareTag("Player"))
+                return;
+            Debug.DrawLine(position, position + (InputMovement * 5 ),Color.white);
+        }
+#endif
     }
 }
 

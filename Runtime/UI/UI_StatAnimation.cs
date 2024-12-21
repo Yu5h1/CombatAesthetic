@@ -16,7 +16,7 @@ public class UI_StatAnimation : UI_Stat
     {
         TryGetComponent(out image);
     }
-    public override void UpdateStat(AttributeStat status)
+    public override void Refresh(AttributeStat status)
     {
         if (!image || sprites.IsEmpty())
             return;

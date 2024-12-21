@@ -60,35 +60,40 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     public bool IsFinished;
     public override void Perform(Fx_SpriteRendererSender s)
     {
-        if (IsFinished || controller.IsInvincible)
+        if (IsFinished)
             return;
         sender = s;
-        IsDepleted = controller.attribute.TryGetState(AttributeType.Health, out AttributeStat stat) && stat.IsDepleted;
-        curve = IsDepleted ? sender.ExitCurve : sender.curve;
-        if (IsDepleted)
+        curve = sender.curve;
+        UnityAction completeAction = null;
+        if (controller.attribute.exhausted)
+        {
+            curve = sender.ExitCurve;
+            completeAction = PerformExhausting;
             IsFinished = true;
+        }
         if (!curve.keys.IsEmpty() && curve.keys.Length > 1)
-            this.StartCoroutine(ref coroutine, PerformFx());
+            this.StartCoroutine(ref coroutine, PerformFx(completeAction));
     }
-    IEnumerator PerformFx()
+    IEnumerator PerformFx(UnityAction onComplete)
     {
         SetColor(sender.color);
         timer.duration = curve.keys.Last().time;
         timer.Start();
         yield return waiter;
-        if (IsDepleted && sender)
+        onComplete?.Invoke();
+    }
+    private void PerformExhausting()
+    {
+        var fx = PoolManager.instance.Spawn<Transform>(sender.Fx_Exit, transform.position, transform.rotation);
+        if (fx && fx.TryGetComponent(out ParticleSystem ps))
         {
-            var fx = PoolManager.instance.Spawn<Transform>(sender.Fx_Exit, transform.position, transform.rotation);
-            if (fx && fx.TryGetComponent(out ParticleSystem ps)) {
-                var main = ps.main;
-                var shape = ps.shape;
-                shape.meshShapeType = ParticleSystemMeshShapeType.Triangle;
-                shape.shapeType = ParticleSystemShapeType.SpriteRenderer;
-                shape.spriteRenderer = GetComponent<SpriteRenderer>();
-            }
-            gameObject.SetActive(false);
-            Finish?.Invoke();
-
+            var main = ps.main;
+            var shape = ps.shape;
+            shape.meshShapeType = ParticleSystemMeshShapeType.Triangle;
+            shape.shapeType = ParticleSystemShapeType.SpriteRenderer;
+            shape.spriteRenderer = GetComponent<SpriteRenderer>();
         }
+        gameObject.SetActive(false);
+        Finish?.Invoke();
     }
 }

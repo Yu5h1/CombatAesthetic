@@ -1,11 +1,17 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace Yu5h1Lib.Game.Character {
     [CreateAssetMenu(menuName = "Scriptable Objects/PlayerInput")]
     public class PlayerHost : HostData2D
     {
+        public static bool UseWorldInputAxis{
+            get => PlayerPrefs.GetInt("UseWorldInputAxis", 0) == 1;
+            set => PlayerPrefs.SetInt("UseWorldInputAxis", value ? 1 : 0);
+        }
+
         public override Type GetBehaviourType() => typeof(Behaviour);
         public class Behaviour : Behaviour2D<PlayerHost>
         {
@@ -17,11 +23,42 @@ namespace Yu5h1Lib.Game.Character {
             public bool IsInteractionKey => input.GetMouseButton(0);
             public bool IsInteractionKeyUp => input.GetMouseButtonUp(0);
 
+            public Vector2 GetMovementFromGlobalDirection(Vector2 direction)
+            {
+                var dir = transform.InverseTransformDirection(direction);
+                if (!Body.IsFaceForward)
+                    dir.x *= -1;
+                return dir;
+            }
             public override Vector2 GetMovement()
             {
                 if (GameManager.IsSpeaking)
                     return Vector2.zero;
-                return new Vector2(input.GetAxisRaw("Horizontal"), Mathf.Max( input.GetAxisRaw("Vertical"), input.GetAxisRaw("Jump")));
+
+                var y = input.GetAxisRaw("Vertical");
+                if (y == 0)
+                    y = input.GetAxisRaw("Jump");
+                var axis = new Vector2(input.GetAxisRaw("Horizontal"), y);
+
+                if (UseWorldInputAxis)
+                {
+                    float angle = Vector2.SignedAngle(Vector2.up, Body.up);
+
+                    if (angle >= -45 && angle < 45) { }
+                    else if (angle >= 45 && angle < 135)
+                    {
+                        //left
+                        axis = new Vector2(axis.y, -axis.x);
+                    }
+                    else if (angle >= -135 && angle < -45)
+                    {
+                        axis = new Vector2(-axis.y, axis.x);
+                    }
+                    else
+                        axis *= -1;
+                }
+ 
+                return axis;
             }
             public override bool GetInputState(UpdateInput updateInput)
             {

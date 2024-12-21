@@ -59,7 +59,6 @@ public class CameraController : SingletonBehaviour<CameraController>
         get {
             if ((_cursorRenderer == null || !_cursorRenderer.gameObject.IsBelongToActiveScene()) && _cursorRendererSource )
                 _cursorRenderer = Instantiate(_cursorRendererSource);
-
             return _cursorRenderer;
         }
     }
@@ -93,26 +92,9 @@ public class CameraController : SingletonBehaviour<CameraController>
     public void Start()
     {
         camera.tag = "MainCamera";
-        if (SceneController.IsLevelScene || GameObject.FindGameObjectWithTag("Player") != null) {
-            //var URP_data = camera.GetUniversalAdditionalCameraData();
-            //URP_data.volumeLayerMask = 1 << LayerMask.NameToLayer("PostProcess");
-            //URP_data.renderPostProcessing = true;
-            camera.nearClipPlane = 0.01f;
-            ZoomCamera(0);
-            camera.GetOrthographicSize(out float width, out float height);
-            SortingLayerSprites = SortingLayer.layers.Select(layer => layer.name).
-                ToDictionary(layerName => layerName, layerName => {
-                    if (!transform.TryGetComponentInChildren(layerName,out SpriteRenderer s))
-                       s = GameObjectEx.Create<SpriteRenderer>(transform);
-                    s.sprite = squareSprite;
-                    s.transform.localPosition = new Vector3(0,0, bg_depth);
-                    s.sortingLayerName = s.gameObject.name = layerName;
-                    s.sortingOrder = 1;
-                    s.gameObject.SetActive(false);
-                    s.transform.localScale = new Vector3(width + 1, height + 1, 1);
-                    return s;
-                });
-        }
+        //if (SceneController.IsLevelScene || GameObject.FindGameObjectWithTag("Player") != null) {
+        //    PrepareSortingLayerSprites();
+        //}
     }
     private void Update()
     {
@@ -141,6 +123,27 @@ public class CameraController : SingletonBehaviour<CameraController>
         FitfadeBoardWithOrthographic();
         NeedUpdateZoom = false;
     }
+    public void PrepareSortingLayerSprites()
+    {
+        //var URP_data = camera.GetUniversalAdditionalCameraData();
+        //URP_data.volumeLayerMask = 1 << LayerMask.NameToLayer("PostProcess");
+        //URP_data.renderPostProcessing = true;
+        camera.nearClipPlane = 0.01f;
+        ZoomCamera(0);
+        camera.GetOrthographicSize(out float width, out float height);
+        SortingLayerSprites = SortingLayer.layers.Select(layer => layer.name).
+            ToDictionary(layerName => layerName, layerName => {
+                if (!transform.TryGetComponentInChildren(layerName, out SpriteRenderer s))
+                    s = GameObjectUtility.Create<SpriteRenderer>(transform);
+                s.sprite = squareSprite;
+                s.transform.localPosition = new Vector3(0, 0, bg_depth);
+                s.sortingLayerName = s.gameObject.name = layerName;
+                s.sortingOrder = 1;
+                s.gameObject.SetActive(false);
+                s.transform.localScale = new Vector3(width + 1, height + 1, 1);
+                return s;
+            });
+    }
     public Vector3 GetMousePositionOnCamera(float? depth = null)
     {
         var pos = Input.mousePosition;
@@ -162,7 +165,7 @@ public class CameraController : SingletonBehaviour<CameraController>
     public void PlayCursorEffect(Vector3 mouseWorldPoint)
     {
         if (!Cursor_Fx)
-            Cursor_Fx = GameObjectEx.InstantiateFromResourecs<ParticleSystem>($"UI/{nameof(Cursor_Fx)}",transform);
+            Cursor_Fx = ResourcesUtility.InstantiateFromResourecs<ParticleSystem>($"UI/{nameof(Cursor_Fx)}",transform);
         Cursor_Fx.transform.position = mouseWorldPoint;
         Cursor_Fx.Play();
     }
@@ -214,11 +217,16 @@ public class CameraController : SingletonBehaviour<CameraController>
             renderer.transform.position = transform.TransformPoint(0, 0, depth);
         }
     }
+    [ContextMenu(nameof(FoldUp))]
+    public void FoldUp()
+       => FoldUp("Default", Color.black, 0.5f);
     public void FoldUp(string sortingLayerName,float duration)
        => FoldUp(sortingLayerName, Color.black, duration);
 
     public SpriteRenderer FoldUp(string sortingLayerName,Color color, float duration,Sprite sprite = null)
     {
+        if (SortingLayerSprites.IsEmpty())
+            PrepareSortingLayerSprites();
         if (!SortingLayerSprites.ContainsKey(sortingLayerName))
         {
             Debug.LogWarning($"Fade-in with layer nameed ({sortingLayerName}) does not exsits !");

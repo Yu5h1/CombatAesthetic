@@ -3,7 +3,7 @@ using UnityEngine;
 using Yu5h1Lib;
 
 [RequireComponent(typeof(CanvasGroup))]
-public class UI_Attribute : UI_Behaviour
+public class UI_Attribute : UIControl
 {
     public UI_Stat[] uI_stats;
     private CanvasGroup canvasGroup;
@@ -21,7 +21,7 @@ public class UI_Attribute : UI_Behaviour
                 if (t.TryGetComponent(out UI_Stat ui_Stat))
                 {
                     uI_stats[i] = ui_Stat;
-                    uI_stats[i].UpdateStat(attribute.stats[i]);
+                    uI_stats[i].Refresh(attribute.stats[i]);
                 }
     }
     public void UpdateAttribute(AttributeBehaviour attribute)
@@ -29,7 +29,7 @@ public class UI_Attribute : UI_Behaviour
         if (!attribute)
             return;
         for (int i = 0; i < attribute.Keys.Length; i++)
-            uI_stats[i]?.UpdateStat(attribute.stats[i]);
+            uI_stats[i]?.Refresh(attribute.stats[i]);
     }
     public void Despawn()
     {

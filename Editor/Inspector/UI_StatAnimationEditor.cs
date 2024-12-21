@@ -26,7 +26,7 @@ public class UI_StatAnimationEditor : Editor<UI_StatAnimation>
         if (testStat.normal != val)
         {
             testStat.current = val * testStat.max;
-            targetObject.UpdateStat(testStat);
+            targetObject.Refresh(testStat);
         }
     }
 }

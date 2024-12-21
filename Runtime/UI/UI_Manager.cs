@@ -166,8 +166,8 @@ public class UI_Manager : MonoBehaviour
             return result;
         if (!this.TryGetComponentInChildren(n, out result))
         {
-            result = GameObjectEx.InstantiateFromResourecs<T>($"UI/{n}", transform);
-            //$"{n} was Instantiated.".print();
+            result = ResourcesUtility.InstantiateFromResourecs<T>($"UI/{n}", transform);
+            result.name = result.GetNameWithOutClone();
         }
         if (result)
         {

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Yu5h1Lib;
 
 public class UI_StatCounter : UI_Stat
 {
@@ -28,7 +29,7 @@ public class UI_StatCounter : UI_Stat
             rt.position = pos;
         }
     }
-    public override void UpdateStat(AttributeStat status)
+    public override void Refresh(AttributeStat status)
     {
         var current = Mathf.CeilToInt(status.normal * elementCount);
         for (int i = 0; i < elements.Length; i++)

@@ -32,7 +32,7 @@ public class UI_Statbar : UI_Stat
 
         //rectTransform.SetSize(height: rectTransform.sizeDelta.x * 0.1f);
     }
-    public override void UpdateStat(AttributeStat status) {
+    public override void Refresh(AttributeStat status) {
 
         if (fills.IsEmpty())
             return;
