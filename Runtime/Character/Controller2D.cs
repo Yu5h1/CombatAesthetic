@@ -18,6 +18,8 @@ namespace Yu5h1Lib.Game.Character
                 scaledGravity = Physics2D.gravity * gravityScale;
             }
         }
+        public static float FallingDamageDistanceStart = 5;
+        public static float FallingDamageMultiplier = 0.5f;
         #region Components   
         [SerializeField]
         private Collider2D _hurtBox;
@@ -181,13 +183,17 @@ namespace Yu5h1Lib.Game.Character
             {
                 var fallingDistance = lastfallingHeight - detector.groundHit.point.y;
                 var unbouncable = detector.groundHit.rigidbody == null || detector.groundHit.rigidbody.sharedMaterial == null || detector.groundHit.rigidbody.sharedMaterial.bounciness == 0;
-                if (unbouncable && attribute && localVelocity.y < -9.55f && fallingDistance > 5)
+                if (unbouncable && attribute && localVelocity.y < -9.55f && fallingDistance > FallingDamageDistanceStart)
                 {
-                    var damage = Mathf.Floor((fallingDistance - 5) * 2) / 2; ;
+                    var damage = Mathf.Floor(fallingDistance - FallingDamageDistanceStart) * FallingDamageMultiplier;
+
+                    // 0.5
+                    damage = Mathf.Floor(damage * 2) / 2;
+
 #if  UNITY_EDITOR
                     $"velocity.y: {localVelocity.y} || fallingDistance:{fallingDistance} || Damage:{damage}".print();
 #endif
-                    attribute.Affect(AttributeType.Health, AffectType.NEGATIVE, damage);
+                    attribute.Affect(AttributeType.Health, AffectType.NEGATIVE, damage );
                 }
 
                 localVelocity *= Vector2.right;

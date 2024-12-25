@@ -37,7 +37,9 @@ public class MiniMap : MonoBehaviour
     #endregion
     public TagInfo[] Tags;
 
-    Pool imagePool;
+    public Pool imgPool { get; private set; }
+    public Pool.Config polConfig;
+
     private void Start()
     {
         if ("The Minimap must be attached to a GameObject with a RectTransform component.".printWarningIf(!TryGetComponent(out _view)))
@@ -48,8 +50,7 @@ public class MiniMap : MonoBehaviour
         if ($"{Tag} cannot be found.".printWarningIf(!camera))
             return;
 
-        imagePool = PoolManager.instance.Add<Image>(5, Init);
-        imagePool.resizeable = true;
+        imgPool = PoolManager.instance.Add<Image>(polConfig, Init);
 
         foreach (var info in Tags)
             foreach (var obj in GameObject.FindGameObjectsWithTag(info.tag))
@@ -57,7 +58,8 @@ public class MiniMap : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        if (!camera || !view || elements.IsEmpty())
+        
+        if (!camera || !view || elements.IsEmpty() || imgPool.Size == 0)
             return;
 
         foreach (var item in elements.Reverse())
@@ -85,7 +87,8 @@ public class MiniMap : MonoBehaviour
             {
                 if (!item.Value)
                 {
-                    elements[item.Key] = PoolManager.instance.Spawn<Image>(parent: view.transform);
+                    
+                    elements[item.Key] = imgPool.Spawn<Image>(parent: view.transform);
 
                     var color = Color.white;
                     var size = 20.0f;

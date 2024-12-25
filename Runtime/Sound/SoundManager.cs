@@ -57,6 +57,8 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         Audio_bgm.playOnAwake = false;
         Audio_bgm.loop = true;
         audio_sfx.playOnAwake = false;
+
+        
     }
     public void Start()
     {
@@ -68,6 +70,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         Audio_bgm.volume = bgmVolume;
         if (Audio_bgm.clip)
             Audio_bgm.Play();
+        PoolManager.Add<AudioSource>(InitAudioSource);
     }
     #region Event
 
@@ -99,7 +102,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     {
         if ("".printWarningIf(!ResourcesUtility.TryLoad($"Sound/{name}", out AudioClip clip)))
             return;
-        var audioSource = PoolManager.Spawn<AudioSource>(position, rotation, InitAudioSource);
+        var audioSource = PoolManager.Spawn<AudioSource>(position, rotation);
         audioSource.volume = sfxVolume;
         audioSource.clip = clip;
         //audioSource.enabled = true;

@@ -30,6 +30,7 @@ public class SceneController : SingletonBehaviour<SceneController>
             {
                 GameManager.IsGamePause = true;
                 GameManager.ui_Manager.Dialog_UI.lines = StartLines;
+                GameManager.ui_Manager.Dialog_UI.transform.SetAsLastSibling();
                 GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
             }
             CameraController.instance.PrepareSortingLayerSprites();

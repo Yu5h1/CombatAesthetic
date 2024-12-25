@@ -91,9 +91,6 @@ namespace Yu5h1Lib
 
         public void Start()
         {
-            Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
-            
-
             var player = GameObject.FindWithTag("Player");
             
             if (player)
@@ -110,7 +107,8 @@ namespace Yu5h1Lib
                 }
                 PoolManager.instance.PrepareFromResourece<Transform>("Fx");
                 OnFoundPlayer?.Invoke();
-            }
+            }else
+                Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
         }
         void Update()
         {

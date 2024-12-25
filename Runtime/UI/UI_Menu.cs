@@ -55,7 +55,7 @@ public class UI_Menu : UIControl
 
     public void ChangeMenu(string MenuName, bool close)
     {
-        if (!manager.TryGetComponentInChildren(MenuName, out UI_Menu menu))
+        if (!UI_Manager.instance.TryGetComponentInChildren(MenuName, out UI_Menu menu))
             return;
         ChangeMenu(menu, close);
     }
@@ -100,4 +100,5 @@ public class UI_Menu : UIControl
     }
     public void SetGamePause(bool pause) => GameManager.IsGamePause = pause;
 
+    public void ToggleActive(GameObject obj) => obj.SetActive(!obj.activeSelf);
 }

@@ -11,7 +11,7 @@ public class GameManagementAgent : MonoBehaviour
 
     Coroutine LoadStartSceneCoroutine;
 
-    public void ContinueTheGameIfPause()
+    public void Continue()
     {
         if (GameManager.IsGamePause)
             GameManager.IsGamePause = false;

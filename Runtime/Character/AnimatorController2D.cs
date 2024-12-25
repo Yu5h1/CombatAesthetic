@@ -37,7 +37,8 @@ namespace Yu5h1Lib.Game.Character
         public SkillBehaviour[] skillBehaviours { get; private set; }
 
         private SkillData[] bindingskills;
-        private SkillData[] optionalSkills;       
+        private SkillData[] _optionalSkills;
+        public SkillData[] optionalSkills { get => _optionalSkills; private set => _optionalSkills = value; }
         public int indexOfSkill;
 
         public SkillData currentSkill => optionalSkills.IsValid(indexOfSkill) ? optionalSkills[indexOfSkill] : null;

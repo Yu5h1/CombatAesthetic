@@ -6,7 +6,7 @@ public static class LineRendererEx
 {
     // Start is called before the first frame upda
 
-    public static Mesh BuildMesh(this LineRenderer lineRenderer)
+    public static Mesh BuildMesh(this LineRenderer lineRenderer,ref Mesh mesh)
     {
         int positionCount = lineRenderer.positionCount;
         if (positionCount < 2)
@@ -14,8 +14,6 @@ public static class LineRendererEx
             Debug.LogWarning("LineRenderer has too few points to bake a mesh.");
             return null;
         }
-        Mesh mesh = new Mesh();
-
         // 獲取點的位置
         Vector3[] positions = new Vector3[positionCount];
         lineRenderer.GetPositions(positions);

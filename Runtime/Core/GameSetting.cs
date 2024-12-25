@@ -8,6 +8,7 @@ namespace Yu5h1Lib
         protected static GameSetting _instance;
         public static GameSetting instance => ResourcesUtility.LoadAsInstance(ref _instance);
         public float characterGravityScale = 0.033333f;
+        public float FallingDamageStartHeight = 5;
     }
     public class GameSetting<T> : GameSetting where T : GameSetting
     {

@@ -98,6 +98,8 @@ public class UI_Manager : MonoBehaviour
     }
     public void OnCancelPressed()
     {
+        if (GameManager.IsSpeaking)
+            return;
         //if (SceneController.IsLevelScene || GameManager.instance.playerController)
         //    PauseGame(!LevelSceneMenu.activeSelf);
         currentMenu?.ReturnToPrevious();
@@ -166,8 +168,7 @@ public class UI_Manager : MonoBehaviour
             return result;
         if (!this.TryGetComponentInChildren(n, out result))
         {
-            result = ResourcesUtility.InstantiateFromResourecs<T>($"UI/{n}", transform);
-            result.name = result.GetNameWithOutClone();
+            $"{n} not found in Reousource folder.".printErrorIf(!ResourcesUtility.TryInstantiateFromResources(out result, $"UI/{n}", transform, true));
         }
         if (result)
         {
@@ -188,5 +189,6 @@ public class UI_Manager : MonoBehaviour
             item.OnProcessing(percentage);
     }
 
-
+    public void ToggleActive(GameObject obj) => obj.SetActive(!obj.activeSelf);
+    public void ToggleEnabled(Behaviour b) => b.enabled = !b.enabled;
 }
