@@ -84,7 +84,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     }
     private void PerformExhausting()
     {
-        var fx = PoolManager.instance.Spawn<Transform>(sender.Fx_Exit, transform.position, transform.rotation);
+        var fx = PoolManager.Spawn<Transform>(sender.Fx_Exit, transform.position, transform.rotation);
         if (fx && fx.TryGetComponent(out ParticleSystem ps))
         {
             var main = ps.main;

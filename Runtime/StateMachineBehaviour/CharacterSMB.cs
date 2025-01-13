@@ -4,17 +4,17 @@ using Yu5h1Lib.Runtime;
 public class CharacterSMB : BaseCharacterSMB
 {
     [SerializeField]
-    private bool _Controllable = true;
-    [SerializeField,Range(0.0f,1.0f)]
+    private bool _Controllable = true;    
+    private bool IsInControlInterval { get; set; }
+    public bool Controllable => _Controllable && IsInControlInterval;
+
+    [SerializeField,Range(0f,1f)]
     private float ResumControllableTime = 0;
-
-    private bool IsControllableTime { get; set; }
-    public bool Controllable => _Controllable && IsControllableTime;
-
-    
 
     public Vector2 rootMotionWeight = Vector2.one;
     public Vector2 rigidbodyVelocityWeight = Vector2.one;
+    
+
     public float FixAngleWeight = 1;
     public ProcessStep CheckForwardType = ProcessStep.Excute;
 
@@ -26,7 +26,7 @@ public class CharacterSMB : BaseCharacterSMB
         owner.currentState = this;
         if (CheckForwardType == ProcessStep.Enter)
             owner.CheckForward();
-        IsControllableTime = stateInfo.normalizedTime >= ResumControllableTime;
+        IsInControlInterval = stateInfo.normalizedTime >= ResumControllableTime;
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -36,7 +36,7 @@ public class CharacterSMB : BaseCharacterSMB
             return;
         if (CheckForwardType == ProcessStep.Excute)
             owner.CheckForward();
-        IsControllableTime = stateInfo.normalizedTime >= ResumControllableTime;
+        IsInControlInterval = stateInfo.normalizedTime >= ResumControllableTime;
         
     }
 

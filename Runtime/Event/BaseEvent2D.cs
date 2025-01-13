@@ -12,7 +12,7 @@ public class BaseEvent2D : MonoBehaviour
     }
     public void Spawn(string name)
     {
-        PoolManager.instance.Spawn<Transform>(name, transform.position, transform.rotation);
+        PoolManager.Spawn<Transform>(name, transform.position, transform.rotation);
     }
     public void Prompt(string[] lines)
     {
@@ -33,5 +33,5 @@ public class BaseEvent2D : MonoBehaviour
         gameObject.SetActive(active);
 
     }
-
+    public void Log(string msg) => msg.print();
 }

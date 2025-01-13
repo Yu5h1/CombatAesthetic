@@ -7,6 +7,7 @@ namespace Yu5h1Lib.Game.Character {
     [CreateAssetMenu(menuName = "Scriptable Objects/PlayerInput")]
     public class PlayerHost : HostData2D
     {
+        public EventType eventType;
         public static bool UseWorldInputAxis{
             get => PlayerPrefs.GetInt("UseWorldInputAxis", 0) == 1;
             set => PlayerPrefs.SetInt("UseWorldInputAxis", value ? 1 : 0);

@@ -50,7 +50,7 @@ public class AnimatorController2DEditor : Controller2DEditor
         if (!contoller)
             return;
         serializedObject.Update();
-        if (EditorApplication.isPlaying)
+        if (EditorApplication.isPlaying && targetObject.isActiveAndEnabled)
         {
             EditorGUILayout.HelpBox($@"
 contoller.InputMovement:{contoller.InputMovement},

@@ -8,9 +8,8 @@ public abstract class EventMask2D : BaseEvent2D
     public Transform owner { get; set; }
     public LayerMask layers;
     public TagOption tagOption;
-    private void OnEnable() { }
     protected bool Validate(GameObject other) 
-        => enabled && other.transform != owner && tagOption.Compare(other.transform.tag) && layers.Contains(other);
+        => enabled && other.transform != owner && tagOption.Compare(other) && layers.Contains(other);
 
     protected virtual void OnDisable() => owner = null;
 
@@ -19,6 +18,7 @@ public abstract class EventMask2D : BaseEvent2D
 [System.Serializable]
 public class TagOption
 {
+    public bool root = true;
     public enum ComparisionType
     {
         Equal = 0,
@@ -41,8 +41,9 @@ public class TagOption
     public ComparisionType type = ComparisionType.NotEqual;
     public override string ToString() => tag;
     public bool IsUntagged => tag.IsEmpty() || tag.Equals("Untagged");
-    public bool Compare(string otherTag) 
+    public bool Compare(GameObject obj)
     {
+        var otherTag = root ? obj.transform.root.tag : obj.tag;
         if (IsUntagged)
             return true;
         return type == ComparisionType.Equal ?

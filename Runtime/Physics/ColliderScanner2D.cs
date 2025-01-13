@@ -11,57 +11,50 @@ public class ColliderScanner2D : CollierCastInfo2D
 	public TagOption Tag;
 	public Vector2 direction;
 
-    public Transform transform { get; private set; }
+    private Transform _transform;
+    public Transform transform 
+    {
+        get => useCircleCast ? _transform : collider.transform;
+        set => _transform = value;
+    }
 
     [ReadOnly]
-    public Vector2 _localStart;
-    public Vector2 start => transform.TransformPoint(_localStart);
+    private Vector2 _localStart;
+    public Vector2 start => useCircleCast ? transform.position : transform.TransformPoint(_localStart);
     public LayerMask ObstacleMask;
     public Vector2 size { get; private set; }
-    public float radius => distance * 10;
     [SerializeField]
     private bool _useCircleCast;
-    public bool InfiniteDistance;
     public bool useCircleCast => _useCircleCast || !collider;
 
-    public void Init(Patrol patrol)
+    public bool InfiniteDistance;
+
+    public override void Init()
     {
-        transform = patrol.transform;
-
-        if (!collider)
-            FindCollider(patrol.transform);
-
-        if ($"The Collider of {patrol.name}Scanner does not exist.!".PopupWarnningIf(!collider))
-            return;
+        base.Init();
         if (!collider)
             return;
-        transform = collider.transform;
+        collider.isTrigger = true;
         _localStart = collider.transform.InverseTransformPoint(collider.GetPoint(collider.transform.TransformDirection(-direction)));
         size = collider.GetSize();
     }
-    public int Scan(Vector2 dir){
+    private int Scan(Vector2 dir){
         if (!useCircleCast && collider)
             return Cast(dir);
         results = new RaycastHit2D[resultsCount];
         return InfiniteDistance ? 
-                Physics2D.CircleCast(transform.position, radius, dir, filter, results):
-                Physics2D.CircleCast(transform.position, radius, dir, filter, results,distance);
+                Physics2D.CircleCast(transform.position, distance, Vector2.zero, filter, results):
+                Physics2D.CircleCast(transform.position, distance, Vector2.zero, filter, results,distance);
     }
 
     public bool Scan(out RaycastHit2D hit)
     {
         hit = default(RaycastHit2D);
-
-        if ("The collider of CollierScanner2D is not assigned".printWarningIf(!collider))
-            return false;
-        if (direction == Vector2.zero)
-			return false;
-        var dir = (Vector2)transform.TransformDirection(direction);
-        //Debug.DrawLine(start, start + (size.x * dir) + (Vector2.up * 0.5f));
+        var dir = direction.IsZero() ? Vector2.zero : (Vector2)transform.TransformDirection(direction);
 
         for (int i = 0; i < Scan(dir); i++)
 		{
-            if (Tag.Compare(results[i].transform.tag))
+            if (Tag.Compare(results[i].transform.gameObject))
             {
                 var obstacleHit = default(RaycastHit2D);
                 if (ObstacleMask.value != 0)
@@ -77,11 +70,11 @@ public class ColliderScanner2D : CollierCastInfo2D
                 }
                 if (!obstacleHit)
                 {
-#if UNITY_EDITOR
-                    $" {transform.name} found:{results[i].collider.transform.root.name}".print();
-                    Debug.DrawLine(start, results[i].point, Color.yellow); 
-#endif
+
                     hit = results[i];
+#if UNITY_EDITOR
+                    Debug.DrawLine(start, hit.point, Color.yellow);
+#endif
                     return true;
                 }
             }

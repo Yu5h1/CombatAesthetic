@@ -13,7 +13,6 @@ namespace Yu5h1Lib.Game.Character
         public ContactFilter2D filter;
         public LayerMask layerMask { get => filter.layerMask; set => filter.layerMask = value; }
         public RaycastHit2D[] results;
-        [Range(0, 1.0f)]
         public float distance = 0.2f;
         [Range(1, 10)]
         public int resultsCount = 5;
@@ -21,10 +20,9 @@ namespace Yu5h1Lib.Game.Character
 
         public RaycastHit2D this[int index] => results[index];
 
-        public void FindCollider(Transform owner)
-        {
-            if (!collider)
-                owner.TryGetComponentInChildren("scanner", out _collider);
+        public virtual void Init(){
+            filter.useTriggers = false;
+            filter.useLayerMask = true;
         }
         public int Cast(Vector2 direction)
         {

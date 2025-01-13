@@ -105,7 +105,7 @@ namespace Yu5h1Lib
                     playerController.attribute.StatDepleted -= PlayerHealthDepleted;
                     playerController.attribute.StatDepleted += PlayerHealthDepleted;
                 }
-                PoolManager.instance.PrepareFromResourece<Transform>("Fx");
+                PoolManager.instance.PrepareFromResourece("Fx");
                 OnFoundPlayer?.Invoke();
             }else
                 Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);

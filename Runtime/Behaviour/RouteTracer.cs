@@ -15,9 +15,6 @@ public class RouteTracer : MonoBehaviour
     public int current { get => _current; private set => _current = value; }
     public int next => route.GetNext(current);
 
-
-
-
     
     [SerializeField]
     private Timer _timer;

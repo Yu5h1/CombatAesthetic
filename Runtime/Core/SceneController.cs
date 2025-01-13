@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Yu5h1Lib;
+using Yu5h1Lib.Game.Character;
 
 public class SceneController : SingletonBehaviour<SceneController>
 {

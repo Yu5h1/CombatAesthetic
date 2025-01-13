@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Yu5h1Lib;
 using static UnityEngine.ParticleSystem;
 
 [RequireComponent(typeof(ParticleSystem))]
-public abstract class BaseParticleSystemBehaviour : MonoBehaviour
+public abstract class BaseParticleSystemBehaviour : BaseEvent2D
 {
 #pragma warning disable 0109
     protected new ParticleSystem particleSystem;

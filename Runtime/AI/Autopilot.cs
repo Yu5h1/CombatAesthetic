@@ -59,23 +59,31 @@ namespace Yu5h1Lib.Game.Character
                     RaycastHit2D obstacleHit = default(RaycastHit2D);
                     if (patrol.scanner.ObstacleMask.value != 0)
                         obstacleHit = Physics2D.Linecast(Body.position, target.position, patrol.scanner.ObstacleMask);
+
+                    var DirectionToTarget = (targetPoint - selfPoint).normalized;
+
                     if (obstacleHit)
                     {
-                        //"obstacleHit from autopilot".print();
                         target = null;
                         return Vector2.zero;
                     }
 
-                    if (IsTargetInSkillRange = IsWithinSkillRange(distanceBetweenTarget))
+                    if (IsWithinSkillRange(distanceBetweenTarget))
                     {
-                        movement = Vector2.zero;
-                        Debug.DrawLine(selfPoint, targetPoint, Color.red);
+                        if (Vector2.Dot(DirectionToTarget, Body.right) > 0)
+                        {
+                            IsTargetInSkillRange = true;
+                            movement = Vector2.zero;
+                            Debug.DrawLine(selfPoint, targetPoint, Color.red);
+                        }
+                        else //turn around
+                            movement = new Vector2(-Body.forwardSign,0);
                     }else if (waiting)
                         movement = Vector2.zero;
                     else
                     {
                         Debug.DrawLine(selfPoint, targetPoint, Color.yellow);
-                        movement = (target.detector.top - Body.detector.center).normalized;
+                        movement = GetMovementFromGlobalDirection(DirectionToTarget);
                     }
                 }
                 else
@@ -158,29 +166,29 @@ namespace Yu5h1Lib.Game.Character
                 if (data.skillTriggerConditions.IsEmpty())
                     return true;
                 if (!data.skillTriggerConditions.TryGet(s => s.skill == animBody.currentSkill, out SkillTriggerCondition condition))
-                    return false;
-                //var dir2target = GetDirectionToTarget();
-                //if (dir2target.IsZero() || !(Vector2.Dot(dir2target, Body.right) > 0))
-                //    return false;
+                    return false; 
                 return distanceBetweenTarget < condition.distance;
             }
 
             public virtual bool DetectEnemy()
             {
-                if (waiting)
+                if (!patrol.enabled || waiting)
                     return false;
-                if (Vector2.Distance(Body.position, patrol.Destination) < 5 && target != null)
+                if (target != null && Vector2.Distance(Body.position, patrol.Destination) < 5 )
                     return true;
-                if (!patrol.scanner.collider || !patrol.scanner.Scan(out RaycastHit2D hit))
+
+                if (patrol.Scan(out RaycastHit2D hit))
                 {
-                    target = null;
-                    return false;
+#if UNITY_EDITOR
+                    Debug.DrawLine(patrol.scanner.start, hit.point, Color.cyan);
+#endif
+                    if (hit.collider.TryGetComponent(out Controller2D c))
+                        return target = c;
                 }
+                return target = null;
 
-                if (hit.collider.TryGetComponent(out Controller2D c))
-                        target = c;
-
-                return true;
+                //return (patrol.Scan(out RaycastHit2D hit) && hit.collider.TryGetComponent(out Controller2D c)) ?
+                //       (target = c) :  (target = null);
             }
             //public void FollowTarget()
             //{

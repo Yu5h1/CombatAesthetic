@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Yu5h1Lib;
 using static UnityEngine.ParticleSystem;
 
 [DisallowMultipleComponent]
@@ -35,6 +36,7 @@ public class ParticleSystemEvent : BaseParticleSystemBehaviour
     { 
 
     }
+    
     protected void OnParticleSystemStopped()
     {
         OnParticleSystemStoppedEvent?.Invoke();

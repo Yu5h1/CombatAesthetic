@@ -23,6 +23,7 @@ public class RouteTracerEditor : Editor<RouteTracer>
         var cameraobj= GameObject.FindGameObjectWithTag("MainCamera");
         if (cameraobj && cameraobj.name == "RouteCamera" && cameraobj.TryGetComponent(out routeCamera))
             originameCameraPosition = routeCamera.transform.position;
+
     }
     public override void OnInspectorGUI()
     {
@@ -49,8 +50,8 @@ public class RouteTracerEditor : Editor<RouteTracer>
     {
         if (targetObject.route.points.IsEmpty())
             return;
-        //if (!EditorApplication.isPlaying)
-        //    targetObject.ResetOffset();
+        if (!EditorApplication.isPlaying)
+            targetObject.ResetOffset();
         targetObject.route.Handle(target, ref selectedIndex, ref IsDragging, targetObject.next,targetObject.offset);
     }
 

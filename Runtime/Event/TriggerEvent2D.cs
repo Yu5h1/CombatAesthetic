@@ -14,8 +14,17 @@ public class TriggerEvent2D : EventMask2D
     public int count => _count;
     public int counter { get; set; }
 
+    private void Start()
+    {
+        foreach (var c in GetComponents<Collider2D>())
+            c.isTrigger = true;
+    }
+    private void OnEnable() { }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (!isActiveAndEnabled)
+            return;
         if (!Validate(other.gameObject))
             return;
 

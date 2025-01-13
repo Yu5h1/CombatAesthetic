@@ -21,6 +21,7 @@ public class MiniMap : MonoBehaviour
         public string tag;
         [NoAlpha]
         public Color color;
+        public Sprite sprite;
         public float size = 20;
     }
 
@@ -37,8 +38,19 @@ public class MiniMap : MonoBehaviour
     #endregion
     public TagInfo[] Tags;
 
-    public Pool imgPool { get; private set; }
-    public Pool.Config polConfig;
+    public ComponentPool imgPool { get; private set; }
+    public ComponentPool.Config polConfig;
+
+    [SerializeField]
+    private float _SizeMultiplier = 1;
+    public float SizeMultiplier{ 
+        get => _SizeMultiplier;
+        private set {
+            if (_SizeMultiplier == value)
+                return;
+            _SizeMultiplier = value;
+        } 
+    }
 
     private void Start()
     {
@@ -50,8 +62,7 @@ public class MiniMap : MonoBehaviour
         if ($"{Tag} cannot be found.".printWarningIf(!camera))
             return;
 
-        imgPool = PoolManager.instance.Add<Image>(polConfig, Init);
-
+        imgPool = PoolManager.Add<Image>(polConfig, Init);
         foreach (var info in Tags)
             foreach (var obj in GameObject.FindGameObjectsWithTag(info.tag))
                 elements.Add(obj.transform, null);
@@ -78,27 +89,27 @@ public class MiniMap : MonoBehaviour
 
             if (screenPoint.z < 0 || !view.rect.Contains(minimapPos))
             {
+                item.Value.sprite = null;
                 if (item.Value)
-                    PoolManager.instance.Despawn(item.Value);
+                    PoolManager.Despawn(item.Value);
                 elements[item.Key] = null;
                 continue;
             }
             else
             {
                 if (!item.Value)
-                {
-                    
+                {                    
                     elements[item.Key] = imgPool.Spawn<Image>(parent: view.transform);
-
                     var color = Color.white;
                     var size = 20.0f;
-                    if (Tags.TryGet(d=>d.tag == item.Key.tag,out TagInfo info)){
+                    if (Tags.TryGet(d => d.tag == item.Key.tag, out TagInfo info))
+                    {
                         color = info.color;
-                        size = info.size;
+                        size = info.size * SizeMultiplier;
+                        elements[item.Key].sprite = info.sprite;
                     }
                     elements[item.Key].color = color;
                     elements[item.Key].rectTransform.sizeDelta = new Vector2(size, size);
-
                 }
             }
 
@@ -108,10 +119,13 @@ public class MiniMap : MonoBehaviour
 
         }
     }
-    private void Init(Image img)
+    #region Pool Event
+    private void Init(Component img)
     {
 
     }
+
+    #endregion
     private Vector2 ScreenToViewLocalPosition(Vector3 screenPoint)
     {
         Rect rect = view.rect;

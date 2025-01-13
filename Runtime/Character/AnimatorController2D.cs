@@ -106,7 +106,7 @@ namespace Yu5h1Lib.Game.Character
             var localAnimVelocity = transform.InverseTransformDirection(animator.velocity);
             localVelocity = transform.InverseTransformDirection(velocity);
 
-            if (localVelocity.y < -5f)
+            if (!Floatable && localVelocity.y < -5f )
                 stateInfo.VelocityWeight.y = 1;
 
             /// momentum is based on animation velocity
@@ -116,7 +116,7 @@ namespace Yu5h1Lib.Game.Character
             {
                 if (underControl)
                 {
-                    if (TriggerJump)
+                    if (JumpPower > 0 && TriggerJump )
                     {
                         momentum.y = JumpPower;
                         detector.LeaveGround();
@@ -152,6 +152,7 @@ namespace Yu5h1Lib.Game.Character
             }
             else
             {
+
                 RotateToGravitationSmooth(gravitation, stateInfo.fixAngleWeight);
                 ProcessingGravitation(gravitation, stateInfo.VelocityWeight, ref momentum);
             }
@@ -225,6 +226,7 @@ namespace Yu5h1Lib.Game.Character
         {
             if (!base.UpdateInputInstruction())
                 return false;
+
             foreach (var behaviour in skillBehaviours)
                 behaviour.Update(hostBehaviour);
 
@@ -270,7 +272,7 @@ namespace Yu5h1Lib.Game.Character
             var offsetTransform = transform.Find("HitBoxOffset") ?? transform;
 
             var hitboxType = detector.collider.bounds.size.magnitude > 2 ? "HitBoxBig" : "HitBox";
-            var fx = PoolManager.instance.Spawn<Transform>(hitboxType, detector.front, offsetTransform.rotation);
+            var fx = PoolManager.Spawn<Transform>(hitboxType, detector.front, offsetTransform.rotation);
             foreach (var mask in fx.GetComponents<EventMask2D>())
                 mask.owner = transform;
         }
@@ -280,7 +282,7 @@ namespace Yu5h1Lib.Game.Character
                 return;
             if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.effects.IsValid(index) && !fxSkill.effects[index].IsEmpty()) {
                 var offsetTransform = transform.Find("FxOffset") ?? transform;
-                var fx = PoolManager.instance.Spawn<Transform>(fxSkill.effects[index], offsetTransform.position, offsetTransform.rotation);
+                var fx = PoolManager.Spawn<Transform>(fxSkill.effects[index], offsetTransform.position, offsetTransform.rotation);
                 foreach (var mask in fx.GetComponents<EventMask2D>())
                     mask.owner = transform;
             }
@@ -289,10 +291,14 @@ namespace Yu5h1Lib.Game.Character
         {
             SoundManager.Play($"footstep{index}", transform.position);
         }
+        public void PlayAudioClip(AudioClip clip)
+        {
+            SoundManager.Play(clip, transform.position);
+        }
         #endregion
 
-        [ContextMenu(nameof(SetPlayer))]
-        public void SetPlayer()
+        [ContextMenu("Set as Player")]
+        public void SetAsPlayer()
         {
             foreach (var obj in GameObject.FindGameObjectsWithTag("Player"))
                 obj.tag = "Enemy";

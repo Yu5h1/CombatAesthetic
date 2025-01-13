@@ -34,7 +34,7 @@ public class UI_Attribute : UIControl
     public void Despawn()
     {
         foreach (var item in uI_stats)
-            PoolManager.instance.Despawn(item);
+            PoolManager.Despawn(item);
         uI_stats = null;
     }
 

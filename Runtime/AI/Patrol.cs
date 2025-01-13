@@ -2,24 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 using Yu5h1Lib;
 using Yu5h1Lib.Game.Character;
 
 public class Patrol : MonoBehaviour
 {
-    public Transform target;
+    [SerializeField]
+    private Transform _target;
+    public Transform target{ 
+        get => _target;
+        set 
+        {
+            if (_target == value)
+                return;
+            _target = value;
+            if (value)
+                _Spotted?.Invoke();
+        }
+    }
     public static float arriveRange = 1;
 
     public float RangeDistance;
-    //[SerializeField]
-    //private Vector2 _DirectionScale = Vector2.one;
-    //public Vector2 directionScale => _DirectionScale;
 
     public ColliderScanner2D scanner;
 
     public bool SetOffsetOnStart = true;
-    [SerializeField]
+    [SerializeField,ReadOnly]
     private Vector2 _offset;
     public Vector2 offset { get => _offset; private set => _offset = value; }    
 
@@ -37,6 +47,13 @@ public class Patrol : MonoBehaviour
 
     public Vector2 Destination => offset + route.points[current].Rotate(offsetQ);
 
+    [SerializeField]
+    protected UnityEvent _Spotted;
+    public event UnityAction Spotted
+    {
+        add => _Spotted.AddListener(value);
+        remove => _Spotted.RemoveListener(value);
+    }
     private void Reset()
     {
         
@@ -44,7 +61,8 @@ public class Patrol : MonoBehaviour
     private void Start()
     {
         Init();
-        scanner.Init(this);
+        scanner.transform = transform;
+        scanner.Init();
     }
     public void Init()
     {
@@ -55,12 +73,12 @@ public class Patrol : MonoBehaviour
     [ContextMenu(nameof(UsedefaultScannerSetting))]
     public void UsedefaultScannerSetting()
     {
-        scanner.Init(this);
         scanner.layerMask = LayerMask.GetMask("Character");
         scanner.Tag.tag = "Player";
         scanner.ObstacleMask = LayerMask.GetMask("PhysicsObject");
         scanner.Tag.type = TagOption.ComparisionType.Equal;
-        scanner.filter.useTriggers = true;
+        scanner.filter.useTriggers = false;
+        scanner.filter.useLayerMask = true;
         scanner.direction = Vector2.right;
     }
     public Vector2 GetDirection()
@@ -74,18 +92,15 @@ public class Patrol : MonoBehaviour
             route.points[current] = Quaternion.Inverse(offsetQ) * (position - offset);
     }
 
-    //public bool Scan(out RaycastHit2D hit) {
-    //    hit = default(RaycastHit2D);
-    //    if (scanner.collider)
-    //        return scanner.Scan(out hit);
-    //    return false;
-    //}
+    public bool Scan(out RaycastHit2D hit) => scanner.Scan(out hit);
 
 #if UNITY_EDITOR
+
+    public bool debug;
     [ContextMenu(nameof(ScanTest))]
     private void ScanTest()
     {
-        $"{scanner.Scan(out RaycastHit2D result)} {result}".print();
+        $"{Scan(out RaycastHit2D result)} {result}".print();
     }
     private void OnDrawGizmos()
     {
@@ -101,11 +116,24 @@ public class Patrol : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        if (debug){
+            if (scanner.transform == null)
+            {
+                scanner.transform = transform;
+                scanner.Init();
+            }
+            if (scanner.Scan(out RaycastHit2D hit))
+            {
+                Debug.DrawLine(scanner.start, hit.point,Color.yellow);
+            }
+                
+        }
+
         if (!route.points.IsValid(current))
             return;
         Gizmos.DrawWireSphere(Destination, arriveRange);
         if (scanner.useCircleCast)
-            Gizmos.DrawWireSphere(transform.position, scanner.radius );
+            Gizmos.DrawWireSphere(transform.position, scanner.distance );
     }
 
 #endif
