@@ -20,33 +20,25 @@ namespace KFC
             t.AddCondition(AnimatorConditionMode.If, 0, "Hurt");
 
         }
-        [MenuItem("CONTEXT/AnimatorStateTransition/Set Skill Index by hash")]
+        [MenuItem("CONTEXT/AnimatorStateTransition/Set Action Index by hash")]
         public static void SetSkillIndexbyhash(MenuCommand command)
         {
             var t = (AnimatorStateTransition)command.context;
-            var conditions = t.conditions;
-            for (int i = 0; i < conditions.Length; i++)
-            {
-                var item = conditions[i];
-                if (item.parameter == "IndexOfSkill")
-                {
-                    item.mode = AnimatorConditionMode.Equals;
-                    item.threshold = t.destinationState.nameHash;
-                }
-                conditions[i] = item;
-            }
-            t.conditions = conditions;
-            EditorUtility.SetDirty(t);
+            SetIndexbyhash(t, "IndexOfAction", "IndexOfSkill");
         }
-        [MenuItem("CONTEXT/AnimatorTransitionBase/Set Skill Index by hash")]
+        [MenuItem("CONTEXT/AnimatorTransitionBase/Set Action Index by hash")]
         public static void SetSkillIndexbyhashBase(MenuCommand command)
         {
             var t = (AnimatorTransitionBase)command.context;
+            SetIndexbyhash(t, "IndexOfAction", "IndexOfSkill");
+        }
+        private static void SetIndexbyhash(AnimatorTransitionBase t,params string[] names)
+        {
             var conditions = t.conditions;
             for (int i = 0; i < conditions.Length; i++)
             {
                 var item = conditions[i];
-                if (item.parameter == "IndexOfSkill")
+                if (item.parameter.EqualsAny(names))
                 {
                     item.mode = AnimatorConditionMode.Equals;
                     item.threshold = t.destinationState.nameHash;

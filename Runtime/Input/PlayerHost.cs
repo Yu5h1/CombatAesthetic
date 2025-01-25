@@ -16,7 +16,7 @@ namespace Yu5h1Lib.Game.Character {
         public override Type GetBehaviourType() => typeof(Behaviour);
         public class Behaviour : Behaviour2D<PlayerHost>
         {
-            public override void Init(Controller2D controller) => base.Init(controller);
+            public override void Init(CharacterController2D controller) => base.Init(controller);
 
             public BaseInput input => GameManager.InputModule.input;
 

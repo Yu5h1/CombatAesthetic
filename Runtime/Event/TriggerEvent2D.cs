@@ -19,7 +19,7 @@ public class TriggerEvent2D : EventMask2D
         foreach (var c in GetComponents<Collider2D>())
             c.isTrigger = true;
     }
-    private void OnEnable() { }
+    private void OnEnable() { counter = 0; }
 
     private void OnTriggerEnter2D(Collider2D other)
     {

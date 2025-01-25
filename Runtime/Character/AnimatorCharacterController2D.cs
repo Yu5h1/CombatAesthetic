@@ -8,7 +8,7 @@ namespace Yu5h1Lib.Game.Character
 {
     [RequireComponent(typeof(Animator), typeof(Rigidbody2D))]
     [DisallowMultipleComponent]
-    public class AnimatorController2D : Controller2D
+    public class AnimatorCharacterController2D : CharacterController2D
     {
         #region Animator     
         public Animator animator { get; private set; }
@@ -38,7 +38,16 @@ namespace Yu5h1Lib.Game.Character
 
         private SkillData[] bindingskills;
         private SkillData[] _optionalSkills;
-        public SkillData[] optionalSkills { get => _optionalSkills; private set => _optionalSkills = value; }
+        public SkillData[] optionalSkills 
+        { 
+            get 
+            {
+                if (_optionalSkills.IsEmpty() && !_Skills.IsEmpty())
+                    _optionalSkills = _Skills.Where(s => s != null && s.incantation.IsEmpty()).ToArray();
+                return _optionalSkills;
+            }
+        }
+        
         public int indexOfSkill;
 
         public SkillData currentSkill => optionalSkills.IsValid(indexOfSkill) ? optionalSkills[indexOfSkill] : null;
@@ -67,7 +76,7 @@ namespace Yu5h1Lib.Game.Character
             #endregion
 
             #region initinalize skill
-            optionalSkills = _Skills.Where(s => s != null && s.incantation.IsEmpty()).ToArray();
+            
             skillBehaviours = new SkillBehaviour[_Skills.Length];
             for (int i = 0; i < skillBehaviours.Length; i++)
                 skillBehaviours[i] = _Skills[i].GetBehaviour(this);
@@ -269,23 +278,49 @@ namespace Yu5h1Lib.Game.Character
         }
         private void Hit()
         {
-            var offsetTransform = transform.Find("HitBoxOffset") ?? transform;
 
-            var hitboxType = detector.collider.bounds.size.magnitude > 2 ? "HitBoxBig" : "HitBox";
-            var fx = PoolManager.Spawn<Transform>(hitboxType, detector.front, offsetTransform.rotation);
-            foreach (var mask in fx.GetComponents<EventMask2D>())
-                mask.owner = transform;
+            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.effects.Length > 0)
+                CastFXOnTransform(fxSkill.effects[0], transform.Find("HitBoxOffset"));
+
+            //var hitboxType = detector.collider.bounds.size.magnitude > 2 ? "HitBoxBig" : "HitBox";
+            //var fx = PoolManager.Spawn<Transform>(hitboxType, detector.front, offsetTransform.rotation);
+            //foreach (var mask in fx.GetComponents<EventMask2D>())
+            //    mask.owner = transform;
+        }
+        public void CastFXOnTarget()
+        {
+            if (currentSkillBehaviour == null)
+                return;
+
+
+            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.effects.Length > 0) {
+                var targetTag = tag == "Player" ? "Enemy" : "Player";
+                $"finding {targetTag} ".print();
+                Collider2D[] results = Physics2D.OverlapCircleAll(transform.position, currentSkill.distance);
+
+                foreach (Collider2D collider in results)
+                {
+                    if (collider.gameObject == gameObject)
+                        continue;
+
+                    if (collider.CompareTag(targetTag))
+                        CastFXOnTransform(fxSkill.effects[0], collider.transform);
+                }
+            }
         }
         public void CastFX(int index)
         {
             if (currentSkillBehaviour == null)
                 return;
-            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.effects.IsValid(index) && !fxSkill.effects[index].IsEmpty()) {
-                var offsetTransform = transform.Find("FxOffset") ?? transform;
-                var fx = PoolManager.Spawn<Transform>(fxSkill.effects[index], offsetTransform.position, offsetTransform.rotation);
-                foreach (var mask in fx.GetComponents<EventMask2D>())
-                    mask.owner = transform;
-            }
+            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.effects.IsValid(index) && !fxSkill.effects[index].IsEmpty()) 
+                CastFXOnTransform(fxSkill.effects[index], transform.Find("FxOffset"));
+        }
+        public void CastFXOnTransform(string PoolItemName,Transform offset)
+        {
+            offset = offset ?? transform;
+            var fx = PoolManager.Spawn<Transform>(PoolItemName, offset.position, offset.rotation);
+            foreach (var mask in fx.GetComponents<EventMask2D>())
+                mask.owner = transform;
         }
         public void PlayAudio(int index)
         {
@@ -304,6 +339,24 @@ namespace Yu5h1Lib.Game.Character
                 obj.tag = "Enemy";
             tag = "Player";
         }
+
+#if UNITY_EDITOR
+
+        private void OnDrawGizmosSelected()
+        {
+            //if (currentSkill == null)
+            //    return;
+
+
+            //if (currentSkill.distance <= 0)
+            //    return;
+            //var color = Gizmos.color;
+            //Gizmos.color = Color.yellow;
+            //Gizmos.DrawWireSphere(transform.position, currentSkill.distance);
+            //Gizmos.color = color;
+        }
+
+#endif
     }
     public struct StateInfo
     {
@@ -312,5 +365,6 @@ namespace Yu5h1Lib.Game.Character
         public Vector2 VelocityWeight;
         public float fixAngleWeight;
     }
+
 }
 

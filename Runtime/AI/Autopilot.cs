@@ -10,7 +10,6 @@ namespace Yu5h1Lib.Game.Character
     {
         public bool enable;
         public float waitDuration = 1;
-        public SkillTriggerCondition[] skillTriggerConditions;
 
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
@@ -25,8 +24,8 @@ namespace Yu5h1Lib.Game.Character
             public Vector2 destination;
             protected Vector2 movement;         
 
-            private Controller2D _target;
-            public Controller2D target 
+            private CharacterController2D _target;
+            public CharacterController2D target 
             {
                 get => _target;
                 set {
@@ -39,7 +38,7 @@ namespace Yu5h1Lib.Game.Character
             public bool IsTargetInSkillRange;
             public bool waiting;
             Coroutine waitCoroutine;
-            public override void Init(Controller2D controller)
+            public override void Init(CharacterController2D controller)
             {
                 base.Init(controller);
                 patrol = controller.GetComponent<Patrol>();
@@ -80,7 +79,7 @@ namespace Yu5h1Lib.Game.Character
                             movement = new Vector2(-Body.forwardSign,0);
                     }else if (waiting)
                         movement = Vector2.zero;
-                    else
+                    else 
                     {
                         Debug.DrawLine(selfPoint, targetPoint, Color.yellow);
                         movement = GetMovementFromGlobalDirection(DirectionToTarget);
@@ -161,13 +160,9 @@ namespace Yu5h1Lib.Game.Character
             }
             public bool IsWithinSkillRange(float distanceBetweenTarget)
             {
-                if (!target || !(Body is AnimatorController2D animBody) || !animBody.currentSkill)
+                if (!target || !(Body is AnimatorCharacterController2D animBody) || !animBody.currentSkill)
                     return false;
-                if (data.skillTriggerConditions.IsEmpty())
-                    return true;
-                if (!data.skillTriggerConditions.TryGet(s => s.skill == animBody.currentSkill, out SkillTriggerCondition condition))
-                    return false; 
-                return distanceBetweenTarget < condition.distance;
+                return distanceBetweenTarget < animBody.currentSkill.distance;
             }
 
             public virtual bool DetectEnemy()
@@ -182,7 +177,7 @@ namespace Yu5h1Lib.Game.Character
 #if UNITY_EDITOR
                     Debug.DrawLine(patrol.scanner.start, hit.point, Color.cyan);
 #endif
-                    if (hit.collider.TryGetComponent(out Controller2D c))
+                    if (hit.collider.TryGetComponent(out CharacterController2D c))
                         return target = c;
                 }
                 return target = null;
@@ -231,12 +226,6 @@ namespace Yu5h1Lib.Game.Character
             }
 
         }
-        [System.Serializable]
-        public class SkillTriggerCondition
-        {
-            public SkillData skill;
-            //public Vector2 direction;
-            public float distance;
-        }
+
     }
 }

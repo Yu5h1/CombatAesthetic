@@ -6,6 +6,7 @@ using Yu5h1Lib;
 using System;
 using Yu5h1Lib.Runtime;
 using System.Reflection;
+using UnityEditorInternal;
 
 [CustomEditor(typeof(Patrol))]
 public class PatrolEditor : Editor<Patrol>
@@ -37,6 +38,12 @@ public class PatrolEditor : Editor<Patrol>
     }
     private void OnSceneGUI()
     {
+        if (!InternalEditorUtility.GetIsInspectorExpanded(target))
+            return;
+        //Gizmos.DrawWireSphere(Destination, arriveRange);
+
+        targetObject.Visualize();
+
         if (!EditorApplication.isPlaying)
             targetObject.Init();
         targetObject.route.Handle( targetObject, ref selectedPointIndex, ref IsDragging, targetObject.current,

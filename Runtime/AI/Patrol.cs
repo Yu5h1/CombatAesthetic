@@ -1,11 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UIElements;
 using Yu5h1Lib;
-using Yu5h1Lib.Game.Character;
+using Yu5h1Lib.Runtime;
 
 public class Patrol : MonoBehaviour
 {
@@ -116,6 +112,7 @@ public class Patrol : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+      
         if (debug){
             if (scanner.transform == null)
             {
@@ -128,12 +125,15 @@ public class Patrol : MonoBehaviour
             }
                 
         }
+    }
 
+    public void Visualize()
+    {
         if (!route.points.IsValid(current))
             return;
-        Gizmos.DrawWireSphere(Destination, arriveRange);
+        DebugUtil.DrawCircle(Destination, Quaternion.identity, Patrol.arriveRange);
         if (scanner.useCircleCast)
-            Gizmos.DrawWireSphere(transform.position, scanner.distance );
+            DebugUtil.DrawCircle(transform.position, Quaternion.identity, scanner.distance);
     }
 
 #endif

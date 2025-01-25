@@ -23,7 +23,18 @@ public class CameraController : SingletonBehaviour<CameraController>
     } 
 #pragma warning restore 0109
 
-    public Transform Target;
+    [SerializeField]
+    private Transform _target;
+    public Transform target 
+    {
+        get => _target;
+        set{
+            if (_target == value)
+                return;
+            _target = value;
+        } 
+    }
+
     public Vector3 followOffset = new Vector3(0,0.75f,-5);
     public float bg_depth = 5;
 
@@ -86,6 +97,10 @@ public class CameraController : SingletonBehaviour<CameraController>
     public Sprite squareSprite => Resources.Load<Sprite>("Texture/Square");
 
     private bool NeedUpdateZoom;
+
+    private Timer processTimer;
+    private Coroutine processCoroutine;
+
     protected override void Init(){
         _cursorRendererSource = Resources.Load<SpriteRenderer>("UI/Cursor");
     }
@@ -112,7 +127,7 @@ public class CameraController : SingletonBehaviour<CameraController>
     }
     private void FixedUpdate()
     {
-        if (Target == null)
+        if (target == null)
             return;
         FollowTarget();
     }
@@ -256,30 +271,40 @@ public class CameraController : SingletonBehaviour<CameraController>
         return s;
     }
 
+    IEnumerator perform(float duration)
+    {
+        float lastTime = Time.time + duration;
+
+        while (Time.time < lastTime)
+        { 
+            yield return null;
+        }
+
+        yield return null;
+    }
+
+
+
     /// <summary>
     /// SmoothDamp position
     /// </summary>
     public void FollowTarget()
     {
-        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, Target.position + followOffset, ref currentVelocity, smoothTime);
+        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, target.position + followOffset, ref currentVelocity, smoothTime);
 
         if (!syncAngle)
             return;
         var angles = transform.eulerAngles;
-        angles.z = Target.eulerAngles.z;
-        transform.eulerAngles = angles * Target.forward.z;
-    }
-    public void SetTarget(Transform target,bool focus = true)
-    {
-        Target = target;
-        if (focus)
-            Focus();
+        angles.z = target.eulerAngles.z;
+        transform.eulerAngles = angles * target.forward.z;
     }
     public void Focus()
     {
-        var pos = Target.position;
+        if (!target)
+            return;
+        var pos = target.position;
         pos.z = camera.transform.position.z;
-        camera.transform.position = Target.position + followOffset;
+        camera.transform.position = target.position + followOffset;
     }
     public void InteractPointerCameraPosition()
     {
@@ -289,37 +314,4 @@ public class CameraController : SingletonBehaviour<CameraController>
         pos.y = ScreenInteractionArea.y + c.y * ScreenInteractionArea.height;
         camera.transform.position = pos;
     }
-
-    public float targetAspect = 16f / 9f; // 鎖定的比例，例如 16:9
-    private int lastWidth;
-    private int lastHeight;
-
-    //void Start()
-    //{
-    //    lastWidth = Screen.width;
-    //    lastHeight = Screen.height;
-    //}
-
-    //void Update()
-    //{
-    //    // 如果視窗大小發生變化
-    //    if (Screen.width != lastWidth || Screen.height != lastHeight)
-    //    {
-    //        int newWidth = Screen.width;
-    //        int newHeight = Mathf.RoundToInt(newWidth / targetAspect);
-
-    //        if (newHeight > Screen.height) // 如果計算的高度超出當前視窗
-    //        {
-    //            newHeight = Screen.height;
-    //            newWidth = Mathf.RoundToInt(newHeight * targetAspect);
-    //        }
-
-    //        // 設定新的解析度，保持視窗模式
-    //        Screen.SetResolution(newWidth, newHeight, false);
-
-    //        // 更新記錄
-    //        lastWidth = newWidth;
-    //        lastHeight = newHeight;
-    //    }
-    //}
 }

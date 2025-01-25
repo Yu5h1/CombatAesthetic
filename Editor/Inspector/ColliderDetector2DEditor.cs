@@ -8,7 +8,7 @@ using Yu5h1Lib.Game.Character;
 [CustomEditor(typeof(ColliderDetector2D))]
 public class ColliderDetector2DEditor : Editor<ColliderDetector2D>
 {
-    public Controller2D controller;
+    public CharacterController2D controller;
     public Rigidbody2D rigidbody => targetObject.rigidbody;
     public Collider2D collider => targetObject.collider;
     public Vector2 infoOffset = new Vector2(0, 0.5f);

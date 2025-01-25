@@ -10,7 +10,6 @@ public class Anim_FX_Skill : SkillData<Anim_FX_Skill.Behaviour>
     public string NameOfSkill;
 
     public string[] effects;
-
     public class Behaviour : SkillBehaviour<Anim_FX_Skill>
     {
         Autopilot autopilot;
@@ -20,9 +19,9 @@ public class Anim_FX_Skill : SkillData<Anim_FX_Skill.Behaviour>
         protected override void OnSelect() { }
         protected override bool UpdateInput(bool down, bool hold, bool stop)
         {
-            
             if (down && Activate())
             {
+                
                 if (data.NameOfSkill.IsEmpty())
                     animParam.IndexOfSkill = data.IndexOfSkillParam;
                 else

@@ -8,12 +8,12 @@ using Yu5h1Lib.Game.Character;
 /// </summary>
 public abstract class BaseCharacterSMB : StateMachineBehaviour
 {
-    public AnimatorController2D owner { get; private set; }
+    public AnimatorCharacterController2D owner { get; private set; }
     public Animator animator { get; private set; }
     public Dictionary<string, AnimatorControllerParameter> Parameters;
 
 
-    public virtual void Init(AnimatorController2D characterController)
+    public virtual void Init(AnimatorCharacterController2D characterController)
     {
         owner = owner ?? characterController;
         animator = owner.animator;

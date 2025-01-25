@@ -19,7 +19,7 @@ public class Influencor : MonoBehaviour
     {
         if (!isActiveAndEnabled)
             return;
-        if (other.TryGetComponentInParent(out AnimatorController2D controller,true))
+        if (other.TryGetComponentInParent(out AnimatorCharacterController2D controller,true))
             controller.HitFrom(strength);
         if (other.TryGetComponentInParent(out AttributeBehaviour stat,true))
             stat.Affect(affectType, info);
@@ -35,21 +35,21 @@ public class Influencor : MonoBehaviour
     {
         if (!isActiveAndEnabled)
             return;
-        if (other.TryGetComponentInParent(out AnimatorController2D controller, true))
+        if (other.TryGetComponentInParent(out AnimatorCharacterController2D controller, true))
             controller.HitFrom(TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.velocity : -controller.velocity);
     }
     public void RecoilHit()
     {
         if (!isActiveAndEnabled)
             return;
-        if (this.TryGetComponentInParent(out Controller2D controller, true))
+        if (this.TryGetComponentInParent(out CharacterController2D controller, true))
             controller.HitFrom(-controller.velocity);
     }
     public void AddForce(Collider2D other)
     {
         if (!isActiveAndEnabled)
             return;
-        if (other.TryGetComponentInParent(out AnimatorController2D controller, true))
+        if (other.TryGetComponentInParent(out AnimatorCharacterController2D controller, true))
             controller.AddForce(transform.up * info.amount);
         else if (other.TryGetComponentInParent(out Rigidbody2D rigidbody, true))
             rigidbody.AddForce(transform.up * info.amount);

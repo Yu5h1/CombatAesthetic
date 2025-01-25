@@ -6,7 +6,7 @@ using Yu5h1Lib.Game.Character;
 public class ActionSMB : BaseCharacterSMB
 {
     public bool IsActing { get; private set; }
-    public override void Init(AnimatorController2D characterController)
+    public override void Init(AnimatorCharacterController2D characterController)
     {
         base.Init(characterController);
     }

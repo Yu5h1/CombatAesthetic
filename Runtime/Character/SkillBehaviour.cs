@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Yu5h1Lib.Game.Character
 {
     public abstract class SkillBehaviour {
-        public AnimatorController2D owner { get; protected set; }
+        public AnimatorCharacterController2D owner { get; protected set; }
         public SkillData data { get; protected set; }
         public abstract bool IsReady { get; }
         
@@ -40,7 +40,7 @@ namespace Yu5h1Lib.Game.Character
         /// <param name="up"></param>
         protected abstract bool UpdateInput(bool down, bool hold, bool up);
 
-        public static SkillBehaviour Constructor(SkillData skill, AnimatorController2D character)
+        public static SkillBehaviour Constructor(SkillData skill, AnimatorCharacterController2D character)
         {
             var result = (SkillBehaviour)Activator.CreateInstance(skill.GetBehaviourType());
             result.owner = character;

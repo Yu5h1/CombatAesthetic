@@ -5,7 +5,7 @@ using UnityEngine.Events;
 namespace Yu5h1Lib.Game.Character
 {
     [DisallowMultipleComponent, RequireComponent(typeof(ColliderDetector2D))]
-    public class Controller2D : Rigidbody2DBehaviour
+    public class CharacterController2D : Rigidbody2DBehaviour
     {
         private static float _gravityScale = 0.03333f;
         public static Vector2 scaledGravity { get; protected set; } = new Vector2(0, -0.32699673f);

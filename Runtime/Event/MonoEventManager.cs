@@ -21,9 +21,9 @@ public class MonoEventManager : SingletonBehaviour<MonoEventManager>
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        throw new System.NotImplementedException();
-    }
+    //// Update is called once per frame
+    //void Update()
+    //{
+    //    throw new System.NotImplementedException();
+    //}
 }

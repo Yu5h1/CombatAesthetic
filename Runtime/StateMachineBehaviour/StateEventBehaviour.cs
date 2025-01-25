@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Yu5h1Lib;
 
-public class StateEventHandler : StateMachineBehaviour
+public class StateEventBehaviour : StateMachineBehaviour
 {
     private AnimatorEventHandler EventHandler;
     private int lastLoopCount = 0;

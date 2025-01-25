@@ -65,7 +65,7 @@ namespace Yu5h1Lib.Game.Character
         private AnimatorControllerParameter ConsciousParam;
         private AnimatorControllerParameter InteractParam;
         private AnimatorControllerParameter TriggerExitParam;
-        public override void Init(AnimatorController2D controller)
+        public override void Init(AnimatorCharacterController2D controller)
         {
             base.Init(controller);
             controller.detector.GroundStateChanged += Detector_GroundStateChanged;

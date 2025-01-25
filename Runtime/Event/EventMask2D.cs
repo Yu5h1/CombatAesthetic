@@ -25,7 +25,7 @@ public class TagOption
         NotEqual = 1
     }
     [DropDownTag(true)]
-    public string tag;
+    public string tag = "Untagged";
 
     private string[] _tags;
     public string[] tags 

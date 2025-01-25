@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -10,6 +11,62 @@ namespace Yu5h1Lib
     [DisallowMultipleComponent]
     public class CheckPoint : PlayerEvent2D
     {
+        #region Save
+        protected static string SaveKey => nameof(CheckPoint);
+        [System.Serializable]
+        public class Data
+        {
+            public int sceneIndex;
+            public Vector3 position;
+        }
+        [System.Serializable]
+        public class DataList
+        {
+            public List<Data> Items;
+        }
+
+        private static string cachedJsonData;
+        public static List<Data> Saves
+        {
+            get
+            {
+                try
+                {
+                    if (cachedJsonData == null || !PlayerPrefs.HasKey(SaveKey))
+                        cachedJsonData = PlayerPrefs.GetString(SaveKey, "");
+
+                    var datas = JsonUtility.FromJson<DataList>(cachedJsonData);
+                    return datas?.Items ?? new List<Data>();
+                }
+                catch (System.Exception)
+                { return new List<Data>(); }
+            }
+            set
+            {
+                var saves = new DataList { Items = value };
+                var json = JsonUtility.ToJson(saves);
+
+                if (cachedJsonData == json)
+                    return;
+
+                cachedJsonData = json;
+                PlayerPrefs.SetString(SaveKey, json);
+                PlayerPrefs.Save();
+            }
+        }
+
+        private const string SelectedSaveSlotKey = "SelectedSaveSlot";
+        public static int SelectedSaveSlot
+        {
+            get => PlayerPrefs.GetInt(SelectedSaveSlotKey, 0); 
+            set
+            {
+                if ("SelectedSaveSlot out of bounds.".printErrorIf(value < 0 || value >= 5)) return; 
+                PlayerPrefs.SetInt(SelectedSaveSlotKey, value);
+                PlayerPrefs.Save();
+            }
+        }
+        #endregion
         public static void InitinalizeCheckPoints()
         {
             checkPoints = FindObjectsByType<CheckPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -21,7 +78,7 @@ namespace Yu5h1Lib
         internal static int sceneIndex;
         internal static Vector3? position;
 
-        public static bool Exists => PlayerPrefs.HasKey(nameof(CheckPoint));
+        public static bool Exists => PlayerPrefs.HasKey(SaveKey);
 
         public float volume = 1;
 
@@ -30,7 +87,7 @@ namespace Yu5h1Lib
         public UnityEvent CheckedAction;
         public UnityEvent UncheckedAction;
 
-        private void Reset()
+        private void Reset() 
         {
             GetComponent<CircleCollider2D>().isTrigger = true;
         }
@@ -73,14 +130,14 @@ namespace Yu5h1Lib
         }
         public static void Save()
         {
-            PlayerPrefs.SetString(nameof(CheckPoint), $"{sceneIndex};{position}");
+            PlayerPrefs.SetString(SaveKey, $"{sceneIndex};{position}");
         }
         public static void Clear()
         {
             checkPoints = null;
             position = null;
             sceneIndex = 0;
-            PlayerPrefs.DeleteKey(nameof(CheckPoint));
+            PlayerPrefs.DeleteKey(SaveKey);
         }
         public static bool Load()
         {
@@ -92,21 +149,11 @@ namespace Yu5h1Lib
         }
         private static bool ParseDataFromPlayerPrefs()
         {
-            if (!PlayerPrefs.HasKey(nameof(CheckPoint)))
+            if (!Saves.IsEmpty())
                 return false;
-            var content = PlayerPrefs.GetString(nameof(CheckPoint));        
-            if (content.IsEmpty())
-                return false;
-            var items = content.Split(';');
-            if (items.Length < 1)
-                return false;
-            if (!int.TryParse(items[0], out int index))
-                return false;
-            var floats = items[1].Trim('(', ')').Split(",");
-            if (floats.Length < 2)
-                return false;
-            position = new Vector3(float.Parse(floats[0]), float.Parse(floats[1]), float.Parse(floats[2]));
-            sceneIndex = index;
+            var data = Saves[SelectedSaveSlot];
+            position = data.position;
+            sceneIndex = data.sceneIndex;
             return true;
         }
         public void PlayAudio(AudioClip clip)

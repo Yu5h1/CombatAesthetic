@@ -31,7 +31,7 @@ public class ImpactForce2D : MonoBehaviour
         for (int i = 0; i < results.Length; i++)
         {
             var col = results[i];
-            if (col.TryGetComponent(out AnimatorController2D controller))
+            if (col.TryGetComponent(out AnimatorCharacterController2D controller))
                 controller.AddForce(force);
             else if (col.TryGetComponent(out Rigidbody2D otherRigidbody) && otherRigidbody.transform.root != transform.root)
                 otherRigidbody.AddForce(force);

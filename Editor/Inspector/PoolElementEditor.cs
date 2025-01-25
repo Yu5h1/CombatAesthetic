@@ -6,9 +6,10 @@ using Yu5h1Lib.EditorExtension;
 using UnityEditor.Graphs;
 
 [CustomEditor(typeof(PoolElement))]
-public class PoolAgentEditor : Editor<PoolElement> {
+public class PoolElementEditor : Editor<PoolElement> {
    public override void OnInspectorGUI()
    {
+        DrawDefaultInspector();
         if (targetObject.map != null)
         {
             EditorGUI.BeginDisabledGroup(true);
@@ -18,10 +19,5 @@ public class PoolAgentEditor : Editor<PoolElement> {
         }
         else
             EditorGUILayout.LabelField("Map is Null");
-
-
-
-      DrawDefaultInspector();
-
    }
 }

@@ -48,9 +48,9 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     private AudioSource _Audio_sfx;
     public AudioSource audio_sfx => this.GetOrCreate(nameof(audio_sfx),ref _Audio_sfx);
 
-    public Timer fadeTimer = new Timer();
-
     static PoolManager PoolManager => PoolManager.instance;
+
+    public ComponentPool.Config AudioSourcePoolConfig;
 
     protected override void Init()
     {
@@ -58,8 +58,6 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         Audio_bgm.playOnAwake = false;
         Audio_bgm.loop = true;
         audio_sfx.playOnAwake = false;
-
-        
     }
     public void Start()
     {
@@ -90,17 +88,17 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     //    fadeTimer.duration = duration;
 
     //}
-    public static void PrepareAudioSource()
+    public void PrepareAudioSource()
     {
-        PoolManager.Add<AudioSource>(InitAudioSource);
+        PoolManager.Add<AudioSource>(AudioSourcePoolConfig, InitAudioSource);
     }
     private static void InitAudioSource(Component c)
     {
         var audio = c as AudioSource;
         audio.spatialBlend = 1f;
         audio.spread = 180;
-        audio.minDistance = 0.1f;
-        audio.maxDistance = 10f;
+        audio.minDistance = 3f;
+        audio.maxDistance = 15f;
     }
 
     public void play(AudioClip clip, Vector3 position, Quaternion rotation)

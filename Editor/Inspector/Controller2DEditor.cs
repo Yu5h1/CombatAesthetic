@@ -5,8 +5,8 @@ using UnityEditor;
 using Yu5h1Lib.Game.Character;
 using Yu5h1Lib.EditorExtension;
 
-[CustomEditor(typeof(Controller2D))]
-public class Controller2DEditor : Editor<Controller2D> {
+[CustomEditor(typeof(CharacterController2D))]
+public class Controller2DEditor : Editor<CharacterController2D> {
 
     private void OnEnable()
     {

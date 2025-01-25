@@ -18,6 +18,6 @@ public class MonoEventHandler : MonoBehaviour
     {
         if (!enabled)
             return;
-        OnDisableEvent?.Invoke();
+        OnDisableEvent?.Invoke();        
     }
 }

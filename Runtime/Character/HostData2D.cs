@@ -7,9 +7,9 @@ namespace Yu5h1Lib.Game.Character
     {
         public abstract class HostBehaviour2D
         {
-            public Controller2D Body;
+            public CharacterController2D Body;
             public delegate bool UpdateInput(bool down, bool hold, bool up);
-            public virtual void Init(Controller2D body) => Body = body;
+            public virtual void Init(CharacterController2D body) => Body = body;
             public abstract Vector2 GetMovement();
             public abstract bool GetInputState(UpdateInput updateInput);
             public abstract void GetInputState(string bindingName, UpdateInput updateInput);
@@ -21,7 +21,7 @@ namespace Yu5h1Lib.Game.Character
             protected Transform transform => Body.transform;
         }
         public abstract Type GetBehaviourType();
-        public HostBehaviour2D CreateBehaviour(Controller2D controller) {
+        public HostBehaviour2D CreateBehaviour(CharacterController2D controller) {
             var result = (HostBehaviour2D)Activator.CreateInstance(GetBehaviourType());
             result.Init(controller);
             return result;

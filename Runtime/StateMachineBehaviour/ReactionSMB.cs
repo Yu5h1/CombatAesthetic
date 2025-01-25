@@ -7,7 +7,7 @@ public class ReactionSMB : BaseCharacterSMB
 {
     public bool IsReacting { get; private set; }
 
-    public override void Init(AnimatorController2D characterController)
+    public override void Init(AnimatorCharacterController2D characterController)
     {
         base.Init(characterController);
     }

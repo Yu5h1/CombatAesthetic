@@ -10,7 +10,8 @@ public class PoolManagerEditor : Editor<PoolManager> {
    {
         DrawDefaultInspector();
         EditorGUILayout.HelpBox(
-@$"Active:{MeshPool.container.CountActive}
-Inactive:{MeshPool.container.CountInactive}",MessageType.Info);
+@$"Mesh Pool 
+Active: {MeshPool.container.CountActive} 
+Inactive: {MeshPool.container.CountInactive}", MessageType.Info);
     }
 }

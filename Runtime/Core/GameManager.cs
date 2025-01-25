@@ -70,10 +70,10 @@ namespace Yu5h1Lib
 
         public static event UnityAction<bool> OnPauseStateChanged;
         public static event UnityAction OnFoundPlayer;
-        public static event UnityAction<Controller2D> overridePlayerFailed;
+        public static event UnityAction<CharacterController2D> overridePlayerFailed;
 
         [ReadOnly]
-        public Controller2D playerController;
+        public CharacterController2D playerController;
         public Texture2D cursor;
 
         public UnityEvent CancelPressed;
@@ -98,7 +98,8 @@ namespace Yu5h1Lib
                 if (player.transform.root != player.transform)
                     player = player.transform.root.gameObject;
 
-                cameraController.SetTarget(player.transform);
+                cameraController.target = player.transform;
+                cameraController.Focus();
                 if (player.TryGetComponent(out playerController))
                 {
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
@@ -208,7 +209,7 @@ namespace Yu5h1Lib
             if (flag.HasFlag(AttributeType.Health))
                 (overridePlayerFailed ?? OnPlayerFailed).Invoke(playerController);
         }
-        private static void OnPlayerFailed(Controller2D player)
+        private static void OnPlayerFailed(CharacterController2D player)
         {
             player.GetComponent<SpriteRenderer>().sortingLayerName = "Front";
             player.attribute.ui?.GetComponent<UI_Menu>()?.Dismiss();

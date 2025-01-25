@@ -8,7 +8,7 @@ using Yu5h1Lib.Game.Character;
 [DisallowMultipleComponent]
 public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
 {
-    private Controller2D controller;
+    private CharacterController2D controller;
     private SpriteRenderer[] spriteRenderers;
     private Material[] materials;
     private Timer timer;
@@ -27,7 +27,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
         {
             materials[i] = spriteRenderers[i].material;
         }
-        controller = GetComponent<Controller2D>();
+        controller = GetComponent<CharacterController2D>();
     }
     private void Start()
     {
