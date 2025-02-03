@@ -95,7 +95,6 @@ public class LineRendererController : ComponentController<LineRenderer>
     public bool IsPerforming;//{ get; private set; }
 
     private Coroutine performCoroutine;
-    private Coroutine performCoroutine2nd;
 
     protected override void Start()
     {

@@ -6,12 +6,8 @@ using Yu5h1Lib.Game.Character;
 using Yu5h1Lib.EditorExtension;
 
 [CustomEditor(typeof(CharacterController2D))]
-public class Controller2DEditor : Editor<CharacterController2D> {
-
-    private void OnEnable()
-    {
-        
-    }
+public class Controller2DEditor : Editor<CharacterController2D> 
+{
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();

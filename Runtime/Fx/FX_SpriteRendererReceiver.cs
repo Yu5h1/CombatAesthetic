@@ -36,7 +36,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
         timer.Update += Timer_Update;
 
     }
-    private void Timer_Update()
+    private void Timer_Update(Timer t)
     {
         if (sender == null)
             return;
@@ -96,4 +96,5 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
         gameObject.SetActive(false);
         Finish?.Invoke();
     }
+    
 }

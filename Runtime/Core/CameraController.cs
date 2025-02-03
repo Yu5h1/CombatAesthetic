@@ -23,37 +23,64 @@ public class CameraController : SingletonBehaviour<CameraController>
     } 
 #pragma warning restore 0109
 
-    [SerializeField]
-    private Transform _target;
-    public Transform target 
+    public Transform Target 
     {
-        get => _target;
+        get => Targets.IsEmpty() ? null : Targets.First();
         set{
-            if (_target == value)
+
+            var current = Target;
+            if (current == value)
                 return;
-            _target = value;
+            if (Targets.Count == 0)
+                Targets.Add(value);
+            else
+                Targets[0] = value;
         } 
     }
+
+    [SerializeField]
+    private List<Transform> Targets = new List<Transform>();
 
     public Vector3 followOffset = new Vector3(0,0.75f,-5);
     public float bg_depth = 5;
 
     public Dictionary<string,SpriteRenderer> SortingLayerSprites = new Dictionary<string, SpriteRenderer>();
 
-    public bool syncAngle;
+
     
     [Range(0.05f,1)]
     public float smoothTime = 0.1f;
 
     public MinMax OrthoSize= new MinMax(1, 5f);
     public MinMax CamHeightRange = new MinMax(0.2f,2f);
-
-    private float zoomProportion = 0.75f;
-    public float zoomSpeed = 0.5f;
-    public Rect ScreenInteractionArea;
+    public float dollySpeed = 0.1f;
+    //public Rect ScreenInteractionArea;
 
     #region cache
+
+    private float dollyProportion = 0.75f;
     private Vector3 currentVelocity;
+    public bool IsPerforming { get; private set; }
+    public Timer timer;
+    private Coroutine performCoroutine;
+    [SerializeField]
+    private SpriteRenderer _cursorRendererSource;
+    [SerializeField, ReadOnly]
+    private SpriteRenderer _cursorRenderer;
+    public SpriteRenderer cursorRenderer
+    {
+        get
+        {
+            if (_cursorRenderer == null || !_cursorRenderer.gameObject.IsBelongToActiveScene())
+            {
+                if (_cursorRendererSource)
+                    _cursorRenderer = Instantiate(_cursorRendererSource);
+                else
+                    _cursorRenderer = new GameObject("Cursor Renderer").AddComponent<SpriteRenderer>();
+            }
+            return _cursorRenderer;
+        }
+    }
     #endregion
 
     public ParticleSystem Cursor_Fx;
@@ -62,17 +89,7 @@ public class CameraController : SingletonBehaviour<CameraController>
 //    public new Light2D light;
 //#pragma warning restore 0109
 
-    [ReadOnly]
-    public SpriteRenderer _cursorRendererSource;
-    [ReadOnly]
-    public SpriteRenderer _cursorRenderer;
-    public SpriteRenderer cursorRenderer { 
-        get {
-            if ((_cursorRenderer == null || !_cursorRenderer.gameObject.IsBelongToActiveScene()) && _cursorRendererSource )
-                _cursorRenderer = Instantiate(_cursorRendererSource);
-            return _cursorRenderer;
-        }
-    }
+
     [SerializeField]
     private bool _cursorVisible = true;
     public bool cursorVisible
@@ -96,10 +113,19 @@ public class CameraController : SingletonBehaviour<CameraController>
     }
     public Sprite squareSprite => Resources.Load<Sprite>("Texture/Square");
 
-    private bool NeedUpdateZoom;
+    private bool NeedUpdateBoard;
 
-    private Timer processTimer;
-    private Coroutine processCoroutine;
+
+
+    #region Field
+    public bool syncAngle;
+    public float targetsMargin = 1;
+    #endregion
+
+
+    [SerializeField]
+    private AnimationCurve MovementCurve = AnimationCurve.Linear(0,0,1,1);
+
 
     protected override void Init(){
         _cursorRendererSource = Resources.Load<SpriteRenderer>("UI/Cursor");
@@ -115,6 +141,9 @@ public class CameraController : SingletonBehaviour<CameraController>
     {
         //if ((Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0) && ScreenInteractionArea != Rect.zero)
         //    InteractPointerCameraPosition();
+        var delta = Input.mouseScrollDelta.y;
+        if (!Input.GetKey(KeyCode.LeftControl) && delta != 0)
+            Dolly(delta);
 
         var worldPosition = GetMousePositionOnCamera();
         if (Input.GetMouseButtonDown(0))
@@ -127,16 +156,18 @@ public class CameraController : SingletonBehaviour<CameraController>
     }
     private void FixedUpdate()
     {
-        if (target == null)
+        if (Target == null)
             return;
-        FollowTarget();
+        if (IsPerforming)
+            return;
+        Follow();
     }
     private void LateUpdate()
     {
-        if (!NeedUpdateZoom)
+        if (!NeedUpdateBoard)
             return;
         FitfadeBoardWithOrthographic();
-        NeedUpdateZoom = false;
+        NeedUpdateBoard = false;
     }
     public void PrepareSortingLayerSprites()
     {
@@ -144,7 +175,7 @@ public class CameraController : SingletonBehaviour<CameraController>
         //URP_data.volumeLayerMask = 1 << LayerMask.NameToLayer("PostProcess");
         //URP_data.renderPostProcessing = true;
         camera.nearClipPlane = 0.01f;
-        ZoomCamera(0);
+        Dolly(0);
         camera.GetOrthographicSize(out float width, out float height);
         SortingLayerSprites = SortingLayer.layers.Select(layer => layer.name).
             ToDictionary(layerName => layerName, layerName => {
@@ -166,15 +197,10 @@ public class CameraController : SingletonBehaviour<CameraController>
             pos.z = depth ?? -camera.transform.position.z;
         return camera.ScreenToWorldPoint(pos);
     }
-    public void ZoomCamera(float delta)
+    public void Dolly(float delta)
     {
-        zoomProportion = Mathf.Clamp(zoomProportion -= delta * zoomSpeed,0,1);
-        camera.orthographicSize = Mathf.Lerp(OrthoSize.Min, OrthoSize.Max, zoomProportion); 
-        followOffset.y = Mathf.Lerp(CamHeightRange.Min, CamHeightRange.Max, zoomProportion);
-        if (!camera.orthographic)
-            followOffset.z = -Mathf.Lerp(OrthoSize.Min, OrthoSize.Max,zoomProportion) * 2;
-
-        NeedUpdateZoom = true;
+        dollyProportion = Mathf.Clamp(dollyProportion -= delta * dollySpeed,0,1);
+        NeedUpdateBoard = true;
         //FitfadeBoardWithOrthographic();
     }
     public void PlayCursorEffect(Vector3 mouseWorldPoint)
@@ -266,52 +292,136 @@ public class CameraController : SingletonBehaviour<CameraController>
             
         }else
             OverrideFadeMethod?.Invoke(s,color, duration);
-        //var tween = s.DOColor(color, duration);
-        //tween.SetUpdate(true);
         return s;
     }
-
-    IEnumerator perform(float duration)
+    #region Functions of Target 
+    public void ChangeTarget(Collider2D collider) => Target = collider.transform;
+    public void ChangeTarget(Transform target) => Target = target;
+    public void AddTarget(Transform target)
     {
-        float lastTime = Time.time + duration;
-
-        while (Time.time < lastTime)
-        { 
-            yield return null;
-        }
-
-        yield return null;
+        if (Targets.Contains(target))
+            return;
+        Targets.Add(target);
     }
-
-
-
+    public void RemoveTarget(Transform target)
+    {
+        if (!Targets.Contains(target))
+            return;
+        Targets.Remove(target);
+    }
+    private float GetZLocation() => Mathf.Lerp(OrthoSize.Min, OrthoSize.Max, dollyProportion) * 2;
     /// <summary>
     /// SmoothDamp position
     /// </summary>
-    public void FollowTarget()
+    private void Follow()
     {
-        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, target.position + followOffset, ref currentVelocity, smoothTime);
+        var center = Target.position;
+
+        var extraDistance = 0f;
+        if (Targets.Count > 1)
+        {
+            var bounds = new Bounds(center, Vector3.zero);
+            for (int i = 1; i < Targets.Count; i++)
+                center += Targets[i].position;
+            center /= Targets.Count;
+
+            for (int i = 1; i < Targets.Count; i++)
+                bounds.Encapsulate(Targets[i].position + ((Targets[i].position - center).normalized * targetsMargin));
+
+            float maxBoundsSize = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+
+            float aspectRatio = (float)Screen.width / Screen.height;
+            float fovY = camera.fieldOfView * Mathf.Deg2Rad;
+            float fovX = 2 * Mathf.Atan(Mathf.Tan(fovY / 2) * aspectRatio);
+            float distanceX = (bounds.size.x / 2) / Mathf.Tan(fovX / 2);
+            float distanceY = (bounds.size.y / 2) / Mathf.Tan(fovY / 2);
+            extraDistance = Mathf.Max(distanceX, distanceY);
+
+            //for orthographic
+            camera.orthographicSize = (bounds.size.y / 2) + targetsMargin;
+        }
+
+        camera.orthographicSize = Mathf.Lerp(OrthoSize.Min, OrthoSize.Max, dollyProportion);
+        followOffset.y = Mathf.Lerp(CamHeightRange.Min, CamHeightRange.Max, dollyProportion);
+        followOffset.z = -GetZLocation();
+
+        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, center + followOffset - new Vector3(0,0, extraDistance), ref currentVelocity, smoothTime);
 
         if (!syncAngle)
             return;
         var angles = transform.eulerAngles;
-        angles.z = target.eulerAngles.z;
-        transform.eulerAngles = angles * target.forward.z;
+        angles.z = Target.eulerAngles.z;
+        transform.eulerAngles = angles * Target.forward.z;
     }
-    public void Focus()
+
+    //public void InteractPointerCameraPosition()
+    //{
+    //    var c = camera.GetNormalizedCoordinates(Input.mousePosition);
+    //    var pos = camera.transform.position;
+    //    pos.x = ScreenInteractionArea.x + c.x * ScreenInteractionArea.width;
+    //    pos.y = ScreenInteractionArea.y + c.y * ScreenInteractionArea.height;
+    //    camera.transform.position = pos;
+    //}
+ 
+    
+    public void Focus(Vector3 point)
     {
-        if (!target)
-            return;
-        var pos = target.position;
-        pos.z = camera.transform.position.z;
-        camera.transform.position = target.position + followOffset;
+        camera.transform.position = point + followOffset;
     }
-    public void InteractPointerCameraPosition()
+    public void Focus(Transform target) 
     {
-        var c = camera.GetNormalizedCoordinates(Input.mousePosition);
-        var pos = camera.transform.position;
-        pos.x = ScreenInteractionArea.x + c.x * ScreenInteractionArea.width;
-        pos.y = ScreenInteractionArea.y + c.y * ScreenInteractionArea.height;
-        camera.transform.position = pos;
+        if (target)
+            Focus(target.position);
     }
+    public void Focus(Collider2D target)
+    {
+        if (target)
+            Focus(target.transform);
+    }
+    public void PerformFocus(Collider2D collider)
+    {
+        if (collider)
+            PerformFocus(collider.bounds.center);
+    }
+    public void PerformFocus(Transform target)
+    {
+        if (target)
+            PerformFocus(target.transform.position);
+    }
+    public void PerformFocusCenter(Transform target)
+    {
+        if (target && Target)
+            PerformFocus((target.transform.position + Target.transform.position) / 2);
+    }
+    public void PerformFocus(Vector3 pos)
+        => this.StartCoroutine(ref performCoroutine, PerformFocusProcess(pos));
+    IEnumerator PerformFocusProcess(Vector3 point)
+    {
+        timer.duration = MovementCurve.keys.Last().time;
+        //timer.useUnscaledTime = true;
+        timer.Start();
+        IsPerforming = true;
+        while (!timer.IsCompleted)
+        {
+            timer.Tick();
+            camera.transform.position = Vector3.Lerp(camera.transform.position, point + followOffset, MovementCurve.Evaluate(timer.normalized));
+            yield return null;
+        }
+        IsPerforming = false;
+    }
+    IEnumerator Perform(Vector2 point, float duration)
+    {
+        timer.duration = duration;
+        timer.Start();
+        IsPerforming = true;
+        while (!timer.IsCompleted)
+        {
+            timer.Tick();
+            yield return null;
+        }
+        IsPerforming = false;
+    }
+
+    #endregion
+
 }

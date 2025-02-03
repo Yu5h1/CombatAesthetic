@@ -51,8 +51,6 @@ namespace Yu5h1Lib
         
         public static CameraController cameraController => CameraController.instance;
 
-  
-
         public static bool IsGamePause 
         { 
             get => Time.timeScale == 0; 
@@ -98,8 +96,8 @@ namespace Yu5h1Lib
                 if (player.transform.root != player.transform)
                     player = player.transform.root.gameObject;
 
-                cameraController.target = player.transform;
-                cameraController.Focus();
+                cameraController.Target = player.transform;
+                cameraController.Focus(player.transform);
                 if (player.TryGetComponent(out playerController))
                 {
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
@@ -118,11 +116,6 @@ namespace Yu5h1Lib
 
             if (input.GetButtonDown("Cancel"))
                 OnCancelPressed();
-            if (!Input.GetKey(KeyCode.LeftControl) && input.TryGetScrollWheelDelta(out float delta)) 
-            {
-                if (playerController)
-                    cameraController.ZoomCamera(delta);
-            }
         }
         public void OnSubmitPressed()
         {
@@ -186,10 +179,10 @@ namespace Yu5h1Lib
             instance.playerController.rigidbody.simulated = false;
             instance.playerController.transform.position = pos;
             instance.playerController.rigidbody.simulated = true;
-            cameraController.Focus();
+            cameraController.Focus(instance.playerController.transform);
             IsMovingPlayer = false; 
         }
-
+ 
         #endregion
         //public void DetectMouseAttack()
         //{

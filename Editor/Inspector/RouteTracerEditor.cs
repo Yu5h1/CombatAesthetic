@@ -8,7 +8,7 @@ using Yu5h1Lib;
 [CustomEditor(typeof(RouteTracer))]
 public class RouteTracerEditor : Editor<RouteTracer>
 {
-    Camera routeCamera;
+    Transform transform => targetObject.transform;
     Vector2[] points => targetObject.route.points;
 
     private int selectedIndex;
@@ -16,15 +16,13 @@ public class RouteTracerEditor : Editor<RouteTracer>
 
     public Timer timer => targetObject.timer;
 
+    
     public float routeProgress;
-    Vector3 originameCameraPosition;
-    private void OnEnable()
-    {
-        var cameraobj= GameObject.FindGameObjectWithTag("MainCamera");
-        if (cameraobj && cameraobj.name == "RouteCamera" && cameraobj.TryGetComponent(out routeCamera))
-            originameCameraPosition = routeCamera.transform.position;
 
-    }
+    private bool simulateToggle;
+    private float simulateProgress;
+    private Vector3? OriginalPosition;
+
     public override void OnInspectorGUI()
     {
 //        EditorGUILayout.HelpBox(
@@ -35,32 +33,41 @@ public class RouteTracerEditor : Editor<RouteTracer>
 //,MessageType.Info);
         DrawDefaultInspector();
 
-        if (routeCamera)
+        if (EditorApplication.isPlaying)
+            return;
+        var simulateCheck = GUILayout.Toggle(simulateToggle, nameof(simulateToggle),"Button");
+        if (simulateToggle != simulateCheck)
         {
-            var progress = EditorGUILayout.Slider("processing", routeProgress, 0, 1);
-            if (routeProgress != progress)
-            {
-                routeProgress = progress;
-                routeCamera.transform.position = targetObject.offset + GetPositionFromNormal(routeProgress, targetObject.route.points);
-            }
+            simulateToggle = simulateCheck;
+            if (simulateToggle)
+                OriginalPosition = transform.localPosition;
+            else if (OriginalPosition != null)
+                transform.localPosition = (Vector3)OriginalPosition;
         }
+        if (simulateToggle)
+        if (this.TrySlider("progress:", ref simulateProgress, 0, 1))
+            targetObject.transform.position = targetObject.offset + GetPositionFromNormal(simulateProgress, targetObject.route.points);
     }
 
     private void OnSceneGUI()
     {
         if (targetObject.route.points.IsEmpty())
             return;
-        if (!EditorApplication.isPlaying)
+        if (!EditorApplication.isPlaying && !simulateToggle)
             targetObject.ResetOffset();
         targetObject.route.Handle(target, ref selectedIndex, ref IsDragging, targetObject.next,targetObject.offset);
     }
-
-    private void OnDisable()
+ 
+    protected void OnDisable()
     {
-        if (routeCamera)
-            routeCamera.transform.position = originameCameraPosition;
+        if (!EditorApplication.isPlaying && OriginalPosition != null)
+            targetObject.transform.localPosition = (Vector3)OriginalPosition;
     }
-
+    protected override void ExitingEditMode()
+    {
+        if (OriginalPosition != null)
+            targetObject.transform.localPosition = (Vector3)OriginalPosition;
+    }
     Vector2 GetPositionFromNormal(float normal, Vector2[] points)
     {
         if (points == null || points.Length < 2)
@@ -71,7 +78,7 @@ public class RouteTracerEditor : Editor<RouteTracer>
 
         float scaledPosition = normal * (points.Length - 1); 
         int indexA = Mathf.FloorToInt(scaledPosition);       
-        int indexB = Mathf.CeilToInt(scaledPosition);        
+        int indexB = Mathf.CeilToInt(scaledPosition);
         float t = scaledPosition - indexA;                  
 
         indexA = Mathf.Clamp(indexA, 0, points.Length - 1);
@@ -79,4 +86,4 @@ public class RouteTracerEditor : Editor<RouteTracer>
 
         return Vector2.Lerp(points[indexA], points[indexB], t);
     }
-};
+}

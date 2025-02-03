@@ -6,7 +6,9 @@ using Yu5h1Lib;
 public static class RouteEditorUtility
 {
     public static float mouseHitThreshold = 5;
-    public static float dotSize = 0.1f;
+    public static float dotSizeFactor = 0.05f;
+    public static float GetDotSize(Vector3 point) => HandleUtility.GetHandleSize(point) * dotSizeFactor;
+
     public static float DottedLineSize = 3;
     public static float lineHitDistance = 5;
 
@@ -101,10 +103,14 @@ public static class RouteEditorUtility
         var p2 = offset + route.points[ii].Rotate(offsetQ);
         var hit = HandleUtility.DistanceToLine(p1, p2) < lineHitDistance;
 
+
+        var d1Size = GetDotSize(p1);
+        var d2Size = GetDotSize(p2);
+
         var d1 = DistanceFromDot(p1);
         var d2 = DistanceFromDot(p2);
 
-        if (d1 > dotSize && d2 > dotSize && hit)
+        if (d1 > d1Size && d2 > d2Size && hit)
         {
             Undo.RegisterCompleteObjectUndo(targetObject, "patrol points Resized");
             var list = route.points.ToList();
@@ -118,8 +124,10 @@ public static class RouteEditorUtility
     public static bool HitDotTest(this Route2D route, Event e, int i,ref int selectedPointIndex,
         Vector2 offset, Quaternion offsetQ)
     {
-        var distance = HandleUtility.DistanceToCube(offset + route.points[i].Rotate(offsetQ), Quaternion.identity, dotSize * 2);
-        if (distance > dotSize)
+        var p = offset + route.points[i].Rotate(offsetQ);
+        var dotsize = GetDotSize(p);
+        var distance = HandleUtility.DistanceToCube(p, Quaternion.identity, dotsize * 2);
+        if (distance > dotsize)
             return false;
         selectedPointIndex = i;
         e.Use();
@@ -143,7 +151,7 @@ public static class RouteEditorUtility
         route.points[selectedPointIndex] = worldPoint;
 
     }
-    private static float DistanceFromDot(Vector3 p) => HandleUtility.DistanceToCube(p, Quaternion.identity, dotSize * 2);
+    private static float DistanceFromDot(Vector3 p) => HandleUtility.DistanceToCube(p, Quaternion.identity, GetDotSize(p) * 2);
 
     #region Draw
     public static void DrawDot(Vector3 point, Color? color = null)
@@ -153,15 +161,16 @@ public static class RouteEditorUtility
         var originColor = Handles.color;
         if (color != null)
             Handles.color = color.Value;
-        Handles.DotHandleCap(0, point, Quaternion.identity, dotSize, EventType.Repaint);
+        Handles.DotHandleCap(0, point, Quaternion.identity, GetDotSize(point), EventType.Repaint);
         if (color != null)
             Handles.color = originColor;
     }
 
     public static void DrawDot(Vector3 point, int index, int selectedIndex, int next)
     {
+        var dotsize = GetDotSize(point);
         var distance = DistanceFromDot(point);
-        var color = index == selectedIndex || distance < dotSize ? Color.gray : Color.white;
+        var color = index == selectedIndex || distance < dotsize ? Color.gray : Color.white;
 
         if (EditorApplication.isPlaying)
             if (index == next)
@@ -173,11 +182,13 @@ public static class RouteEditorUtility
     {
         var originColor = Handles.color;
 
+        var d1s = GetDotSize(p1);
+        var d2s = GetDotSize(p2);
         var d1 = DistanceFromDot(p1);
         var d2 = DistanceFromDot(p2);
 
         if (Event.current.control)
-            Handles.color = d1 > dotSize && d2 > dotSize &&
+            Handles.color = d1 > d1s && d2 > d2s &&
                 HandleUtility.DistanceToLine(p1, p2) < lineHitDistance ? Color.gray : Color.white;
 
         Handles.DrawDottedLine(p1, p2, DottedLineSize);

@@ -13,7 +13,7 @@ public class ColliderDetector2DEditor : Editor<ColliderDetector2D>
     public Collider2D collider => targetObject.collider;
     public Vector2 infoOffset = new Vector2(0, 0.5f);
     public Autopilot autopilot;
-    private void OnEnable()
+    protected void OnEnable()
     {
         targetObject.Init();
         if (targetObject.TryGetComponent(out controller))

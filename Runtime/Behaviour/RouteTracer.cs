@@ -21,6 +21,7 @@ public class RouteTracer : MonoBehaviour
     public Timer timer => _timer;
     private float totalTime;
 
+    [SerializeField]
     private Vector2 _offset;
     public Vector2 offset { get => _offset; private set => _offset = value; }
 
@@ -60,43 +61,25 @@ public class RouteTracer : MonoBehaviour
     {
         timer.Start();
     }
-    // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
         if (route.points.Length > 1)
             timer.Tick();
     }
-    private void FixedUpdate()
+    private void Timer_Update(Timer timer)
     {
-        velocity = (transform.position - previousPosition) / Time.fixedDeltaTime;
-    }
-    private void Timer_Update()
-    {
-        //if (current == route.GetNext(current))
-        //    return;
-        //transform.position = Vector3.SmoothDamp(transform.position,
-        //    Vector3.Lerp(GetPoint(current), GetPoint(route.GetNext(current)), timer.normal),
-        //    ref currentVelocity, smoothTime);
-
+        previousPosition = transform.position;
         transform.position = Vector3.Lerp(GetPoint(current), GetPoint(route.GetNext(current)), timer.normalized);
+        velocity = (transform.position - previousPosition) / Time.fixedDeltaTime;
     }
 
     private Vector2 GetPoint(int index) => offset + route.points[index];
-    private void Timer_Completed()
+    private void Timer_Completed(Timer t)
     {
- 
         if (!route.loop && current == route.points.Length - 1 )
             return;
         route.MoveNext(ref _current);
         timer.duration = routeTimes[current];
         timer.Start();
-    }
-
-
-
-
-
-    private void OnCollisionStay2D(Collision2D collision)
-    {
     }
 }

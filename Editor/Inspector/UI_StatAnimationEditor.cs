@@ -9,7 +9,7 @@ using UnityEngine.PlayerLoop;
 public class UI_StatAnimationEditor : Editor<UI_StatAnimation>
 {
     AttributeStat testStat = new AttributeStat();
-    private void OnEnable()
+    protected void OnEnable()
     {
         if (EditorApplication.isPlaying)
             return;

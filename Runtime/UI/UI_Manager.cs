@@ -191,4 +191,12 @@ public class UI_Manager : MonoBehaviour
 
     public void ToggleActive(GameObject obj) => obj.SetActive(!obj.activeSelf);
     public void ToggleEnabled(Behaviour b) => b.enabled = !b.enabled;
+
+    public void Prompt(string[] lines)
+    {
+        Dialog_UI.lines = lines;
+        Dialog_UI.transform.SetAsLastSibling();
+        Dialog_UI.gameObject.SetActive(true);
+    }
+    public void Prompt(string content) => Prompt(content.Split('\n','\r'));
 }

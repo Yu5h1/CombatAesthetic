@@ -8,7 +8,7 @@ using Yu5h1Lib.EditorExtension;
 public class LineRendererControllerEditor : Editor<LineRendererController> {
 
     private string IsConnectingName => nameof(targetObject.IsConnecting);
-    private void OnEnable()
+    protected void OnEnable()
     {
         if (EditorApplication.isPlaying)
             return;

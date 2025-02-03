@@ -19,7 +19,7 @@ public class PatrolEditor : Editor<Patrol>
     }
     private bool IsDragging;
 
-    private void OnEnable()
+    protected void OnEnable()
     {
         InitPartol();
         if (!EditorApplication.isPlaying)

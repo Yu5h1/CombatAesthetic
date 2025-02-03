@@ -14,24 +14,22 @@ public class BaseEvent2D : MonoBehaviour
     {
         PoolManager.Spawn<Transform>(name, transform.position, transform.rotation);
     }
-    public void Prompt(string[] lines)
-    {
-        GameManager.ui_Manager.Dialog_UI.lines = lines;
-        GameManager.ui_Manager.Dialog_UI.transform.SetAsLastSibling();
-        GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
-    }
-    public void Prompt(string line) => Prompt(new string[] { line });
+    public void Prompt(string[] lines) => GameManager.ui_Manager.Prompt(lines);
+    public void Prompt(string content) => GameManager.ui_Manager.Prompt(content);
+
+    #region animated
     Coroutine SetActiveCoroutine;
     public void Deactivate(float delay)
         => this.StartCoroutine(ref SetActiveCoroutine, DelaySetActive(delay, false));
     public void Activate(float delay)
         => this.StartCoroutine(ref SetActiveCoroutine, DelaySetActive(delay, true));
-    private IEnumerator DelaySetActive(float delay,bool active)
-    { 
+    private IEnumerator DelaySetActive(float delay, bool active)
+    {
         if (delay > 0)
             yield return new WaitForSeconds(delay);
         gameObject.SetActive(active);
 
-    }
+    } 
+    #endregion
     public void Log(string msg) => msg.print();
 }

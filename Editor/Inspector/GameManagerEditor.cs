@@ -15,7 +15,6 @@ namespace Yu5h1Lib
         {
             EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
         }
-        
 
         private static void EditorApplication_playModeStateChanged(PlayModeStateChange state)
         {
