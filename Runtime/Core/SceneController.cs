@@ -27,7 +27,7 @@ public class SceneController : SingletonBehaviour<SceneController>
         if (SceneController.IsLevelScene || GameManager.instance.playerController)
         {
             CheckPoint.InitinalizeCheckPoints();
-            if (!StartLines.IsEmpty() && !NoTalking)
+            if (startPosition == null && !StartLines.IsEmpty() && !NoTalking)
             {
                 GameManager.IsGamePause = true;
                 GameManager.ui_Manager.Dialog_UI.lines = StartLines;

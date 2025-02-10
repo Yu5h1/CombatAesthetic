@@ -13,7 +13,7 @@ public class TeleportGate2D : PlayerEvent2D
     public Vector2 destination;
     public int sceneIndex = -1;
 
-    public bool enableTrunOffAfterTriggered = true;
+    public bool TrunOffAfterTriggered = true;
     public bool AllowRecordStatus;
 
     private void Reset()
@@ -22,6 +22,11 @@ public class TeleportGate2D : PlayerEvent2D
     }
     private void Awake()
     {
+    }
+    private void Start()
+    {
+        foreach (var c in GetComponents<Collider2D>())
+            c.isTrigger = true;
     }
     private void OnEnable()
     {
@@ -34,7 +39,7 @@ public class TeleportGate2D : PlayerEvent2D
         if (!Validate(other))
             return;
 
-        if (enableTrunOffAfterTriggered)
+        if (TrunOffAfterTriggered)
             gameObject.SetActive(false);
         if (AllowRecordStatus)
             GateStates[name] = gameObject.activeSelf;

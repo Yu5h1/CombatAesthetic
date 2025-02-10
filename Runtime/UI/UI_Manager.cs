@@ -1,6 +1,7 @@
 using UnityEngine;
 using static SceneController;
 using Yu5h1Lib;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public class UI_Manager : MonoBehaviour
@@ -199,4 +200,5 @@ public class UI_Manager : MonoBehaviour
         Dialog_UI.gameObject.SetActive(true);
     }
     public void Prompt(string content) => Prompt(content.Split('\n','\r'));
+
 }
