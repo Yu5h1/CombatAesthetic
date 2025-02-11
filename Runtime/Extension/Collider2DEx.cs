@@ -111,4 +111,8 @@ public static class Collider2DEx
             }
         }
     }
+
+    #region MyRegion
+
+    #endregion
 }

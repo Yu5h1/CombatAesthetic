@@ -96,7 +96,7 @@ public class UI_Menu : UIControl
     {
         if (!control)
             return;
-        control.interactable = CheckPoint.Exists || TeleportGate2D.GateStates.Any();
+        control.interactable = CheckPoint.Exists || Teleporter.GateStates.Any();
     }
     public void SetGamePause(bool pause) => GameManager.IsGamePause = pause;
 

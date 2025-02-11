@@ -57,7 +57,7 @@ namespace Yu5h1Lib
         [MenuItem("Game Manager/Clear Level Cache")]
         public static void ClearLevelCache()
         {
-            TeleportGate2D.GateStates.Clear();
+            Teleporter.GateStates.Clear();
             CheckPoint.Clear();
         }
         public static bool enableClearLevelCacheOnExitGame = true;

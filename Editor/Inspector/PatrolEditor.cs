@@ -42,7 +42,8 @@ public class PatrolEditor : Editor<Patrol>
             return;
         //Gizmos.DrawWireSphere(Destination, arriveRange);
 
-        targetObject.Visualize();
+        //if(Event.current.type == EventType.MouseMove)
+            targetObject.Visualize();
 
         if (!EditorApplication.isPlaying)
             targetObject.Init();

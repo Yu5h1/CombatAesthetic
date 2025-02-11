@@ -163,7 +163,7 @@ namespace Yu5h1Lib
         public void StartNewGame()
         {
             GameManager.instance.LoadScene(1);
-            TeleportGate2D.GateStates.Clear();
+            Teleporter.GateStates.Clear();
             CheckPoint.Clear();
         }
         public void ReloadCurrentScene() => SceneController.ReloadCurrentScene();
@@ -173,11 +173,13 @@ namespace Yu5h1Lib
         #region Static
 
         public static bool IsMovingPlayer { get; private set; }
-        public static void MovePlayer(Vector3 pos)
+        public static void MovePlayer(Vector3 pos,Quaternion? rot = null)
         {
             IsMovingPlayer = true;
             instance.playerController.rigidbody.simulated = false;
             instance.playerController.transform.position = pos;
+            if (rot != null)
+                instance.playerController.transform.rotation = rot.Value;
             instance.playerController.rigidbody.simulated = true;
             cameraController.Focus(instance.playerController.transform);
             IsMovingPlayer = false; 

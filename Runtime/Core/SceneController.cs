@@ -10,6 +10,8 @@ public class SceneController : SingletonBehaviour<SceneController>
 {
     public bool IsLevel;
     public static Vector3? startPosition;
+    public static Quaternion? startRotation;
+
     public string[] StartLines;
     public bool NoTalking;
 
@@ -41,9 +43,9 @@ public class SceneController : SingletonBehaviour<SceneController>
     private void OnAfterLoadSceneAsync() {
         if (startPosition != null)
         {
-            GameManager.MovePlayer(startPosition.Value);
+            GameManager.MovePlayer(startPosition.Value,startRotation);
             startPosition = null;
-        }    
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other)

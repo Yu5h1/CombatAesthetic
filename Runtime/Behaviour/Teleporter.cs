@@ -1,20 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering;
 using Yu5h1Lib;
 
-public class TeleportGate2D : PlayerEvent2D
+public class Teleporter : PlayerEvent2D
 {
     #region Static
     public static Dictionary<string, bool> GateStates = new Dictionary<string, bool>();
     #endregion
 
-    public Vector2 destination;
+
+    public bool loadSceneOnly;
     public int sceneIndex = -1;
+
+    [ContextMenuItem("Reset", nameof(ResetDestination))]
+    public Vector2 destination;
 
     public bool TrunOffAfterTriggered = true;
     public bool AllowRecordStatus;
+
+    public UnityEvent<Collider2D> triggerEnter;
+
 
     private void Reset()
     {
@@ -49,19 +57,22 @@ public class TeleportGate2D : PlayerEvent2D
             other.transform.position = destination;
         else
         {
-            SceneController.startPosition = destination;
+            if (!loadSceneOnly)
+            {
+                SceneController.startPosition = destination;
+                SceneController.startRotation = other.transform.rotation;
+            }
             SceneController.LoadScene(sceneIndex);
         }
+        triggerEnter?.Invoke(other);
     }
     private void OnDisable()
     {
       
     }
-    private void OnDrawGizmosSelected()
-    {
-        var color = Gizmos.color;
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawSphere(destination, 0.5f);
-        Gizmos.color = color;
-    }
+
+    #region MyRegion
+    private void ResetDestination() => destination = transform.position;
+    #endregion
+
 }
