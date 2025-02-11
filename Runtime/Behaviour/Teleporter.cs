@@ -9,6 +9,7 @@ public class Teleporter : PlayerEvent2D
 {
     #region Static
     public static Dictionary<string, bool> GateStates = new Dictionary<string, bool>();
+
     #endregion
 
 
@@ -17,11 +18,14 @@ public class Teleporter : PlayerEvent2D
 
     [ContextMenuItem("Reset", nameof(ResetDestination))]
     public Vector2 destination;
+    public Teleporter TeleporterExit;
 
     public bool TrunOffAfterTriggered = true;
     public bool AllowRecordStatus;
 
     public UnityEvent<Collider2D> triggerEnter;
+
+    public List<Collider2D> ignores = new List<Collider2D>();
 
 
     private void Reset()
@@ -44,6 +48,11 @@ public class Teleporter : PlayerEvent2D
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (ignores.Contains(other))
+        {
+            ignores.Remove(other);
+            return;
+        }
         if (!Validate(other))
             return;
 
@@ -54,7 +63,23 @@ public class Teleporter : PlayerEvent2D
 
         // teleport in current scene
         if (sceneIndex < 0)
-            other.transform.position = destination;
+        {
+            if (TeleporterExit != null)
+            {
+                TeleporterExit.ignores.Add(other);
+                if (other.CompareTag("Player"))
+                    GameManager.MovePlayer(TeleporterExit.transform.position);
+                else
+                    other.transform.position = TeleporterExit.transform.position;
+            }
+            else
+            {
+                if (other.CompareTag("Player"))
+                    GameManager.MovePlayer(destination);
+                else
+                    other.transform.position = destination;
+            }
+        }
         else
         {
             if (!loadSceneOnly)
