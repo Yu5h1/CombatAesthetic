@@ -7,7 +7,7 @@ using Yu5h1Lib;
 public class CameraAssist : MonoBehaviour
 {
     CameraController controller => CameraController.instance;
-    [TextArea(1,10)]
+    [TextArea(1, 10)]
     public string content;
     public Transform[] targets;
     public float duration = 2;
@@ -30,5 +30,8 @@ public class CameraAssist : MonoBehaviour
         yield return new WaitUntil(ConversationOver);
         controller.follow = true;
     }
-   
+    public void Method()
+    {
+
+    }
 }

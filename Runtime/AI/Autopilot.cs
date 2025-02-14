@@ -10,6 +10,7 @@ namespace Yu5h1Lib.Game.Character
     {
         public bool enable;
         public float waitDuration = 1;
+        public bool ActionDelay;
 
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
@@ -103,6 +104,7 @@ namespace Yu5h1Lib.Game.Character
                         IsTargetInSkillRange = false;
                         return false;
                     }
+                    Wait(3);
                     return updateInput(true, false, false);
                 }else
                     return false;

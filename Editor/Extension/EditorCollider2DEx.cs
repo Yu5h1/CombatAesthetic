@@ -43,31 +43,39 @@ namespace Yu5h1Lib.EditorExtension
                 Handles.color = originalcolor;
             Handles.matrix = matrix;
         }
-        private static void DrawBoxCollider(BoxCollider2D boxCollider, HandleStyle style = HandleStyle.None)
+
+        private static void DrawBoxCollider(BoxCollider2D collider, HandleStyle style = HandleStyle.None)
         {
             switch (style)
             {
                 case HandleStyle.None:
-                    Handles.DrawWireCube(boxCollider.offset, boxCollider.size);
+                    Handles.DrawWireCube(collider.offset, collider.size);
                     break;
                 case HandleStyle.Button:
-                    if (Handles.Button(boxCollider.offset, Quaternion.identity, 1f,1f, Handles.CubeHandleCap))
-                        Selection.activeObject = boxCollider.gameObject;
+                    var matrix = Handles.matrix;
+                    
+                    Handles.matrix = Matrix4x4.TRS(collider.transform.position, collider.transform.rotation,
+                         Vector3.Scale(collider.transform.lossyScale,new Vector3(collider.size.x, collider.size.y, 1)) );
+
+                    if (Handles.Button(collider.offset, Quaternion.identity, 1f, 1f, Handles.CubeHandleCap))
+                        Selection.activeObject = collider.gameObject;
+
+                    Handles.matrix = matrix;
                     break;
                 case HandleStyle.Slide:
-                    Vector3 newPosition = Handles.Slider(boxCollider.offset, Vector3.right);
+                    Vector3 newPosition = Handles.Slider(collider.offset, Vector3.right);
                     if (newPosition != Vector3.zero)
                     {
-                        Undo.RecordObject(boxCollider, "Move BoxCollider2D");
-                        boxCollider.offset = (Vector2)newPosition; // 更新偏移量
+                        Undo.RecordObject(collider, "Move BoxCollider2D");
+                        collider.offset = (Vector2)newPosition; // 更新偏移量
                     }
                     break;
                 case HandleStyle.Slide2D:
-                    Vector3 newPosition2D = Handles.Slider2D(boxCollider.offset, Vector3.forward, Vector3.right, Vector3.up, 1, Handles.RectangleHandleCap, 0.1f);
+                    Vector3 newPosition2D = Handles.Slider2D(collider.offset, Vector3.forward, Vector3.right, Vector3.up, 1, Handles.RectangleHandleCap, 0.1f);
                     if (newPosition2D != Vector3.zero)
                     {
-                        Undo.RecordObject(boxCollider, "Move BoxCollider2D");
-                        boxCollider.offset = (Vector2)newPosition2D; // 更新偏移量
+                        Undo.RecordObject(collider, "Move BoxCollider2D");
+                        collider.offset = (Vector2)newPosition2D; // 更新偏移量
                     }
                     break;
                 default:

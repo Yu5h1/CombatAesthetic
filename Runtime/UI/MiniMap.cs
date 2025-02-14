@@ -52,6 +52,8 @@ public class MiniMap : MonoBehaviour
         } 
     }
 
+    public Transform target;
+
     private void Start()
     {
         if ("The Minimap must be attached to a GameObject with a RectTransform component.".printWarningIf(!TryGetComponent(out _view)))
@@ -73,6 +75,14 @@ public class MiniMap : MonoBehaviour
         if (!camera || !view || elements.IsEmpty() || imgPool.Size == 0)
             return;
 
+        if (target)
+        {
+            var pos = camera.transform.position;
+            pos.x = target.position.x;
+            pos.y = target.position.y;
+            camera.transform.position = pos;
+        }
+
         foreach (var item in elements.Reverse())
         {
             var obj = item.Key.transform;
@@ -89,9 +99,11 @@ public class MiniMap : MonoBehaviour
 
             if (screenPoint.z < 0 || !view.rect.Contains(minimapPos))
             {
-                item.Value.sprite = null;
                 if (item.Value)
+                {
+                    item.Value.sprite = null;
                     PoolManager.Despawn(item.Value);
+                }
                 elements[item.Key] = null;
                 continue;
             }

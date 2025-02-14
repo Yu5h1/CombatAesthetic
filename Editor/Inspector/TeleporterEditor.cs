@@ -35,6 +35,12 @@ public class TeleportEditor : Editor<Teleporter> {
             }
         }
     }
+    [InitializeOnLoadMethod]
+    static void InitializeOnLoad()
+    {
+        ShowAllHandles = true;
+    }
+
     private static void FindTeleporters() => Teleporters = GameObject.FindObjectsOfType<Teleporter>();
 
     private static void OnSceneGUI(SceneView view)

@@ -18,6 +18,7 @@ public abstract class EventMask2D : BaseEvent2D
 [System.Serializable]
 public class TagOption
 {
+    [Tooltip("Compare root transform.")]
     public bool root = true;
     public enum ComparisionType
     {
