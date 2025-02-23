@@ -10,7 +10,7 @@ using UnityEditorInternal;
 public class TeleportEditor : Editor<Teleporter> {
     public static float DottedLineSize = 3;
 
-    public static Teleporter[] Teleporters;
+    public static List<Teleporter> Teleporters = new List<Teleporter>();
     public static Teleporter current;
 
     private static bool _ShowAllHandles;
@@ -25,7 +25,7 @@ public class TeleportEditor : Editor<Teleporter> {
             if (value)
             {
                 EditorApplication.hierarchyChanged += FindTeleporters;
-                Teleporters = GameObject.FindObjectsOfType<Teleporter>();
+                FindTeleporters();
                 SceneView.duringSceneGui += OnSceneGUI;
             }
             else
@@ -41,16 +41,23 @@ public class TeleportEditor : Editor<Teleporter> {
         ShowAllHandles = true;
     }
 
-    private static void FindTeleporters() => Teleporters = GameObject.FindObjectsOfType<Teleporter>();
+    private static void FindTeleporters() {
+        Teleporters.Clear();
+        Teleporters.AddRange(GameObject.FindObjectsOfType<Teleporter>());
+    }
 
     private static void OnSceneGUI(SceneView view)
     {
         if (Teleporters.IsEmpty())
             return;
-        foreach (var teleporter in Teleporters)
-            if (current != teleporter)
-                foreach (var collider2D in teleporter.GetComponents<Collider2D>())
-                    collider2D.DrawHandles(Color.cyan.ChangeAlpha(0.5f),HandleStyle.Button);
+        for (int i = Teleporters.Count - 1; i >= 0; i--)
+        {
+            if (!Teleporters[i])
+                Teleporters.RemoveAt(i);
+            else if (current != Teleporters[i])
+                foreach (var collider2D in Teleporters[i].GetComponents<Collider2D>())
+                    collider2D.DrawHandles(Color.cyan.ChangeAlpha(0.5f), HandleStyle.Button);
+        }
     }
     [MenuItem("CONTEXT/Teleporter/Show all handles")]
     private static void ShowAllHandlesToggle(MenuCommand command)

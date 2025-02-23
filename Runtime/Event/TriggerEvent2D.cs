@@ -38,6 +38,8 @@ public class TriggerEvent2D : EventMask2D
     }
     private void OnTriggerExit2D(Collider2D other)
     {
+        if (NotAllowTriggerExit)
+            return;
         if (!Validate(other.gameObject))
             return;
         TriggerExit2D?.Invoke(other);

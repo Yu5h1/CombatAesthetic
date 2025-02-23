@@ -38,7 +38,7 @@ public class PatrolEditor : Editor<Patrol>
     }
     private void OnSceneGUI()
     {
-        if (!InternalEditorUtility.GetIsInspectorExpanded(target))
+        if (!InternalEditorUtility.GetIsInspectorExpanded(target) || !targetObject.isActiveAndEnabled)
             return;
         //Gizmos.DrawWireSphere(Destination, arriveRange);
 

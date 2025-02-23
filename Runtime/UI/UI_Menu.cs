@@ -5,9 +5,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Yu5h1Lib;
+using Yu5h1Lib.UI;
+using Yu5h1Lib.Game;
 
 public class UI_Menu : UIControl
 {
+    public static UI_Manager manager => UI_Manager.instance;
+
     public bool DisallowPreviouse;
     public bool DisallowDismiss;
     [ReadOnly,SerializeField]
@@ -37,31 +41,14 @@ public class UI_Menu : UIControl
         UI_Manager.Dismiss(this);
 
     }
-    /// <summary>
-    /// close self after moving to next menu
-    /// </summary>
-    public void ChangeMenu(UI_Menu next,bool dismiss)
-    {
-        if (!next)
-            return;
-        if (!next.DisallowPreviouse && !next.previous)
-            next.previous = this;
-        if (dismiss && !next.transform.IsChildOf(transform))
-            Dismiss();
-        next.Engage();        
-    }
-    public void SwitchMenu(UI_Menu menu) => ChangeMenu(menu, true);
-    public void Popup(UI_Menu popupmenu) => ChangeMenu(popupmenu,false);
 
-    public void ChangeMenu(string MenuName, bool close)
-    {
-        if (!UI_Manager.instance.TryGetComponentInChildren(MenuName, out UI_Menu menu))
-            return;
-        ChangeMenu(menu, close);
-    }
+    public void ChangeMenu(UI_Menu next, bool dismiss) => UI_Manager.ChangeMenu(this, next, dismiss);
+    public void SwitchMenu(UI_Menu next) => ChangeMenu(next, true);
+    public void Popup(UI_Menu next) => ChangeMenu(next, false);
+
+    public void ChangeMenu(string MenuName, bool close) => manager.ChangeMenu(MenuName, close);
     public void SwitchMenu(string MenuName) => ChangeMenu(MenuName, true);
     public void Popup(string MenuName) => ChangeMenu(MenuName, false);
-
 
     public void ReturnToPrevious()
         => ChangeMenu(previous,true);
@@ -74,31 +61,57 @@ public class UI_Menu : UIControl
     public void ExitGame() => GameManager.ExitGame();
     public void StartNewGame() => GameManager.instance.StartNewGame();
     public void LoadScene(int index) => GameManager.instance.LoadScene(index);
-    public void ReloadCurrentScene() => SceneController.ReloadCurrentScene();
-    public void StartFromCheckPoint() {
-#if UNITY_EDITOR 
-        if (GameManager.DebugMode && GameManager.debugSetting.reloadCurrentSceneWhileLoadCheckPoint)
-        {
-            ReloadCurrentScene();
-            return;
-        }
-#endif
-        if (!CheckPoint.Load())
-            LoadScene(1);
-    }
-    public void ActiveIfHasAnyRecords(Selectable control)
-    {
-        if (!control)
-            return;
-        control.gameObject.SetActive(CheckPoint.Exists);
-    }
-    public void SetInteractableIfHasAnyRecords(Selectable control)
-    {
-        if (!control)
-            return;
-        control.interactable = CheckPoint.Exists || Teleporter.GateStates.Any();
-    }
+    public void ReloadCurrentScene() 
+        => SceneController.ReloadCurrentScene();
+
+    public void ActiveIfHasAnyRecords(Selectable control) => UI_Manager.ActiveIfHasAnyRecords(control);
+    public void SetInteractableIfHasAnyRecords(Selectable control) => UI_Manager.SetInteractableIfHasAnyRecords(control);
+
     public void SetGamePause(bool pause) => GameManager.IsGamePause = pause;
 
     public void ToggleActive(GameObject obj) => obj.SetActive(!obj.activeSelf);
+
+    public void ActivateCurrntSaveSelection(LayoutGroup group)
+    {
+        var selectables = group.GetComponentsInChildren<Selectable>();
+        if ("Items are empty.".printWarningIf(selectables.IsEmpty()))
+            return;
+        if ($"{Records.CurrentSaveSlot} is out of range[{selectables.Length}].".printWarningIf(!selectables.IsValid(Records.CurrentSaveSlot)))
+            return;
+        selectables[Records.CurrentSaveSlot].Select();
+    }
+    public void SetSaveSelection(Selectable selectable)
+    {
+        Records.CurrentSaveSlot = selectable.transform.GetSiblingIndex();
+    }
+    public void LoadRecords() => Records.Load();
+
+    public void LoadSlotRecord(Selectable selectable)
+    {
+        var record = Records.Saves[selectable.transform.GetSiblingIndex()];
+        record.Load();
+    }
+    public void ReadSlotRecord(Selectable selectable)
+    {
+        var textAdapter = selectable.GetComponent<TextAdapter>();
+        if ($"{selectable}'s TextAdapter does not exist.".printWarningIf(!textAdapter))
+            return;
+        var index = selectable.transform.GetSiblingIndex();
+        if (!Records.Saves.IsValid(index))
+            Records.Prepare(index);
+
+        var record = Records.Saves[index];
+        textAdapter.text = $"{record}";     
+    }
+    public void ClearSlotRecord(GroupHandler group)
+    {
+        var selectable = group.GetComponentsInChildren<Selectable>()[Records.CurrentSaveSlot];
+        var textAdapter = selectable.GetComponent<TextAdapter>();
+        if ($"{selectable}'s TextAdapter does not exist.".printWarningIf(!textAdapter))
+            return;
+        var record = Records.Saves[selectable.transform.GetSiblingIndex()];
+        record.Clear();
+        textAdapter.text = $"{record}";
+        Records.Save();
+    }
 }

@@ -7,7 +7,6 @@ using Yu5h1Lib.Game.Character;
 [System.Serializable]
 public class ColliderScanner2D : CollierCastInfo2D
 {
-    
 	public TagOption Tag;
 	public Vector2 direction;
 

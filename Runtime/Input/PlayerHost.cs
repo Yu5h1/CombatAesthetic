@@ -33,7 +33,7 @@ namespace Yu5h1Lib.Game.Character {
             }
             public override Vector2 GetMovement()
             {
-                if (GameManager.IsSpeaking)
+                if (GameManager.IsSpeaking())
                     return Vector2.zero;
 
                 var y = input.GetAxisRaw("Vertical");
@@ -63,7 +63,7 @@ namespace Yu5h1Lib.Game.Character {
             }
             public override bool GetInputState(UpdateInput updateInput)
             {
-                if (GameManager.IsSpeaking)
+                if (GameManager.IsSpeaking())
                     return false;
 
                 return updateInput(input.GetMouseButtonDown(0), input.GetMouseButton(0), input.GetMouseButtonUp(0));
@@ -71,7 +71,7 @@ namespace Yu5h1Lib.Game.Character {
 
             public override void GetInputState(string bindingName, UpdateInput updateInput)
             {
-                if (GameManager.IsSpeaking)
+                if (GameManager.IsSpeaking())
                     return;
                 updateInput(Input.GetButtonDown(bindingName), Input.GetButton(bindingName), Input.GetButtonUp(bindingName));
             }

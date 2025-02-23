@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Yu5h1Lib.UI;
 
 public abstract class UI_Stat : UIControl
 {

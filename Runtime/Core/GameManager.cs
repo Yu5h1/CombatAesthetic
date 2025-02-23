@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 using Yu5h1Lib.Game.Character;
@@ -23,7 +24,7 @@ namespace Yu5h1Lib
             set => debugSetting.enable = value;
         }
         [RuntimeInitializeOnLoadMethod]
-        static void RunOnStart() {
+        private static void Initialize() {
             Application.wantsToQuit -= Application_wantsToQuit;
             Application.wantsToQuit += Application_wantsToQuit;
             IsQuit = false;
@@ -62,9 +63,10 @@ namespace Yu5h1Lib
                 OnPauseStateChanged?.Invoke(value);
             } 
         }
-        public static bool IsSpeaking => UI_Manager.IsSpeaking;
+        public static bool IsSpeaking() => UI_Manager.IsSpeaking();
+        public static bool NotSpeaking() => !UI_Manager.IsSpeaking();
 
-        public static bool IsBusy => IsGamePause || IsSpeaking;
+        public static bool IsBusy() => IsGamePause || IsSpeaking();
 
         public static event UnityAction<bool> OnPauseStateChanged;
         public static event UnityAction OnFoundPlayer;
@@ -89,6 +91,10 @@ namespace Yu5h1Lib
 
         public void Start()
         {
+            foreach (var item in FindObjectsByType<PlayerInput>(FindObjectsInactive.Include,FindObjectsSortMode.None))
+            {
+                item.uiInputModule = InputModule;
+            }
             var player = GameObject.FindWithTag("Player");
             
             if (player)
@@ -133,6 +139,8 @@ namespace Yu5h1Lib
 #endif
         }
         #region FX
+
+        
         public void PlayAudio(AudioClip clip,float volume)
         {
             if (!clip)
@@ -181,7 +189,8 @@ namespace Yu5h1Lib
             if (rot != null)
                 instance.playerController.transform.rotation = rot.Value;
             instance.playerController.rigidbody.simulated = true;
-            cameraController.Focus(instance.playerController.transform);
+            if (cameraController.follow)
+                cameraController.Focus(instance.playerController.transform);
             IsMovingPlayer = false; 
         }
  
@@ -210,10 +219,20 @@ namespace Yu5h1Lib
             player.attribute.ui?.GetComponent<UI_Menu>()?.Dismiss();
             PoolManager.canvas.sortingLayerName = "Back";
             CameraController.instance.FoldUp("Back", 1);
-            GameManager.ui_Manager.LevelSceneMenu.GetComponent<MonoEventHandler>().enabled = false;
-            GameManager.ui_Manager.LevelSceneMenu.previous = null;
-            GameManager.ui_Manager.LevelSceneMenu.DisallowPreviouse = true;
-            GameManager.ui_Manager.LevelSceneMenu.Engage();
+            ui_Manager.LevelSceneMenu.GetComponent<MonoEventHandler>().enabled = false;
+            ui_Manager.LevelSceneMenu.previous = null;
+            ui_Manager.LevelSceneMenu.DisallowPreviouse = true;
+            ui_Manager.LevelSceneMenu.Engage();
         }
+
+        #region Methods
+
+        public static void SetPlayerControllable(bool flag)
+        {
+            if (!instance.playerController)
+                return;
+            instance.playerController.controllable = flag;
+        }
+        #endregion
     }    
 }

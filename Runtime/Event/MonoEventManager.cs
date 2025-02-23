@@ -15,6 +15,7 @@ public class MonoEventManager : SingletonBehaviour<MonoEventManager>
     // Start is called before the first frame update
     void Start()
     {
+        $"MonoEventManager start".print();
         foreach (var item in StartEvents)
         {
             item.Value?.Invoke(item.Key);

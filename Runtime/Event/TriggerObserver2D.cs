@@ -34,6 +34,8 @@ public class TriggerObserver2D : EventMask2D
     }
     private void OnTriggerExit2D(Collider2D collider)
     {
+        if (NotAllowTriggerExit)
+            return;
         colliders.Remove(collider);
         if (colliders.IsEmpty())
             _LastColliderExit?.Invoke();

@@ -11,9 +11,9 @@ public abstract class EventMask2D : BaseEvent2D
     protected bool Validate(GameObject other) 
         => enabled && other.transform != owner && tagOption.Compare(other) && layers.Contains(other);
 
+    protected bool NotAllowTriggerExit => GameManager.IsQuit || SceneController.IsSceneTransitioning;
+            
     protected virtual void OnDisable() => owner = null;
-
-    public void log(string msg) => msg.print();
 }
 [System.Serializable]
 public class TagOption

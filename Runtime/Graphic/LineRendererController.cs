@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using Yu5h1Lib;
+using Yu5h1Lib.Runtime;
 
 
 public class LineRendererController : ComponentController<LineRenderer>
@@ -57,6 +58,10 @@ public class LineRendererController : ComponentController<LineRenderer>
             OnHitStateChanged();
         }
     }
+    [SerializeField]
+    private bool UseDepth = false;
+    [SerializeField] 
+    private MinMax depth;
     [SerializeField]
     private bool breakOnHit = true;
     [SerializeField]
@@ -157,7 +162,13 @@ public class LineRendererController : ComponentController<LineRenderer>
 
         if (!IsPerforming)
         {
-            var hit = Physics2D.Linecast(start, end, layer);
+            var hit = UseDepth ?
+                Physics2D.Linecast(start, end, layer,depth.Min,depth.Max):
+                Physics2D.Linecast(start, end, layer);
+#if UNITY_EDITOR
+            if (hit)
+                Debug.DrawLine(start, hit.point);
+#endif
             if (hit && tagOption.Compare(hit.transform.gameObject))
                 result = hit;
         }

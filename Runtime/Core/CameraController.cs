@@ -1,14 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-//using DG.Tweening;
 using System.Collections;
-//using UnityEngine.Rendering.Universal;
 using Yu5h1Lib.Runtime;
 using Yu5h1Lib;
 using UnityEngine.Events;
-using System;
-using UnityEngine.PlayerLoop;
 
 [RequireComponent(typeof(Camera))]
 public class CameraController : SingletonBehaviour<CameraController>
@@ -64,7 +60,9 @@ public class CameraController : SingletonBehaviour<CameraController>
     private Vector3 currentVelocity;
     public bool IsPerforming { get; private set; }
     public Timer timer { get; private set; } = new Timer();
-    private Coroutine performCoroutine;
+    public Timer.Wait waiter;
+
+    private Coroutine coroutineCache;
     [SerializeField]
     private SpriteRenderer _cursorRendererSource;
     [SerializeField, ReadOnly]
@@ -126,7 +124,7 @@ public class CameraController : SingletonBehaviour<CameraController>
 
 
     [SerializeField]
-    private AnimationCurve MovementCurve = AnimationCurve.Linear(0,0,1,1);
+    private AnimationCurve AnimatedShotCurve = AnimationCurve.Linear(0,0,1,1);
 
     public bool follow = true;
 
@@ -139,6 +137,7 @@ public class CameraController : SingletonBehaviour<CameraController>
         //if (SceneController.IsLevelScene || GameObject.FindGameObjectWithTag("Player") != null) {
         //    PrepareSortingLayerSprites();
         //}
+        waiter = timer.Waiting();
     }
     private void Update()
     {
@@ -316,8 +315,17 @@ public class CameraController : SingletonBehaviour<CameraController>
     /// </summary>
     private void Follow()
     {
-        var center = Target.position;
+        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, GetFollowPoint(), ref currentVelocity, smoothTime);
+        if (!syncAngle)
+            return;
+        var angles = transform.eulerAngles;
+        angles.z = Target.eulerAngles.z;
+        transform.eulerAngles = angles * Target.forward.z;
+    }
 
+    public Vector3 GetFollowPoint()
+    {
+        var center = Target.position;
         var extraDistance = 0f;
         if (Targets.Count > 1)
         {
@@ -340,25 +348,23 @@ public class CameraController : SingletonBehaviour<CameraController>
 
             //for orthographic
             camera.orthographicSize = (bounds.size.y / 2) + targetsMargin;
+
+            center.z -= extraDistance;
         }
 
         camera.orthographicSize = Mathf.Lerp(OrthoSize.Min, OrthoSize.Max, dollyProportion);
         followOffset.y = Mathf.Lerp(CamHeightRange.Min, CamHeightRange.Max, dollyProportion);
         followOffset.z = -GetZLocation();
 
-        camera.transform.position = Vector3.SmoothDamp(camera.transform.position, center + followOffset - new Vector3(0,0, extraDistance), ref currentVelocity, smoothTime);
-
-        if (!syncAngle)
-            return;
-        var angles = transform.eulerAngles;
-        angles.z = Target.eulerAngles.z;
-        transform.eulerAngles = angles * Target.forward.z;
+        return center + followOffset;
     }
-    public Vector3 GetCenter(Vector3[] points,float margin)
+    public Vector3 GetCenter(Vector3[] points)
     {        
         var result = Vector3.zero;
         if (points.IsEmpty())
             return result;
+        if (points.Length == 1)
+            return points[0];
 
         var center = points[0];
 
@@ -369,7 +375,7 @@ public class CameraController : SingletonBehaviour<CameraController>
         center /= points.Length;
 
         for (int i = 1; i < points.Length; i++)
-            bounds.Encapsulate(points[i] + ((points[i] - center).normalized * margin));
+            bounds.Encapsulate(points[i] + ((points[i] - center).normalized * targetsMargin));
 
         float maxBoundsSize = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
 
@@ -398,38 +404,43 @@ public class CameraController : SingletonBehaviour<CameraController>
     }
     public void Focus(Vector3 point,float duration)
     {
-        
+        this.StartCoroutine(ref coroutineCache, PerformFocusProcess(point,duration));
     }
     public void Focus(Transform target) 
     {
         if (target)
             Focus(target.position);
     }
-    public void Focus(Collider2D target)
-    {
-        if (target)
-            Focus(target.transform);
-    }
-    public void PerformFocus(Collider2D collider)
+    public void Focus(System.Func<Vector3> To, float duration, UnityAction completed)
+        => this.StartCoroutine(ref coroutineCache, FocusProcess(To, completed, duration));
+    public void Focus(Collider2D collider)
     {
         if (collider)
-            PerformFocus(collider.bounds.center);
+            Focus(collider.bounds.center);
     }
-    public void PerformFocus(Transform target)
+    public void StopFocus(float duration, UnityAction completed)
+        => this.StartCoroutine(ref coroutineCache, StopFocusProcess(duration, completed));
+
+    #endregion
+
+    #region Animated
+
+    private Vector3[] positions;
+    private Vector3 GetPosition() => transform.position;
+    private Vector3 GetCenter()
     {
-        if (target)
-            PerformFocus(target.transform.position);
+        if (positions.IsEmpty())
+            positions = new Vector3[Targets.Count];
+        else if (Targets.Count != positions.Length)
+            System.Array.Resize(ref positions, Targets.Count);
+        for (int i = 0; i < Targets.Count ; i++)
+            positions[i] = Targets[i].position;
+        return GetCenter(positions);
     }
-    public void PerformFocusCenter(Transform target)
+
+    public IEnumerator PerformFocusProcess(Vector3 point, float? duration = null)
     {
-        if (target && Target)
-            PerformFocus((target.transform.position + Target.transform.position) / 2);
-    }
-    public void PerformFocus(Vector3 pos)
-        => this.StartCoroutine(ref performCoroutine, PerformFocusProcess(pos));
-    public IEnumerator PerformFocusProcess(Vector3 point,float? duration = null)
-    {
-        var curveDuration = MovementCurve.keys.Last().time;
+        var curveDuration = AnimatedShotCurve.keys.Last().time;
         timer.duration = duration ?? curveDuration;
         //timer.useUnscaledTime = true;
         timer.Start();
@@ -437,52 +448,92 @@ public class CameraController : SingletonBehaviour<CameraController>
         while (!timer.IsCompleted)
         {
             timer.Tick();
-            camera.transform.position = Vector3.Lerp(camera.transform.position, point , MovementCurve.Evaluate(timer.normalized * curveDuration));
+            camera.transform.position = Vector3.Lerp(camera.transform.position, point, AnimatedShotCurve.Evaluate(timer.normalized * curveDuration));
             yield return null;
         }
         IsPerforming = false;
     }
-
-    public IEnumerator Focus(Transform[] targets, float? duration = null)
+    public IEnumerator FocusProcess(System.Func<Vector3> From, System.Func<Vector3> To, UnityAction completed,
+            float? duration = null)
     {
-        var curveDuration = MovementCurve.keys.Last().time;
+        var curveDuration = AnimatedShotCurve.keys.Last().time;
         timer.duration = duration ?? curveDuration;
-        //timer.useUnscaledTime = true;
-        timer.Start();
         IsPerforming = true;
+        timer.useUnscaledTime = true;
+        timer.Start();
         while (!timer.IsCompleted)
         {
             timer.Tick();
-            camera.transform.position = Vector3.Lerp(camera.transform.position, 
-             GetCenter(targets.Select(t=>t.position).ToArray(),5), 
-             MovementCurve.Evaluate(timer.normalized * curveDuration));
+            camera.transform.position = Vector3.Lerp(From(),
+            To(), timer.normalized);
             yield return null;
-        }
+        }        
         IsPerforming = false;
+        completed?.Invoke();
     }
 
+    //public IEnumerator FollowProcess(Transform[] targets, float? duration = null, bool reverse = false)
+    //{
+    //    var curveDuration = AnimatedShotCurve.keys.Last().time;
+    //    timer.duration = duration ?? curveDuration;
 
-    IEnumerator Perform(IEnumerator process)
+    //    IsPerforming = true;
+
+    //    timer.useUnscaledTime = true;
+
+    //    timer.Start();
+
+    //    Vector3[] points = new Vector3[targets.Length];
+
+    //    while (!timer.IsCompleted)
+    //    {
+    //        timer.Tick();
+    //        for (int i = 0; i < targets.Length; i++)
+    //            points[i] = targets[i].position;
+    //        var n = reverse ? 1 - timer.normalized : timer.normalized;
+    //        camera.transform.position = Vector3.Lerp(GetFollowPoint(),
+    //        GetCenter(points), AnimatedShotCurve.Evaluate(n * curveDuration));
+    //        yield return null;
+    //    }
+    //    IsPerforming = false;
+
+    //}
+
+
+    IEnumerator FocusProcess(System.Func<Vector3> To, UnityAction completed, float duration)
+    {
+        follow = false;
+        yield return FocusProcess(GetPosition, To, completed, duration);
+    }
+
+    IEnumerator StopFocusProcess(float duration, UnityAction completed)
+    {
+        yield return FocusProcess(GetPosition, GetFollowPoint, completed, duration);
+        follow = true;
+    }
+
+    public IEnumerator Perform(UnityAction<Timer> update)
     {
         IsPerforming = true;
-        yield return process;
-        IsPerforming = false;
-    }
-
-
-    IEnumerator Perform(float duration,Update process)
-    {
-        timer.duration = duration;
         timer.Start();
-        IsPerforming = true;
-        while (!timer.IsCompleted)
-        {
-            timer.Tick();
-            yield return process;
-        }
+        timer.Update += update;
+        yield return waiter;
         IsPerforming = false;
     }
 
     #endregion
 
+    //#if UNITY_EDITOR
+    //    [SerializeField]
+    //    private float guiScaleFactor = 3.14f;
+    //    private void OnGUI()
+    //    {
+    //        var originalmatrix = GUI.matrix;
+    //        float matrixScale = Mathf.Min(Screen.width / 1920f, Screen.height / 1080f) * guiScaleFactor;
+    //        GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(matrixScale, matrixScale, 1));
+    //        GUILayout.Label($"Timer:{timer}");
+
+    //        GUI.matrix = originalmatrix;
+    //    }
+    //#endif
 }

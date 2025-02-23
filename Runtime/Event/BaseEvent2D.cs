@@ -17,6 +17,13 @@ public class BaseEvent2D : MonoBehaviour
     public void Prompt(string[] lines) => GameManager.ui_Manager.Prompt(lines);
     public void Prompt(string content) => GameManager.ui_Manager.Prompt(content);
 
+    #region GameManager
+
+    public void SetPlayerControllable(bool flag) => GameManager.SetPlayerControllable(flag);
+
+    #endregion
+
+
     #region animated
     Coroutine SetActiveCoroutine;
     public void Deactivate(float delay)
@@ -28,7 +35,6 @@ public class BaseEvent2D : MonoBehaviour
         if (delay > 0)
             yield return new WaitForSeconds(delay);
         gameObject.SetActive(active);
-
     } 
     #endregion
     public void Log(string msg) => msg.print();

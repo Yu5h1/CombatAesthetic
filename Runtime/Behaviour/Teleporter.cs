@@ -9,11 +9,10 @@ public class Teleporter : PlayerEvent2D
 {
     #region Static
     public static Dictionary<string, bool> GateStates = new Dictionary<string, bool>();
-
     #endregion
 
-
     public bool loadSceneOnly;
+    [BuildScene]
     public int sceneIndex = -1;
 
     [ContextMenuItem("Reset", nameof(ResetDestination))]
@@ -25,8 +24,8 @@ public class Teleporter : PlayerEvent2D
 
     public UnityEvent<Collider2D> triggerEnter;
 
+    [ReadOnly]
     public List<Collider2D> ignores = new List<Collider2D>();
-
 
     private void Reset()
     {

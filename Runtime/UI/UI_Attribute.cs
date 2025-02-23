@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Yu5h1Lib;
+using Yu5h1Lib.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class UI_Attribute : UIControl
@@ -8,8 +9,9 @@ public class UI_Attribute : UIControl
     public UI_Stat[] uI_stats;
     private CanvasGroup canvasGroup;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         TryGetComponent(out canvasGroup);
     }
     public void Prepare(AttributeBehaviour attribute)

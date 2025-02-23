@@ -4,12 +4,18 @@ using UnityEngine;
 using UnityEditor;
 using Yu5h1Lib;
 using Yu5h1Lib.EditorExtension;
+using Yu5h1Lib.Runtime;
+using Yu5h1Lib.Game;
+using UnityEngine.SceneManagement;
 
 namespace Yu5h1Lib
 {
     [CustomEditor(typeof(GameManager))]
     public class GameManagerEditor : Editor<GameManager>
     {
+ 
+
+
         [InitializeOnLoadMethod]
         private static void EditorInitialize()
         {
@@ -60,7 +66,11 @@ namespace Yu5h1Lib
             Teleporter.GateStates.Clear();
             CheckPoint.Clear();
         }
-        public static bool enableClearLevelCacheOnExitGame = true;
+        public static bool enableClearLevelCacheOnExitGame 
+        {
+            get => EditorPrefs.GetBool("enableClearLevelCacheOnExitGame", false);
+            set => EditorPrefs.SetBool("enableClearLevelCacheOnExitGame", value);
+        }
         public const string CLCOnEG_Label = "Game Manager/Clear Cache On Exit Game";
         [MenuItem(CLCOnEG_Label)]
         private static void ClearLevelCacheOnExitGameMenuItem()

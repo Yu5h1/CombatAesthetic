@@ -17,7 +17,7 @@ namespace Yu5h1Lib.Game.Character
         public class Behaviour : Behaviour2D<Autopilot>
         {
             public enum NodeState { Success, Failure, Running, Waiting }
-			public bool IsNotReady => GameManager.IsBusy || "body does not exist !".printWarningIf(!Body) || !Body.underControl;
+			public bool IsNotReady => GameManager.IsBusy() || "body does not exist !".printWarningIf(!Body) || !Body.underControl;
             protected Patrol patrol;
             protected EmojiController emojiControl;
 
@@ -197,7 +197,15 @@ namespace Yu5h1Lib.Game.Character
             //}
             public virtual void PatrolArea()
             {
-                movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;
+                if (patrol.enabled)
+                    movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;
+                else
+                {
+                    if (Body.detector.CheckCliff())
+                        movement = movement.x > 0 ? Vector2.left : Vector2.right;
+                    else
+                        movement = new Vector2(Body.forwardSign,0);
+                }
                 DetectEnemy();
             }
             public void print(string msg)

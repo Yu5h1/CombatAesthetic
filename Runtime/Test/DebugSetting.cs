@@ -10,5 +10,4 @@ public class DebugSetting : ScriptableObject
 
     public bool enable;
     public float GlobalDelayTimeMultiplier = 0.1f;
-    public bool reloadCurrentSceneWhileLoadCheckPoint;
 }

@@ -40,7 +40,8 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField] protected Vector2 FloatingMultiplier = new Vector2(0.15f, 0.5f);
         [SerializeField] protected Vector2 GroundMultiplier = new Vector2(1, 1);
         [SerializeField] protected bool _Floatable;
-
+        [SerializeField] protected float InvincibleDuration;
+        
 
         #region Events
         [SerializeField]
@@ -103,8 +104,6 @@ namespace Yu5h1Lib.Game.Character
         public Vector2 center => detector.center;
 
         protected Vector2 floating_v_temp = Vector2.zero;
-
-  
 
         #endregion
 
@@ -210,7 +209,8 @@ namespace Yu5h1Lib.Game.Character
         }
         protected virtual void Update()
         {
-            UpdateInputInstruction();
+            if (!IsScriptedActing)
+                UpdateInputInstruction();
         }
         protected virtual void FixedUpdate()
         {
@@ -300,11 +300,11 @@ namespace Yu5h1Lib.Game.Character
         }
         public void CheckForward() => CheckForwardFrom(InputMovement.x);
 
-        public bool DisableHostControl;
+        public bool controllable = true;
         protected virtual bool UpdateInputInstruction()
         {
 
-            if (GameManager.IsGamePause || !Initinalized || DisableHostControl ||
+            if (GameManager.IsGamePause || !Initinalized || !controllable ||
                host == null)
             {
                 InputMovement = Vector2.zero;
@@ -350,33 +350,56 @@ namespace Yu5h1Lib.Game.Character
         }
         #region Coroutine
         private Coroutine TemporarilyInvincibleCoroutine;
-        public void InvincibleHalfSecondIfHurt(Vector2 force)
+        public void ApplyInvincibilityFrames(Vector2 force)
         {
+            if (InvincibleDuration == 0)
+                return;
             var stateNullable = attribute[AttributeType.Health];
             if (stateNullable == null)
                 return;
             var state = stateNullable.Value;
             if (state.IsDepleted)
                 return;
-            this.StartCoroutine(ref TemporarilyInvincibleCoroutine, DisableForDuration(0.5f));
+            this.StartCoroutine(ref TemporarilyInvincibleCoroutine, InvincibilityFramesProcess(InvincibleDuration));
         }
-        private IEnumerator DisableForDuration(float duration)
+        public void ApplyInvincibilityFrames(Vector2 force,float duration){ }
+        private IEnumerator InvincibilityFramesProcess(float duration)
         {
             
             hurtBox.enabled = false;
             var renderer = GetComponent<SpriteRenderer>();
-            var splitedDuration = duration / 5.0f;
+
+            var interval = 0.15f;
+            var flickCount = (int)(InvincibleDuration / interval);
             var flashColor = new Color(.8f, .8f, .8f, 1);
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < flickCount; i++)
             {
                 renderer.color = i % 2 == 0 ? Color.white : flashColor;
-                yield return new WaitForSeconds(splitedDuration);
+                yield return new WaitForSeconds(interval);
             }
             renderer.color = Color.white;
             //attribute.enabled = false;
             //yield return new WaitForSeconds(duration);
             hurtBox.enabled = true;
         }
+        Coroutine performanceCoroutine;
+        public bool IsScriptedActing => performanceCoroutine != null;
+        public void MoveTo(Transform target)
+        {
+            if (!target)
+                return;
+            this.StartCoroutine(ref performanceCoroutine, MoveTo(target.position));
+        }
+        private IEnumerator MoveTo(Vector2 destination)
+        {
+            while (Vector2.Distance(detector.bottom, destination) > 0.5f) {
+                InputMovement = (destination - position).normalized * 0.5f;
+                yield return null;
+            }
+            InputMovement = Vector2.zero;
+            performanceCoroutine = null;
+        }
+
         #endregion
 
 #if UNITY_EDITOR

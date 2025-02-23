@@ -18,8 +18,9 @@ public class UI_Statbar : UI_Stat
     //private Image _reduce;
     //public Image reduce => _reduce;
 
-    private void Reset()
+    protected override void Reset()
     {
+        base.Reset();
         //FindOrCreateImage(out _background,nameof(background));
 
         //if (!FindOrCreateImage(out _fill,nameof(fill))) {

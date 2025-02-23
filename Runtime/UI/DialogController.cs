@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Yu5h1Lib.UI;
 
 public class DialogController : MonoBehaviour
 {

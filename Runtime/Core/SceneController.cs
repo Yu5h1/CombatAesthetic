@@ -51,7 +51,7 @@ public class SceneController : SingletonBehaviour<SceneController>
     private void OnTriggerExit2D(Collider2D other)
     {
         // Avoiding OnTriggerExit2D triggered on EditorApplication.Exit
-        if (GameManager.IsQuit || GameManager.IsMovingPlayer || IsSceneTransitioning)
+        if (GameManager.IsQuit || IsSceneTransitioning || GameManager.IsMovingPlayer)
             return;
         if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
             attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 100000000);

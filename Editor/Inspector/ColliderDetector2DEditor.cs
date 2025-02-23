@@ -30,6 +30,7 @@ public class ColliderDetector2DEditor : Editor<ColliderDetector2D>
 
         //Handles.DotHandleCap(0, targetObject.front, Quaternion.identity, 0.05f, EventType.Repaint);
         VisualizeAutopilot();
+        
     }
     private void VisualizeAutopilot()
     {

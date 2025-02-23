@@ -12,8 +12,9 @@ public class UI_StatAnimation : UI_Stat
     private Sprite[] _Sprites;
     public Sprite[] sprites => _Sprites;
     public int LastIndex => sprites.Length - 1;
-    private void Reset()
+    protected override void Reset()
     {
+        base.Reset();
         TryGetComponent(out image);
     }
     public override void Refresh(AttributeStat status)

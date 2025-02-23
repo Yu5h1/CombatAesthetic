@@ -2,6 +2,8 @@ using UnityEngine;
 using static SceneController;
 using Yu5h1Lib;
 using UnityEngine.UI;
+using Yu5h1Lib.UI;
+using Yu5h1Lib.Game;
 
 [DisallowMultipleComponent]
 public class UI_Manager : MonoBehaviour
@@ -22,9 +24,6 @@ public class UI_Manager : MonoBehaviour
     [SerializeField,ReadOnly]
     public LoadAsyncAgent _Loading;
     public LoadAsyncAgent Loading => Build(nameof(Loading), ref _Loading);
-    //[SerializeField]
-    //private TweenImage_UI _Fadeboard_UI;
-    //public TweenImage_UI Fadeboard_UI => Build(nameof(Fadeboard_UI), ref _Fadeboard_UI);
 
     private UI_Menu _LevelSceneMenu;
     public UI_Menu LevelSceneMenu => Build(nameof(LevelSceneMenu), ref _LevelSceneMenu);
@@ -45,7 +44,7 @@ public class UI_Manager : MonoBehaviour
     public UI_Statbar statbar_UI_Source => Resources.Load<UI_Statbar>($"UI/BaseStatBar_UI");
     public UI_Attribute attribute_UI_Source => Resources.Load<UI_Attribute>("UI/BaseAttribute_UI");
 
-    public static bool IsSpeaking =>
+    public static bool IsSpeaking() =>
        (instance._Dialog_UI?.gameObject?.activeInHierarchy == true) || (instance._EndCredits?.gameObject?.activeSelf == true);
 
     private void Awake()
@@ -67,8 +66,6 @@ public class UI_Manager : MonoBehaviour
 
         if (IsStartScene)
         {
-            //LevelSceneMenu.Dismiss();
-            //    PlayerAttribute_UI.gameObject.SetActive(false);
             if (_LevelSceneMenu)
                 GameObject.DestroyImmediate(_LevelSceneMenu.gameObject);
             if (_PlayerAttribute_UI)
@@ -80,7 +77,6 @@ public class UI_Manager : MonoBehaviour
         {
             if (_StartSceneMenu)
                 GameObject.DestroyImmediate(_StartSceneMenu.gameObject);
-            //    StartSceneMenu.Dismiss(true);
 
             Dialog_UI.transform.SetAsLastSibling();
             var playerMenu = PlayerAttribute_UI.GetComponent<UI_Menu>();
@@ -99,27 +95,11 @@ public class UI_Manager : MonoBehaviour
     }
     public void OnCancelPressed()
     {
-        if (GameManager.IsSpeaking)
+        if (GameManager.IsSpeaking())
             return;
-        //if (SceneController.IsLevelScene || GameManager.instance.playerController)
-        //    PauseGame(!LevelSceneMenu.activeSelf);
         currentMenu?.ReturnToPrevious();
     } 
     #endregion
-    //public void PauseGame(bool YesNo)
-    //{
-    //    #region Fade 
-    //    if (GameManager.instance.Setting.UI.FadeTransition)
-    //    {
-    //        return;
-    //    } 
-    //    #endregion
-    //    LevelSceneMenu.gameObject.SetActive(YesNo);
-    //    if (YesNo)
-    //        LevelSceneMenu.canvasGroup.alpha = 1;
-    //    GameManager.eventsystem.SetSelectedGameObject(null);
-    //    GameManager.IsGamePause = YesNo;
-    //}
 
     public static void Engage(UI_Menu menu)
     {
@@ -137,27 +117,43 @@ public class UI_Manager : MonoBehaviour
     /// <summary>
     /// close self after moving to next menu
     /// </summary>
-    public void ChangeMenu(UI_Menu next, bool dismiss)
+    public static void ChangeMenu(UI_Menu current,UI_Menu next, bool dismiss)
     {
+        var parent = current ? current.transform : instance.transform;
         if (!next)
             return;
         if (!next.DisallowPreviouse && !next.previous)
             next.previous = currentMenu;
-        if (dismiss && !next.transform.IsChildOf(transform))
+        if (dismiss && !next.transform.IsChildOf(parent))
             currentMenu.Dismiss();
         next.Engage();
     }
-    public void SwitchMenu(UI_Menu menu) => ChangeMenu(menu, true);
-    public void Popup(UI_Menu popupmenu) => ChangeMenu(popupmenu, false);
+    public static void SwitchMenu(UI_Menu current, UI_Menu next) => ChangeMenu(current, next, true);
+    public static void Popup(UI_Menu current, UI_Menu next) => ChangeMenu(current,next, false);
+
+    public void SwitchMenu(UI_Menu menu) => ChangeMenu(null,menu, true);
+    public void Popup(UI_Menu popupmenu) => ChangeMenu(null, popupmenu, false);
 
     public void ChangeMenu(string MenuName, bool close)
-    {
-        if (!transform.TryGetComponentInChildren(MenuName, out UI_Menu menu))
-            return;
-        ChangeMenu(menu, close);
+    {        
+        if (transform.TryGetComponentInChildren(MenuName, out UI_Menu menu))
+            ChangeMenu(null,menu, close);
     }
     public void SwitchMenu(string MenuName) => ChangeMenu(MenuName, true);
     public void Popup(string MenuName) => ChangeMenu(MenuName, false);
+
+    public static void ActiveIfHasAnyRecords(Selectable control)
+    {
+        if (!control)
+            return;
+        control.gameObject.SetActive(Records.Any());
+    }
+    public static void SetInteractableIfHasAnyRecords(Selectable control)
+    {
+        if (!control)
+            return;
+        control.interactable = Records.Any();
+    }
 
 
     /// <summary>
@@ -199,6 +195,6 @@ public class UI_Manager : MonoBehaviour
         Dialog_UI.transform.SetAsLastSibling();
         Dialog_UI.gameObject.SetActive(true);
     }
-    public void Prompt(string content) => Prompt(content.Split('\n','\r'));
+    public void Prompt(string content) => Prompt(content.Split('\n'));
 
 }
