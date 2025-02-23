@@ -10,7 +10,7 @@ namespace Yu5h1Lib.Game.Character
     {
         public bool enable;
         public float waitDuration = 1;
-        public bool ActionDelay;
+        public float frequency = 1;
 
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
@@ -104,7 +104,7 @@ namespace Yu5h1Lib.Game.Character
                         IsTargetInSkillRange = false;
                         return false;
                     }
-                    Wait(3);
+                    Wait(Random.Range(0,data.frequency));
                     return updateInput(true, false, false);
                 }else
                     return false;
@@ -116,6 +116,11 @@ namespace Yu5h1Lib.Game.Character
 
             public override bool ShiftIndexOfSkill(out bool next)
                 => next = false;
+
+            public void Wait(float duration)
+                => Body.StartCoroutine(ref waitCoroutine, WaitProcess(duration));
+            public void Wait()
+                => Body.StartCoroutine(ref waitCoroutine, WaitProcess(data.waitDuration));
             #endregion
             #region Events
             protected virtual void OnTargetChanged()
@@ -124,11 +129,10 @@ namespace Yu5h1Lib.Game.Character
                 {
                     patrol.target = target.transform;
                     emojiControl?.ShowEmoji("exclamation mark", 2);
-                    Body.StartCoroutine(ref waitCoroutine, Wait(data.waitDuration));
+                    Wait();
                 }
                 else
                 {
-                    waiting = false;
                     Body.StopCoroutine(waitCoroutine);
                     patrol.target = null;
                     emojiControl?.HideEmoji();
@@ -136,7 +140,7 @@ namespace Yu5h1Lib.Game.Character
             }
             #endregion
             #region Process
-            IEnumerator Wait(float delay){
+            IEnumerator WaitProcess(float delay){
                 waiting = true;
                 yield return new WaitForSeconds(delay);
                 waiting = false;
@@ -202,7 +206,10 @@ namespace Yu5h1Lib.Game.Character
                 else
                 {
                     if (Body.detector.CheckCliff())
+                    {
                         movement = movement.x > 0 ? Vector2.left : Vector2.right;
+                        
+                    }
                     else
                         movement = new Vector2(Body.forwardSign,0);
                 }

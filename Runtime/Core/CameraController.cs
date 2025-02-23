@@ -411,8 +411,8 @@ public class CameraController : SingletonBehaviour<CameraController>
         if (target)
             Focus(target.position);
     }
-    public void Focus(System.Func<Vector3> To, float duration, UnityAction completed)
-        => this.StartCoroutine(ref coroutineCache, FocusProcess(To, completed, duration));
+    public void Focus(System.Func<Vector3> To, float duration, UnityAction completed,bool keepTracking)
+        => this.StartCoroutine(ref coroutineCache, FocusProcess(To, completed, duration,keepTracking));
     public void Focus(Collider2D collider)
     {
         if (collider)
@@ -454,17 +454,18 @@ public class CameraController : SingletonBehaviour<CameraController>
         IsPerforming = false;
     }
     public IEnumerator FocusProcess(System.Func<Vector3> From, System.Func<Vector3> To, UnityAction completed,
-            float? duration = null)
+            float? duration = null,bool keepTracking = true)
     {
         var curveDuration = AnimatedShotCurve.keys.Last().time;
         timer.duration = duration ?? curveDuration;
         IsPerforming = true;
         timer.useUnscaledTime = true;
         timer.Start();
+        var startPoint = From();
         while (!timer.IsCompleted)
         {
             timer.Tick();
-            camera.transform.position = Vector3.Lerp(From(),
+            camera.transform.position = Vector3.Lerp(keepTracking ? startPoint : From(),
             To(), timer.normalized);
             yield return null;
         }        
@@ -500,7 +501,7 @@ public class CameraController : SingletonBehaviour<CameraController>
     //}
 
 
-    IEnumerator FocusProcess(System.Func<Vector3> To, UnityAction completed, float duration)
+    IEnumerator FocusProcess(System.Func<Vector3> To, UnityAction completed, float duration,bool keepTracking)
     {
         follow = false;
         yield return FocusProcess(GetPosition, To, completed, duration);

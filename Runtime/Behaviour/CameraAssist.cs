@@ -13,6 +13,7 @@ public class CameraAssist : MonoBehaviour
     public float duration = 1f;
     public Vector3 offset;
     public Transform[] targets;
+    public bool keepTracking = false;
     //public AnimationCurve curve;
 
     [SerializeField]
@@ -31,7 +32,7 @@ public class CameraAssist : MonoBehaviour
         return controller.GetCenter(positions);
     }
     public void Focus()
-        => controller.Focus(GetCenter,  duration, OnCompleted);
+        => controller.Focus(GetCenter,  duration, OnCompleted,keepTracking);
     public void StopFocue() => controller.StopFocus(duration, OnCompleted);
  
     private void OnCompleted() => completed?.Invoke();
