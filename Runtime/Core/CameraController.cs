@@ -453,41 +453,33 @@ public class CameraController : SingletonBehaviour<CameraController>
         }
         IsPerforming = false;
     }
+    private Vector3 animatedStartPoint;
+    private Vector3 GetAnimatedStartPoint() => animatedStartPoint;
     public IEnumerator FocusProcess(System.Func<Vector3> From, System.Func<Vector3> To, UnityAction completed,
             AnimatedInfo info = default(AnimatedInfo),AnimationCurve curve = null)
     {
-        curve = curve ?? AnimatedShotCurve;
+        curve ??= AnimatedShotCurve;
         IsPerforming = true;
         
         if (info.duration == 0 && curve.keys.IsEmpty())
             yield break;
         if (info.delay > 0)
             yield return new WaitForSeconds(info.delay);
-        timer.duration = info.duration > 0 ? info.duration : curve.keys.Last().time;
+        timer.duration = info.duration > 0 ? info.duration : curve.keys[^1].time;
         timer.useUnscaledTime = true;
         timer.Start();
 
-        if (info.keepTracking)
+        animatedStartPoint = From();
+        var GetFrom = info.keepTracking ? From : GetAnimatedStartPoint;
+
+        while (!timer.IsCompleted)
         {
-            var startPoint = From();
-            while (!timer.IsCompleted)
-            {
-                timer.Tick();
-                camera.transform.position = Vector3.Lerp(startPoint,
-                To(), timer.normalized);
-                yield return null;
-            }
+            timer.Tick();
+            camera.transform.position = Vector3.Lerp(GetFrom(),
+            To(), timer.normalized);
+            yield return null;
         }
-        else{
-            while (!timer.IsCompleted)
-            {
-                timer.Tick();
-                camera.transform.position = Vector3.Lerp(From(),
-                To(), timer.normalized);
-                yield return null;
-            }
-        }
-         
+
         IsPerforming = false;
         completed?.Invoke();
     }

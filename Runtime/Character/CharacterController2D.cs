@@ -388,15 +388,16 @@ namespace Yu5h1Lib.Game.Character
         {
             if (!target)
                 return;
-            this.StartCoroutine(ref performanceCoroutine, MoveTo(target.position));
+            this.StartCoroutine(ref performanceCoroutine, MoveTo(target.position, target.forward.z > 0 ? 1 : -1));
         }
-        private IEnumerator MoveTo(Vector2 destination)
+        private IEnumerator MoveTo(Vector2 destination,float forward)
         {
             while (Vector2.Distance(detector.bottom, destination) > 0.5f) {
                 InputMovement = (destination - position).normalized * 0.5f;
                 yield return null;
             }
             InputMovement = Vector2.zero;
+            CheckForwardFrom(forward);
             performanceCoroutine = null;
         }
 
