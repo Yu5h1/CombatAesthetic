@@ -5,9 +5,10 @@ using Yu5h1Lib.Runtime;
 
 public class Patrol : MonoBehaviour
 {
+    public bool DontUseRoute;
     [SerializeField]
     private Transform _target;
-    public Transform target{ 
+    public Transform target{
         get => _target;
         set 
         {

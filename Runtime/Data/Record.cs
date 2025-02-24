@@ -84,7 +84,7 @@ namespace Yu5h1Lib.Game
     public class Record
     {
  
-        public int buildIndex;
+        public int buildIndex = -1;
         public Vector3 position;
 
         public string path => SceneUtility.GetScenePathByBuildIndex(buildIndex);
@@ -93,7 +93,8 @@ namespace Yu5h1Lib.Game
 
         public bool Load()
         {
-            if (buildIndex < 0)
+            // ignore start scene
+            if (buildIndex < 1)
                 return false;
             SceneController.startPosition = position.IsNaN() ? null : position;
             SceneController.LoadScene(buildIndex);

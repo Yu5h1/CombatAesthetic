@@ -201,14 +201,13 @@ namespace Yu5h1Lib.Game.Character
             //}
             public virtual void PatrolArea()
             {
-                if (patrol.enabled)
+                if (patrol.enabled && !patrol.DontUseRoute)
                     movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;
                 else
                 {
                     if (Body.detector.CheckCliff())
                     {
                         movement = movement.x > 0 ? Vector2.left : Vector2.right;
-                        
                     }
                     else
                         movement = new Vector2(Body.forwardSign,0);

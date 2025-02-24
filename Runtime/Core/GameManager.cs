@@ -181,7 +181,7 @@ namespace Yu5h1Lib
         #region Static
 
         public static bool IsMovingPlayer { get; private set; }
-        public static void MovePlayer(Vector3 pos,Quaternion? rot = null)
+        public static void MovePlayer(Vector2 pos,Quaternion? rot = null)
         {
             IsMovingPlayer = true;
             instance.playerController.rigidbody.simulated = false;

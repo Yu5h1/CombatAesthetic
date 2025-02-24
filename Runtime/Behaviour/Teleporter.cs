@@ -81,11 +81,9 @@ public class Teleporter : PlayerEvent2D
         }
         else
         {
+            SceneController.startPosition = loadSceneOnly ? null : destination;
             if (!loadSceneOnly)
-            {
-                SceneController.startPosition = destination;
                 SceneController.startRotation = other.transform.rotation;
-            }
             SceneController.LoadScene(sceneIndex);
         }
         triggerEnter?.Invoke(other);

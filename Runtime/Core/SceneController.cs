@@ -41,7 +41,7 @@ public class SceneController : SingletonBehaviour<SceneController>
         }
     }
     private void OnAfterLoadSceneAsync() {
-        if (startPosition != null)
+        if (ActiveSceneIndex > 0 && startPosition != null)
         {
             GameManager.MovePlayer(startPosition.Value,startRotation);
             startPosition = null;
