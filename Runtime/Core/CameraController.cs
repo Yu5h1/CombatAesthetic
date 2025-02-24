@@ -418,8 +418,8 @@ public class CameraController : SingletonBehaviour<CameraController>
         if (collider)
             Focus(collider.bounds.center);
     }
-    public void StopFocus(AnimatedInfo info, UnityAction completed)
-        => this.StartCoroutine(ref coroutineCache, StopFocusProcess(info, completed));
+    public void StopFocus(AnimatedInfo info)
+        => this.StartCoroutine(ref coroutineCache, StopFocusProcess(info));
 
     #endregion
 
@@ -525,9 +525,9 @@ public class CameraController : SingletonBehaviour<CameraController>
         yield return FocusProcess(GetPosition, To, completed, animatedInfo);
     }
 
-    IEnumerator StopFocusProcess(AnimatedInfo animatedInfo, UnityAction completed)
+    IEnumerator StopFocusProcess(AnimatedInfo animatedInfo)
     {
-        yield return FocusProcess(GetPosition, GetFollowPoint, completed, animatedInfo);
+        yield return FocusProcess(GetPosition, GetFollowPoint, null, animatedInfo);
         follow = true;
     }
 

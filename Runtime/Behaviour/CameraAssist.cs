@@ -37,7 +37,7 @@ public class CameraAssist : MonoBehaviour
         => controller.Focus(new AnimatedInfo(){ delay = delay,duration = duration,keepTracking = keepTracking }, GetCenter, OnCompleted);
     public void StopFocue() => StopFocue(0);
     public void StopFocue(float delay)
-        => controller.StopFocus(new AnimatedInfo() { delay = delay, duration = duration, keepTracking = keepTracking }, OnCompleted);
+        => controller.StopFocus(new AnimatedInfo() { delay = delay, duration = duration, keepTracking = keepTracking });
 
     private void OnCompleted() => completed?.Invoke();
 
