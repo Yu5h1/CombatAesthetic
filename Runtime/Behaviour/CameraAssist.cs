@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using Yu5h1Lib;
-
+using AnimatedInfo = CameraController.AnimatedInfo;
 public class CameraAssist : MonoBehaviour
 {
     CameraController controller => CameraController.instance;
@@ -32,9 +32,13 @@ public class CameraAssist : MonoBehaviour
         return controller.GetCenter(positions);
     }
     public void Focus()
-        => controller.Focus(GetCenter,  duration, OnCompleted,keepTracking);
-    public void StopFocue() => controller.StopFocus(duration, OnCompleted);
- 
+        => Focus(0);
+    public void Focus(float delay)
+        => controller.Focus(new AnimatedInfo(){ delay = delay,duration = duration,keepTracking = keepTracking }, GetCenter, OnCompleted);
+    public void StopFocue() => StopFocue(0);
+    public void StopFocue(float delay)
+        => controller.StopFocus(new AnimatedInfo() { delay = delay, duration = duration, keepTracking = keepTracking }, OnCompleted);
+
     private void OnCompleted() => completed?.Invoke();
 
 }

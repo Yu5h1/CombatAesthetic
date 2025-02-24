@@ -411,15 +411,15 @@ public class CameraController : SingletonBehaviour<CameraController>
         if (target)
             Focus(target.position);
     }
-    public void Focus(System.Func<Vector3> To, float duration, UnityAction completed,bool keepTracking)
-        => this.StartCoroutine(ref coroutineCache, FocusProcess(To, completed, duration,keepTracking));
+    public void Focus(AnimatedInfo info, System.Func<Vector3> To,UnityAction completed)
+        => this.StartCoroutine(ref coroutineCache, FocusProcess(info,To, completed));
     public void Focus(Collider2D collider)
     {
         if (collider)
             Focus(collider.bounds.center);
     }
-    public void StopFocus(float duration, UnityAction completed)
-        => this.StartCoroutine(ref coroutineCache, StopFocusProcess(duration, completed));
+    public void StopFocus(AnimatedInfo info, UnityAction completed)
+        => this.StartCoroutine(ref coroutineCache, StopFocusProcess(info, completed));
 
     #endregion
 
@@ -454,21 +454,40 @@ public class CameraController : SingletonBehaviour<CameraController>
         IsPerforming = false;
     }
     public IEnumerator FocusProcess(System.Func<Vector3> From, System.Func<Vector3> To, UnityAction completed,
-            float? duration = null,bool keepTracking = true)
+            AnimatedInfo info = default(AnimatedInfo),AnimationCurve curve = null)
     {
-        var curveDuration = AnimatedShotCurve.keys.Last().time;
-        timer.duration = duration ?? curveDuration;
+        curve = curve ?? AnimatedShotCurve;
         IsPerforming = true;
+        
+        if (info.duration == 0 && curve.keys.IsEmpty())
+            yield break;
+        if (info.delay > 0)
+            yield return new WaitForSeconds(info.delay);
+        timer.duration = info.duration > 0 ? info.duration : curve.keys.Last().time;
         timer.useUnscaledTime = true;
         timer.Start();
-        var startPoint = From();
-        while (!timer.IsCompleted)
+
+        if (info.keepTracking)
         {
-            timer.Tick();
-            camera.transform.position = Vector3.Lerp(keepTracking ? startPoint : From(),
-            To(), timer.normalized);
-            yield return null;
-        }        
+            var startPoint = From();
+            while (!timer.IsCompleted)
+            {
+                timer.Tick();
+                camera.transform.position = Vector3.Lerp(startPoint,
+                To(), timer.normalized);
+                yield return null;
+            }
+        }
+        else{
+            while (!timer.IsCompleted)
+            {
+                timer.Tick();
+                camera.transform.position = Vector3.Lerp(From(),
+                To(), timer.normalized);
+                yield return null;
+            }
+        }
+         
         IsPerforming = false;
         completed?.Invoke();
     }
@@ -499,17 +518,24 @@ public class CameraController : SingletonBehaviour<CameraController>
     //    IsPerforming = false;
 
     //}
-
-
-    IEnumerator FocusProcess(System.Func<Vector3> To, UnityAction completed, float duration,bool keepTracking)
+    [System.Serializable]
+    public struct AnimatedInfo 
     {
-        follow = false;
-        yield return FocusProcess(GetPosition, To, completed, duration);
+        public float delay;
+        public float duration;
+        public bool keepTracking;
+        public static AnimatedInfo Default = new AnimatedInfo() { delay = 0, duration = 1, keepTracking = false };
     }
 
-    IEnumerator StopFocusProcess(float duration, UnityAction completed)
+    IEnumerator FocusProcess(AnimatedInfo animatedInfo,System.Func<Vector3> To, UnityAction completed)
     {
-        yield return FocusProcess(GetPosition, GetFollowPoint, completed, duration);
+        follow = false;
+        yield return FocusProcess(GetPosition, To, completed, animatedInfo);
+    }
+
+    IEnumerator StopFocusProcess(AnimatedInfo animatedInfo, UnityAction completed)
+    {
+        yield return FocusProcess(GetPosition, GetFollowPoint, completed, animatedInfo);
         follow = true;
     }
 
