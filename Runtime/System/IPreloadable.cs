@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface ILoadElement 
+public interface IPreloadable
 {
-    int GetItemCount();
     IEnumerator Loading();
 }

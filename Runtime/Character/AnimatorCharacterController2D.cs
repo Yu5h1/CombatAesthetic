@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using NullReferenceException = System.NullReferenceException;
+using TargetingMode = Yu5h1Lib.Game.Character.SkillData.TargetingMode;
 
 namespace Yu5h1Lib.Game.Character
 {
@@ -26,7 +27,7 @@ namespace Yu5h1Lib.Game.Character
         }
         public AnimParamSMB animParam { get; private set; }
         private ActionSMB actionSMB;
-        public bool IsActing => actionSMB?.IsActing == true;
+        public override bool IsActing => actionSMB?.IsActing == true;
 
         private StateInfo stateInfo;
         #endregion        
@@ -279,21 +280,26 @@ namespace Yu5h1Lib.Game.Character
         private void Hit()
         {
 
-            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.effects.Length > 0)
-                CastFXOnTransform(fxSkill.effects[0], transform.Find("HitBoxOffset"));
+            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.casts.Length > 0)
+                CastFXOnTransform(fxSkill.casts[0].source, transform.Find("HitBoxOffset"));
 
             //var hitboxType = detector.collider.bounds.size.magnitude > 2 ? "HitBoxBig" : "HitBox";
             //var fx = PoolManager.Spawn<Transform>(hitboxType, detector.front, offsetTransform.rotation);
             //foreach (var mask in fx.GetComponents<EventMask2D>())
             //    mask.owner = transform;
         }
+        private void SpawnFX(string name, Vector3 pos, Quaternion rot)
+        {
+            var fx = PoolManager.Spawn<Transform>(name, pos, rot);
+            foreach (var mask in fx.GetComponents<EventMask2D>())
+                mask.owner = transform;
+        }
+
         public void CastFXOnTarget()
         {
             if (currentSkillBehaviour == null)
                 return;
-
-
-            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.effects.Length > 0) {
+            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.casts.Length > 0) {
                 var targetTag = tag == "Player" ? "Enemy" : "Player";
                 $"finding {targetTag} ".print();
                 Collider2D[] results = Physics2D.OverlapCircleAll(transform.position, currentSkill.distance);
@@ -304,31 +310,101 @@ namespace Yu5h1Lib.Game.Character
                         continue;
 
                     if (collider.CompareTag(targetTag))
-                        CastFXOnTransform(fxSkill.effects[0], collider.transform);
+                        CastFXOnTransform(fxSkill.casts[0].source, collider.transform);
                 }
             }
         }
-        public void CastFX(int index)
+        public void CastFX()
         {
             if (currentSkillBehaviour == null)
                 return;
-            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.effects.IsValid(index) && !fxSkill.effects[index].IsEmpty()) 
-                CastFXOnTransform(fxSkill.effects[index], transform.Find("FxOffset"));
+            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && !fxSkill.casts.IsEmpty())
+            {
+                var offsetTransform = transform.Find("FxOffset") ?? transform;
+                
+                if (scanner.target)
+                    for (int i = 0; i < fxSkill.casts.Length; i++)
+                    {
+                        if ($"{name}'s skill Fx [{i}] is empty.".printWarningIf(fxSkill.casts[i].source.IsEmpty()))
+                            continue;
+                        var pos = offsetTransform.position;
+                        var rot = offsetTransform.rotation;
+                        switch (fxSkill.casts[i].targetingMode)
+                        {
+                            case TargetingMode.Position:
+                                pos = scanner.target.transform.position;
+                                rot = Quaternion.identity;
+                                break;
+                            case TargetingMode.Position_Ground:
+                                pos = scanner.target.transform.position;
+                                if (scanner.GetGroundHeight(pos, scanner.target.transform.down(), out float height))
+                                    pos.y = height;
+                                else
+                                {
+                                    "CastFX Failed cause no Ground !".printWarning();
+                                    continue;
+                                }
+                                rot = Quaternion.identity;
+                                break;
+                            case TargetingMode.Aim:
+                                rot = scanner.GetQuaternionToResult();
+                                break;
+                            default:
+                                CastFXOnTransform(fxSkill.casts[i].source, offsetTransform);
+                                break;
+                        }
+                        SpawnFX(fxSkill.casts[i].source, pos, rot);
+                    }
+                else
+                    CastFXOnTransform(fxSkill.casts[0].source, offsetTransform);
+            }
         }
+        public void CastFXByIndex(int index)
+        {
+            if (currentSkillBehaviour == null)
+                return;
+            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.IsValid(index))
+            {
+                var t = transform.Find("FxOffset");
+                if (scanner.target)
+                    CastFXOnTransform(fxSkill.casts[index].source, t);
+                else
+                    CastFXOnTransform(fxSkill.casts[index].source, t);
+            }
+        }
+
+        public void CastFXByName(string index)
+        { 
+
+        }
+
         public void CastFXOnTransform(string PoolItemName,Transform offset)
         {
             offset = offset ?? transform;
-            var fx = PoolManager.Spawn<Transform>(PoolItemName, offset.position, offset.rotation);
-            foreach (var mask in fx.GetComponents<EventMask2D>())
-                mask.owner = transform;
+            SpawnFX(PoolItemName, offset.position, offset.rotation);
         }
-        public void PlayAudio(int index)
+        public void PlayAudioClips(AudioClips clips)
         {
-            SoundManager.Play($"footstep{index}", transform.position);
+            if ($"{name} tring to play Empty AudioClips".printErrorIf(!clips))
+                return;
+            PlayAudioClip(clips.RandomElement());
         }
         public void PlayAudioClip(AudioClip clip)
         {
-            SoundManager.Play(clip, transform.position);
+            if ($"{name} tring to play Null AudioClip".printErrorIf(!clip))
+                return;
+          
+
+            AnimatorClipInfo[] clipInfos = animator.GetCurrentAnimatorClipInfo(0);
+            foreach (var info in clipInfos)
+            {
+                if (clip.name.Compare(info.clip.name,StringComparisonStyle.StartsWith) && info.weight >= 0.9f)
+                {
+                    SoundManager.Play(clip, transform.position);
+                    break;
+                }
+            }
+
         }
         #endregion
 

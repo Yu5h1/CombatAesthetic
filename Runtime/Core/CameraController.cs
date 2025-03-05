@@ -58,7 +58,7 @@ public class CameraController : SingletonBehaviour<CameraController>
 
     private float dollyProportion = 0.75f;
     private Vector3 currentVelocity;
-    public bool IsPerforming { get; private set; }
+    public static bool IsPerforming { get; private set; }
     public Timer timer { get; private set; } = new Timer();
     public Timer.Wait waiter;
 
@@ -418,8 +418,26 @@ public class CameraController : SingletonBehaviour<CameraController>
         if (collider)
             Focus(collider.bounds.center);
     }
-    public void StopFocus(AnimatedInfo info)
-        => this.StartCoroutine(ref coroutineCache, StopFocusProcess(info));
+    public void StopPerformance()
+    {
+        if (coroutineCache != null)
+            StopCoroutine(coroutineCache);
+        IsPerforming = false;
+        transform.position = GetFollowPoint();
+        follow = true;
+    }
+    public void StopPerformance(AnimatedInfo info,UnityAction completed)
+    {
+        if (info.duration == 0)
+        {
+            StopPerformance();
+            completed?.Invoke();
+            return;
+        }
+        this.StartCoroutine(ref coroutineCache, StopFocusProcess(info, completed));
+    } 
+    public void StopPerformance(UnityAction completed)
+        => StopPerformance(AnimatedInfo.Default, completed);
 
     #endregion
 
@@ -455,61 +473,36 @@ public class CameraController : SingletonBehaviour<CameraController>
     }
     private Vector3 animatedStartPoint;
     private Vector3 GetAnimatedStartPoint() => animatedStartPoint;
+    private float GetNormalizedTime(float current) => current / timer.duration;
     public IEnumerator FocusProcess(System.Func<Vector3> From, System.Func<Vector3> To, UnityAction completed,
             AnimatedInfo info = default(AnimatedInfo),AnimationCurve curve = null)
     {
         curve ??= AnimatedShotCurve;
-        IsPerforming = true;
-        
+        IsPerforming = true;        
         if (info.duration == 0 && curve.keys.IsEmpty())
             yield break;
         if (info.delay > 0)
             yield return new WaitForSeconds(info.delay);
+
+        bool IsValidCurve = curve == null && curve.keys.Length > 1;
+
         timer.duration = info.duration > 0 ? info.duration : curve.keys[^1].time;
         timer.useUnscaledTime = true;
         timer.Start();
 
         animatedStartPoint = From();
         var GetFrom = info.keepTracking ? From : GetAnimatedStartPoint;
-
+        System.Func<float,float> GetT = IsValidCurve ? curve.Evaluate : GetNormalizedTime;
         while (!timer.IsCompleted)
         {
             timer.Tick();
             camera.transform.position = Vector3.Lerp(GetFrom(),
-            To(), timer.normalized);
+            To(), GetT(timer.time));
             yield return null;
         }
-
         IsPerforming = false;
         completed?.Invoke();
     }
-
-    //public IEnumerator FollowProcess(Transform[] targets, float? duration = null, bool reverse = false)
-    //{
-    //    var curveDuration = AnimatedShotCurve.keys.Last().time;
-    //    timer.duration = duration ?? curveDuration;
-
-    //    IsPerforming = true;
-
-    //    timer.useUnscaledTime = true;
-
-    //    timer.Start();
-
-    //    Vector3[] points = new Vector3[targets.Length];
-
-    //    while (!timer.IsCompleted)
-    //    {
-    //        timer.Tick();
-    //        for (int i = 0; i < targets.Length; i++)
-    //            points[i] = targets[i].position;
-    //        var n = reverse ? 1 - timer.normalized : timer.normalized;
-    //        camera.transform.position = Vector3.Lerp(GetFollowPoint(),
-    //        GetCenter(points), AnimatedShotCurve.Evaluate(n * curveDuration));
-    //        yield return null;
-    //    }
-    //    IsPerforming = false;
-
-    //}
     [System.Serializable]
     public struct AnimatedInfo 
     {
@@ -525,9 +518,10 @@ public class CameraController : SingletonBehaviour<CameraController>
         yield return FocusProcess(GetPosition, To, completed, animatedInfo);
     }
 
-    IEnumerator StopFocusProcess(AnimatedInfo animatedInfo)
+    IEnumerator StopFocusProcess(AnimatedInfo animatedInfo,UnityAction completed)
     {
-        yield return FocusProcess(GetPosition, GetFollowPoint, null, animatedInfo);
+        yield return FocusProcess(GetPosition, GetFollowPoint, completed, animatedInfo);
+        currentVelocity = Vector3.zero;
         follow = true;
     }
 

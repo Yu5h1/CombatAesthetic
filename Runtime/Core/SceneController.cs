@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -26,14 +27,14 @@ public class SceneController : SingletonBehaviour<SceneController>
         $"{GameManager.instance} is ready.".print();
         Time.timeScale = 1;
         gameObject.layer = LayerMask.NameToLayer("Boundary");
+
         if (SceneController.IsLevelScene || GameManager.instance.playerController)
         {
             CheckPoint.InitinalizeCheckPoints();
             if (startPosition == null && !StartLines.IsEmpty() && !NoTalking)
             {
                 GameManager.IsGamePause = true;
-                GameManager.ui_Manager.Dialog_UI.lines = StartLines;
-                GameManager.ui_Manager.Dialog_UI.transform.SetAsLastSibling();
+                GameManager.ui_Manager.Dialog_UI.lines = StartLines;                
                 GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
             }
             CameraController.instance.PrepareSortingLayerSprites();
@@ -98,7 +99,7 @@ public class SceneController : SingletonBehaviour<SceneController>
     }
     private static Coroutine LoadSceneAsyncCoroutine;
     private static IEnumerator LoadSceneAsynchronously(int SceneIndex)
-    {
+    {        
 #if UNITY_EDITOR
         UnityEditor.Selection.activeObject = null;
 #endif
@@ -108,7 +109,7 @@ public class SceneController : SingletonBehaviour<SceneController>
         operation.allowSceneActivation = false;
         while (!operation.isDone)
         {
-            LoadSceneAsyncHandler?.Invoke(Mathf.Clamp01(operation.progress / 0.9f) * 0.9f);
+            LoadSceneAsyncHandler?.Invoke(Mathf.Clamp01(operation.progress / 0.9f) * 0.8f);
 
             if (operation.progress >= 0.9f)
             {
@@ -116,7 +117,32 @@ public class SceneController : SingletonBehaviour<SceneController>
             }
             yield return null;
         }
+        #region Manage resources
+
+        var unloadOperation = Resources.UnloadUnusedAssets();
+        while (!unloadOperation.isDone)
+        {
+            LoadSceneAsyncHandler?.Invoke(0.8f + (Mathf.Clamp01(operation.progress / 0.9f) * 0.1f));
+            yield return null;
+        }
+        System.GC.Collect();
+
+        var preloadables = Object.FindObjectsOfType<MonoBehaviour>().Where( b=>b is IPreloadable).Cast<IPreloadable>().ToArray();
+        
+        for (int i = 0; i < preloadables.Length; i++)
+        {
+            var progress = ((float)i ) / preloadables.Length;
+            LoadSceneAsyncHandler?.Invoke(0.9f + (progress * 0.05f));
+            yield return preloadables[i].Loading();
+        }
+
+        LoadSceneAsyncHandler?.Invoke(0.95f);
+
+        #endregion
+
+
         LoadSceneAsyncHandler?.Invoke(0.99f);
+
         yield return new WaitUntil(IsSceneUnLoaded);
         AfterLoadSceneAsync();
         LoadSceneAsyncHandler?.Invoke(1.0f);
@@ -148,8 +174,6 @@ public class SceneController : SingletonBehaviour<SceneController>
         RemoveInstanceCache();
         IsSceneTransitioning = false;
     }
-
-
 
     #endregion
 }

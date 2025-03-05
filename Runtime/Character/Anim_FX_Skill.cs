@@ -9,7 +9,9 @@ public class Anim_FX_Skill : SkillData<Anim_FX_Skill.Behaviour>
     public int IndexOfSkillParam;
     public string NameOfSkill;
 
-    public string[] effects;
+    public SkillData.CastInfo[] casts;
+
+    public bool IsValid(int index) => casts.IsValid(index) && !casts[index].source.IsEmpty();
     public class Behaviour : SkillBehaviour<Anim_FX_Skill>
     {
         Autopilot autopilot;
@@ -32,6 +34,5 @@ public class Anim_FX_Skill : SkillData<Anim_FX_Skill.Behaviour>
             return false;
         }
     }
-
 }
 

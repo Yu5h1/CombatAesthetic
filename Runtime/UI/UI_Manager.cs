@@ -13,7 +13,7 @@ public class UI_Manager : MonoBehaviour
         get{
             if (_instance == null)
                 _instance = GameManager.instance.GetComponent<UI_Manager>();
-            return _instance;
+            return _instance;            
         }
     }
 
@@ -76,9 +76,7 @@ public class UI_Manager : MonoBehaviour
         else if (IsLevelScene || GameManager.instance.playerController)
         {
             if (_StartSceneMenu)
-                GameObject.DestroyImmediate(_StartSceneMenu.gameObject);
-
-            Dialog_UI.transform.SetAsLastSibling();
+                GameObject.DestroyImmediate(_StartSceneMenu.gameObject);            
             var playerMenu = PlayerAttribute_UI.GetComponent<UI_Menu>();
   
             playerMenu.previous = LevelSceneMenu;
@@ -95,7 +93,7 @@ public class UI_Manager : MonoBehaviour
     }
     public void OnCancelPressed()
     {
-        if (GameManager.IsSpeaking())
+        if (GameManager.IsSpeaking() || CameraController.IsPerforming)
             return;
         currentMenu?.ReturnToPrevious();
     } 
@@ -103,8 +101,13 @@ public class UI_Manager : MonoBehaviour
 
     public static void Engage(UI_Menu menu)
     {
+        instance.Loading.transform.SetAsLastSibling();
+        if (menu.transform.parent == instance.Loading.transform.parent)
+            menu.transform.SetSiblingIndex(instance.Loading.transform.GetSiblingIndex() - 1);
+        else
+            menu.transform.SetAsLastSibling();
+
         menu.gameObject.SetActive(true);
-        menu.transform.SetAsLastSibling();
         currentMenu = menu;
     }
     public static void Dismiss(UI_Menu menu)
@@ -163,18 +166,21 @@ public class UI_Manager : MonoBehaviour
     {
         if (result)
             return result;
+
         if (!this.TryGetComponentInChildren(n, out result))
-        {
             $"{n} not found in Reousource folder.".printErrorIf(!ResourcesUtility.TryInstantiateFromResources(out result, $"UI/{n}", transform, true));
-        }
+
         if (result)
         {
-            (result switch
+            var gobj = result switch
             {
                 Component component => component.gameObject,
                 GameObject obj => obj,
                 _ => null
-            }).SetActive(false);
+            };           
+            gobj.SetActive(false);
+            if (Loading)
+                gobj.transform.SetSiblingIndex(Loading.transform.GetSiblingIndex()-1);
         }
         else
             Debug.LogWarning($"{n} does not exists.");
@@ -191,8 +197,7 @@ public class UI_Manager : MonoBehaviour
 
     public void Prompt(string[] lines)
     {
-        Dialog_UI.lines = lines;
-        Dialog_UI.transform.SetAsLastSibling();
+        Dialog_UI.lines = lines;        
         Dialog_UI.gameObject.SetActive(true);
     }
     public void Prompt(string content) => Prompt(content.Split('\n'));

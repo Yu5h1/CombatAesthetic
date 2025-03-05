@@ -22,8 +22,6 @@ public class PatrolEditor : Editor<Patrol>
     protected void OnEnable()
     {
         InitPartol();
-        if (!EditorApplication.isPlaying)
-            targetObject.scanner.transform = targetObject.transform;
     }
 
     public override void OnInspectorGUI()
@@ -50,11 +48,7 @@ public class PatrolEditor : Editor<Patrol>
         targetObject.route.Handle( targetObject, ref selectedPointIndex, ref IsDragging, targetObject.current,
             targetObject.offset,targetObject.offsetQ);
 
-        if (targetObject.scanner.collider)
-        Handles.DotHandleCap(0,
-            targetObject.scanner.start,
-            Quaternion.identity,
-            0.05f, EventType.Repaint);
+
     }
     private void InitPartol()
     {

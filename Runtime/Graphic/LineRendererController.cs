@@ -7,7 +7,6 @@ using UnityEngine.Events;
 using Yu5h1Lib;
 using Yu5h1Lib.Runtime;
 
-
 public class LineRendererController : ComponentController<LineRenderer>
 {
     public enum Style
@@ -27,8 +26,6 @@ public class LineRendererController : ComponentController<LineRenderer>
 
     public LayerMask layer;
     public TagOption tagOption;
-
-    private CallbackHandler callbackhandler;
 
     [SerializeField, ReadOnly]
     private bool _IsConnecting;
@@ -103,9 +100,7 @@ public class LineRendererController : ComponentController<LineRenderer>
 
     protected override void Start()
     {
-        
         base.Start();
-        callbackhandler = new CallbackHandler();
         Connect();
     }
     private void FixedUpdate()
@@ -202,8 +197,6 @@ public class LineRendererController : ComponentController<LineRenderer>
     }
     private void OnDestroy()
     {
-        callbackhandler.Clear();
-        callbackhandler = null;
     }
     #endregion
     void OnDrawGizmos()
@@ -218,26 +211,22 @@ public class LineRendererController : ComponentController<LineRenderer>
             }
         }
     }
-
+    private void InvokeDisconnected() => _disconnected?.Invoke();
+    private void InvokeConnected() => _connected?.Invoke();
     #region Coroutine
     [ContextMenu(nameof(Connect))]
     public void Connect()
-    {
-        callbackhandler?.Clear();
-        callbackhandler.Register(_connected);
+    {        
         _IsConnecting = true;
         _IsHit = false;
         this.StartCoroutine(ref performCoroutine,
-            FadeProcess(ConnectDelay, ConnectDuration, 1, defaultColor: new Color(1, 1, 1, 0), performEnd: callbackhandler.Invoke));
+            FadeProcess(ConnectDelay, ConnectDuration, 1, defaultColor: new Color(1, 1, 1, 0), performEnd: InvokeConnected));
     }
     public void Disconnect(int index, Style style = Style.Extend)
     {
-        callbackhandler?.Clear();
-        callbackhandler.Register(_disconnected);
         _IsConnecting = false;
         var duration = 0.3f;
-        
-        this.StartCoroutine(ref performCoroutine, FadeProcess(0, duration, 0, index, style,performEnd: callbackhandler.Invoke));
+        this.StartCoroutine(ref performCoroutine, FadeProcess(0, duration, 0, index, style,performEnd: InvokeDisconnected));
     }
 
     private IEnumerator FadeProcess(float delay, float duration, float alpha, int startIndex = 0,

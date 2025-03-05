@@ -23,5 +23,7 @@ public static class Vector2Ex
         float cosThreshold = Mathf.Cos(threshold * Mathf.Deg2Rad);
         return dot >= cosThreshold;
     }
+    public static Quaternion DirectionToQuaternion2D(this Vector2 dir)
+        => Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
 
 }

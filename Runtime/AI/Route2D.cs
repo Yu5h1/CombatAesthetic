@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using Yu5h1Lib;
 
 [Serializable]
@@ -42,8 +43,9 @@ public class Route2D
         }
     }
     
-    public Vector2 GetDirection(Vector2 position, Vector2 offset, Quaternion offsetQ, ref int current, float arriveRange)
-            => GetDirection(loop, points, position, offset, offsetQ, ref current, arriveRange);
+    public Vector2 GetDirection(Vector2 position, Vector2 offset, Quaternion offsetQ,
+            ref int current, float arriveRange,bool moveNext, UnityAction nodeArrived)
+            => GetDirection(loop, points, position, offset, offsetQ, ref current, arriveRange, moveNext, nodeArrived);
 
     public bool MoveNext(ref int current) => MoveNext(points, loop, ref current);
     public int GetNext(int current) => GetNext(points, loop, current);
@@ -53,16 +55,19 @@ public class Route2D
         => Vector2.Distance(position, destination) < arriveRange;
 
     public static Vector2 GetDirection(bool loop,Vector2[] points,Vector2 position,
-        Vector2 offset, Quaternion offsetQ, ref int current, float arriveRange )
+        Vector2 offset, Quaternion offsetQ, ref int current, float arriveRange ,bool moveNext,
+        UnityAction nodeArrived)
     {
         if (points.IsEmpty() || !points.IsValid(current))
             return Vector2.zero;
         if (offsetQ == default(Quaternion))
             offsetQ = Quaternion.identity;
         var destination = offset + points[current].Rotate(offsetQ);
-        if (IsArrived(position, destination, arriveRange))
+        if (moveNext || IsArrived(position, destination, arriveRange))
         {
-            if (!MoveNext(points,loop,ref current))
+            if (MoveNext(points, loop, ref current))
+                nodeArrived?.Invoke();
+            else
                 return Vector2.zero;
         }
         return (destination - position).normalized;

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using Yu5h1Lib;
 using Yu5h1Lib.Game.Character;
 
-public class GameManagementAgent : MonoBehaviour
+public class GameManagementAgent : MonoBehaviour,IGameManager
 {
     public static GameManager GameManager => GameManager.instance;
 
@@ -33,6 +33,16 @@ public class GameManagementAgent : MonoBehaviour
         if (delay > 0)
             yield return new WaitForSecondsRealtime(delay);
         SceneController.LoadScene(index);
+    }
+
+    public void EnablePlayerControl()
+    {
+        ((IGameManager)GameManager).EnablePlayerControl();
+    }
+
+    public void DisablePlayerControl()
+    {
+        ((IGameManager)GameManager).DisablePlayerControl();
     }
     #endregion
 }

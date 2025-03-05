@@ -30,6 +30,7 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField, ReadOnly]
         private ColliderDetector2D _detector;
         public ColliderDetector2D detector => _detector;
+        public ColliderScanner2D scanner => _detector.scanner;
         public bool IsGrounded => detector.IsGrounded;
         public bool IsInteracting => !detector.enabled;
         #endregion
@@ -93,6 +94,7 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField,ReadOnly]
         protected bool _underControl;
         public bool underControl { get => _underControl && Conscious > 0; protected set => _underControl = value; }
+        public virtual bool IsActing => false;
         public int Conscious { get; protected set; } = 100;
         #endregion
 

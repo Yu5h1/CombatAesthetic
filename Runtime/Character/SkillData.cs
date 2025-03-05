@@ -7,6 +7,23 @@ namespace Yu5h1Lib.Game.Character
 {
     public class SkillData : ScriptableObject
     {
+        //[System.Flags]
+        public enum TargetingMode
+        {
+            None             = 0, 
+            Position         = 1 << 0,
+            Position_Ground  = 1 << 1,
+            Aim              = 1 << 2,
+        }
+
+        [System.Serializable]
+        public class CastInfo
+        {
+            [AutoFill(typeof(AutoFillResources),"Fx")]
+            public string source;
+            public TargetingMode targetingMode;
+        }
+        
         [Tooltip("If spell is empty, the skill will be set as index skill option")]
         public string incantation;
         public float distance = 1;

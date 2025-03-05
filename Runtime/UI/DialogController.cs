@@ -13,8 +13,7 @@ public class DialogController : MonoBehaviour
 
     public void Prompt(string[] lines)
     {
-        dialog_UI.lines = lines;
-        dialog_UI.transform.SetAsLastSibling();
+        dialog_UI.lines = lines;        
         dialog_UI.gameObject.SetActive(true);
     }
     public void Prompt(string content) => Prompt(content.Split('\n', '\r'));

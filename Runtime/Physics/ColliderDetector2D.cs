@@ -13,7 +13,6 @@ namespace Yu5h1Lib.Game.Character
         public const string MovingPlatformTag = "MovingPlatform";
 
         public bool IsValid() => collider && enabled;
-                
         #region Ground detection parameters
         public RaycastHit2D groundHit { get; private set; }
         private bool _IsGrounded;
@@ -32,7 +31,7 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField, Range(0.01f, 1.0f)]
         private float groundDistanceThreshold = 0.05f;
         #endregion
-        public CollierCastInfo2D forwardCastInfo = new CollierCastInfo2D();
+        //public CollierCastInfo2D forwardCastInfo = new CollierCastInfo2D();
 
         [SerializeField]
         private UnityEvent<bool> _GroundStateChanged;
@@ -41,6 +40,10 @@ namespace Yu5h1Lib.Game.Character
             add => _GroundStateChanged.AddListener(value);
             remove => _GroundStateChanged.RemoveListener(value);
         }
+
+        [SerializeField]
+        private ColliderScanner2D _scanner;
+        public ColliderScanner2D scanner => _scanner;
 
         void Awake()
         {
@@ -54,6 +57,8 @@ namespace Yu5h1Lib.Game.Character
                 collider = c;
             Init();
             ignoreSiblingColliders = true;
+
+            scanner.Init(transform);
         }
         protected override void OnEnable()
         {
@@ -183,6 +188,8 @@ namespace Yu5h1Lib.Game.Character
             return true;
         }
 
+        public Vector2 ClosestPoint(Vector2 pos) => collider.ClosestPoint(pos);
+
         public RaycastHit2D CheckObstacle()
         {
             //var hit = collider.Cast( right, 0.5f, 0),
@@ -202,8 +209,7 @@ namespace Yu5h1Lib.Game.Character
             //    ObstacleAngle = 0;
             //}
             return default(RaycastHit2D);
-        }
-        public Vector2 ClosestPoint(Vector2 position) => collider.ClosestPoint(position);
+        }        
 #if UNITY_EDITOR
 
         private void OnDrawGizmosSelected()
@@ -221,6 +227,24 @@ namespace Yu5h1Lib.Game.Character
             Gizmos.color = color;
         }
 #endif
+
+        #endregion
+
+        #region ContextMenu
+
+        [ContextMenu(nameof(UsedefaultScannerSetting))]
+        public void UsedefaultScannerSetting()
+        {
+            scanner.layerMask = LayerMask.GetMask("Character");
+            scanner.Tag.tag = "Player";
+            scanner.ObstacleMask = LayerMask.GetMask("PhysicsObject");
+            scanner.Tag.type = TagOption.ComparisionType.Equal;
+            scanner.filter.useTriggers = false;
+            scanner.filter.useLayerMask = true;
+            scanner.direction = Vector2.zero;
+            scanner.useCircleCast = true;
+            scanner.distance = 10;
+        }
 
         #endregion
     }

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using Yu5h1Lib.Runtime;
 
 
 namespace Yu5h1Lib.Game.Character
@@ -11,19 +13,25 @@ namespace Yu5h1Lib.Game.Character
         public bool enable;
         public float waitDuration = 1;
         public float frequency = 1;
+        //public AudioClip 
+        public MinMax PatrolWaitTimeOnNode;
+
+        public bool StopActing = false;
+        public bool StopMoving = false;
 
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
         public class Behaviour : Behaviour2D<Autopilot>
         {
+            public ColliderScanner2D scanner => Body.detector.scanner;
             public enum NodeState { Success, Failure, Running, Waiting }
-			public bool IsNotReady => GameManager.IsBusy() || "body does not exist !".printWarningIf(!Body) || !Body.underControl;
+            public bool IsNotReady => GameManager.IsBusy() || "body does not exist !".printWarningIf(!Body) || !Body.underControl;
             protected Patrol patrol;
             protected EmojiController emojiControl;
 
             public Vector2 patrolPoint => patrol.offset;
             public Vector2 destination;
-            protected Vector2 movement;         
+            protected Vector2 movement;
 
             private CharacterController2D _target;
             public CharacterController2D target 
@@ -32,13 +40,17 @@ namespace Yu5h1Lib.Game.Character
                 set {
                     if (_target == value)
                         return;
-                    _target = value;                                            
+                    _target = value;
                     OnTargetChanged();
+                    
                 }
             }
+
             public bool IsTargetInSkillRange;
             public bool waiting;
-            Coroutine waitCoroutine;
+
+            private Coroutine waitCoroutine;
+
             public override void Init(CharacterController2D controller)
             {
                 base.Init(controller);
@@ -49,7 +61,7 @@ namespace Yu5h1Lib.Game.Character
             #region input
             public override Vector2 GetMovement()
             {
-                if (IsNotReady)
+                if (IsNotReady || Body.IsActing || waiting || data.StopMoving)
                     return Vector2.zero;
                 IsTargetInSkillRange = false;
                 if (target)
@@ -57,8 +69,8 @@ namespace Yu5h1Lib.Game.Character
                     var distanceBetweenTarget = GetDistanceBetweenTarget(out Vector2 selfPoint,out Vector2 targetPoint);
 
                     RaycastHit2D obstacleHit = default(RaycastHit2D);
-                    if (patrol.scanner.ObstacleMask.value != 0)
-                        obstacleHit = Physics2D.Linecast(Body.position, target.position, patrol.scanner.ObstacleMask);
+                    if (scanner.ObstacleMask.value != 0)
+                        obstacleHit = Physics2D.Linecast(Body.position, target.position, scanner.ObstacleMask);
 
                     var DirectionToTarget = (targetPoint - selfPoint).normalized;
 
@@ -87,14 +99,14 @@ namespace Yu5h1Lib.Game.Character
                     }
                 }
                 else
-                    PatrolArea();
+                    PatrolAreaAndScanning();
                 
                 return movement;
             }
 
             public override bool GetInputState(UpdateInput updateInput)
             {
-                if (IsNotReady || target == null || waiting)
+                if (IsNotReady || target == null || waiting || Body.IsActing || data.StopActing)
                     return false;
                 if (IsTargetInSkillRange)
                 {
@@ -118,9 +130,13 @@ namespace Yu5h1Lib.Game.Character
                 => next = false;
 
             public void Wait(float duration)
-                => Body.StartCoroutine(ref waitCoroutine, WaitProcess(duration));
+            {
+                if (duration > 0)
+                    Body.StartCoroutine(ref waitCoroutine, WaitProcess(duration));
+            }
+
             public void Wait()
-                => Body.StartCoroutine(ref waitCoroutine, WaitProcess(data.waitDuration));
+                => Wait(data.waitDuration);
             #endregion
             #region Events
             protected virtual void OnTargetChanged()
@@ -129,18 +145,20 @@ namespace Yu5h1Lib.Game.Character
                 {
                     patrol.target = target.transform;
                     emojiControl?.ShowEmoji("exclamation mark", 2);
-                    Wait();
+                    SoundManager.Play($"µo²{ª±®a", transform.position);
+                    Wait(0.5f);
                 }
                 else
                 {
-                    Body.StopCoroutine(waitCoroutine);
                     patrol.target = null;
                     emojiControl?.HideEmoji();
+                    Wait(0.1f);
                 }
+                
             }
             #endregion
             #region Process
-            IEnumerator WaitProcess(float delay){
+            IEnumerator WaitProcess(float delay) {
                 waiting = true;
                 yield return new WaitForSeconds(delay);
                 waiting = false;
@@ -171,25 +189,25 @@ namespace Yu5h1Lib.Game.Character
                 return distanceBetweenTarget < animBody.currentSkill.distance;
             }
 
-            public virtual bool DetectEnemy()
+            public virtual void DetectEnemy()
             {
-                if (!patrol.enabled || waiting)
-                    return false;
-                if (target != null && Vector2.Distance(Body.position, patrol.Destination) < 5 )
-                    return true;
-
-                if (patrol.Scan(out RaycastHit2D hit))
+                if (target != null && Vector2.Distance(Body.position, patrol.Destination) > scanner.distance )
+                {
+                    target = null;
+                    return;
+                }
+                if (scanner.Scan(out RaycastHit2D hit))
                 {
 #if UNITY_EDITOR
-                    Debug.DrawLine(patrol.scanner.start, hit.point, Color.cyan);
+                    Debug.DrawLine(scanner.start, hit.point, Color.cyan);
 #endif
                     if (hit.collider.TryGetComponent(out CharacterController2D c))
-                        return target = c;
+                    {
+                        target = c;
+                        return;
+                    }
                 }
-                return target = null;
-
-                //return (patrol.Scan(out RaycastHit2D hit) && hit.collider.TryGetComponent(out Controller2D c)) ?
-                //       (target = c) :  (target = null);
+                target = null;
             }
             //public void FollowTarget()
             //{
@@ -199,10 +217,10 @@ namespace Yu5h1Lib.Game.Character
             //        movement = Vector2.zero;
             //    movement = (target.detector.top - Body.detector.center).normalized;
             //}
-            public virtual void PatrolArea()
+            protected virtual void PatrolAreaAndScanning()
             {
-                if (patrol.enabled && !patrol.DontUseRoute)
-                    movement = GetMovementFromGlobalDirection(patrol.GetDirection()).normalized;
+                if (patrol.IsAvailable())
+                    movement = GetMovementFromGlobalDirection(patrol.GetDirection(Body.detector.CheckCliff(), OnNodeArrived)).normalized;
                 else
                 {
                     if (Body.detector.CheckCliff())
@@ -213,6 +231,10 @@ namespace Yu5h1Lib.Game.Character
                         movement = new Vector2(Body.forwardSign,0);
                 }
                 DetectEnemy();
+            }
+            private void OnNodeArrived()
+            {
+                Wait(Random.Range(data.PatrolWaitTimeOnNode.Min, data.PatrolWaitTimeOnNode.Max));
             }
             public void print(string msg)
             {

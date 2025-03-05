@@ -103,7 +103,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     public void play(AudioClip clip, Vector3 position, Quaternion rotation)
     {
-        if ($"{clip}".printWarningIf(!clip))
+        if ($"Try to play Null AudioClip".printWarningIf(!clip))
             throw new NullReferenceException("Play SFX failed.");
         if (!PoolManager.Exists(typeof(AudioSource)))
             PrepareAudioSource();

@@ -4,22 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using Yu5h1Lib;
 
 public class LineGroup : MonoBehaviour
 {
 
     [SerializeField]
-    private LineRendererController[] lineControllers;
-
+    private LineRendererController[] _lineControllers;
+    public LineRendererController[] lineControllers => _lineControllers;
 
     public UnityEvent AllConnected;
     public UnityEvent AllDisconnected;
     // Start is called before the first frame update
     void Start()
     {
+        if (!lineControllers.IsEmpty())
         for (int i = 0; i < lineControllers.Length; i++)
         {
-            //Weaknesses[i] = PoolManager.Spawn<LineRendererController>(sourceWeakness, weaknessLocations[i]);
             lineControllers[i].HitStateChanged += HitStateChanged;
         }
     }

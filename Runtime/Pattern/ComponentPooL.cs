@@ -1,6 +1,7 @@
 //#define DEBUG_MODE
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.PlayerLoop;
 using UnityEngine.Pool;
 
@@ -60,8 +61,7 @@ namespace Yu5h1Lib
 
         public bool UseFIFO;
 
-        public event System.Action<Component> initAction;
-        public event System.Action<Component> spawnAction;
+        public event System.Action<Component> initAction;        
         public static bool TryCreate<T>(T source, Transform root, Config config, out ComponentPool result, System.Action<Component> init) where T : Component
         {
             result = null;
@@ -130,7 +130,7 @@ namespace Yu5h1Lib
             list.RemoveFirst();
             return result;
         }
-        public T Spawn<T>(Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion), Transform parent = null) where T : Component
+        public T Spawn<T>(Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion), Transform parent = null,UnityAction<T> beginSpawn = null) where T : Component
         {
             if (elements.IsEmpty())
                 throw new System.InvalidOperationException("No elements available in the pool.");
@@ -177,7 +177,7 @@ namespace Yu5h1Lib
             obj.transform.position = position;
             if (rotation != default(Quaternion))
                 obj.transform.rotation = rotation;
-            spawnAction?.Invoke(obj);
+            beginSpawn?.Invoke(obj);
             obj.gameObject.SetActive(true);
             return obj;
         }

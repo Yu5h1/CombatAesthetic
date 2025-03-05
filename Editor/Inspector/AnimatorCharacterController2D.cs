@@ -12,6 +12,7 @@ public class AnimatorCharacterController2DEditor : Controller2DEditor
 {
     public AnimatorCharacterController2D contoller => targetObject as AnimatorCharacterController2D;
 
+
     public override void OnInspectorGUI()
     {
         if (!contoller)

@@ -13,7 +13,7 @@ namespace Yu5h1Lib
     [RequireComponent(typeof(EventSystem), typeof(Canvas), typeof(InputSystemUIInputModule))]
     [RequireComponent(typeof(UI_Manager), typeof(SoundManager))]
     [DisallowMultipleComponent]
-    public partial class GameManager : SingletonBehaviour<GameManager>
+    public partial class GameManager : SingletonBehaviour<GameManager> , IGameManager
     {
         public static bool IsQuit = false;
         public static GameSetting Setting => GameSetting.instance;
@@ -91,6 +91,7 @@ namespace Yu5h1Lib
 
         public void Start()
         {
+            Input.imeCompositionMode = IMECompositionMode.Off;
             foreach (var item in FindObjectsByType<PlayerInput>(FindObjectsInactive.Include,FindObjectsSortMode.None))
             {
                 item.uiInputModule = InputModule;
@@ -193,7 +194,7 @@ namespace Yu5h1Lib
                 cameraController.Focus(instance.playerController.transform);
             IsMovingPlayer = false; 
         }
- 
+
         #endregion
         //public void DetectMouseAttack()
         //{
@@ -207,7 +208,15 @@ namespace Yu5h1Lib
         //        }
         //    }
         //}
-
+        public void StopCameraPerformance(float duration)
+        {
+            if (!playerController)
+                return;
+            cameraController.StopPerformance(new CameraController.AnimatedInfo() {
+                duration = duration,
+                keepTracking = false,
+            }, EnablePlayerControl);
+        }
         private void PlayerHealthDepleted(AttributeType flag)
         {
             if (flag.HasFlag(AttributeType.Health))
@@ -226,13 +235,19 @@ namespace Yu5h1Lib
         }
 
         #region Methods
-
+        public void EnablePlayerControl() => SetPlayerControllable(true);
+        public void DisablePlayerControl() => SetPlayerControllable(false);
         public static void SetPlayerControllable(bool flag)
         {
             if (!instance.playerController)
                 return;
             instance.playerController.controllable = flag;
         }
-        #endregion
+        #endregion        
     }    
+    public interface IGameManager
+    {
+        void EnablePlayerControl();
+        void DisablePlayerControl();
+    }
 }
