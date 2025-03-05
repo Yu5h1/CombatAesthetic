@@ -115,6 +115,9 @@ namespace Yu5h1Lib
                 OnFoundPlayer?.Invoke();
             }else
                 Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
+
+            //foreach (var agent in transform.GetComponentsInChildren<GameManagementAgent>())
+            //    agent.GameStart?.Invoke();
         }
         void Update()
         {

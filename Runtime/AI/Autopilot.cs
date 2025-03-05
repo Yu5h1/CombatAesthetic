@@ -1,7 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Yu5h1Lib.Runtime;
 
@@ -74,7 +71,7 @@ namespace Yu5h1Lib.Game.Character
 
                     var DirectionToTarget = (targetPoint - selfPoint).normalized;
 
-                    if (obstacleHit)
+                    if (obstacleHit || distanceBetweenTarget > scanner.distance)
                     {
                         target = null;
                         return Vector2.zero;

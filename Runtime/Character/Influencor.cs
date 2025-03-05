@@ -45,6 +45,13 @@ public class Influencor : MonoBehaviour
         if (this.TryGetComponentInParent(out CharacterController2D controller, true))
             controller.HitFrom(-controller.velocity);
     }
+    public void RecoilHit(float multiplier)
+    {
+        if (!isActiveAndEnabled)
+            return;
+        if (this.TryGetComponentInParent(out CharacterController2D controller, true))
+            controller.HitFrom(-controller.velocity * multiplier);
+    }
     public void AddForce(Collider2D other)
     {
         if (!isActiveAndEnabled)

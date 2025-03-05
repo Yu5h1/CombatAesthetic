@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using Yu5h1Lib;
 using Yu5h1Lib.Game.Character;
@@ -8,6 +9,8 @@ using Yu5h1Lib.Game.Character;
 public class GameManagementAgent : MonoBehaviour,IGameManager
 {
     public static GameManager GameManager => GameManager.instance;
+
+    //public UnityEvent GameStart;
 
     Coroutine LoadStartSceneCoroutine;
 

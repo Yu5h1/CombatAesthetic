@@ -42,7 +42,7 @@ public class UI_Manager : MonoBehaviour
     public UI_DialogBase EndCredits => Build(nameof(EndCredits), ref _EndCredits);
 
     public UI_Statbar statbar_UI_Source => Resources.Load<UI_Statbar>($"UI/BaseStatBar_UI");
-    public UI_Attribute attribute_UI_Source => Resources.Load<UI_Attribute>("UI/BaseAttribute_UI");
+    public UI_Attribute attribute_UI_Source => Resources.Load<UI_Attribute>("UI/BaseAttribute_UI");    
 
     public static bool IsSpeaking() =>
        (instance._Dialog_UI?.gameObject?.activeInHierarchy == true) || (instance._EndCredits?.gameObject?.activeSelf == true);
@@ -102,13 +102,16 @@ public class UI_Manager : MonoBehaviour
     public static void Engage(UI_Menu menu)
     {
         instance.Loading.transform.SetAsLastSibling();
-        if (menu.transform.parent == instance.Loading.transform.parent)
-            menu.transform.SetSiblingIndex(instance.Loading.transform.GetSiblingIndex() - 1);
-        else
-            menu.transform.SetAsLastSibling();
-
+        menu.MoveToLast();
         menu.gameObject.SetActive(true);
         currentMenu = menu;
+    }
+    public static void MoveToLast(Transform t)
+    {
+        if (t.parent == instance.Loading.transform.parent)
+            t.SetSiblingIndex(instance.Loading.transform.GetSiblingIndex() - 1);
+        else
+            t.SetAsLastSibling();
     }
     public static void Dismiss(UI_Menu menu)
     {

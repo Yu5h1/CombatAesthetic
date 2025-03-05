@@ -54,25 +54,57 @@ public class MiniMap : MonoBehaviour
 
     public Transform target;
 
-    private void Start()
+    [RuntimeInitializeOnLoadMethod]
+    private static void Config()
     {
+        SceneController.BeginLoadSceneAsyncHandler -= BeginLoadScene;
+        SceneController.BeginLoadSceneAsyncHandler += BeginLoadScene;
+        SceneController.AfterLoadSceneAsyncHandler -= AfterLoadScene;
+        SceneController.AfterLoadSceneAsyncHandler += AfterLoadScene;
+    }
+    private static void BeginLoadScene()
+    {
+        if (!instance || SceneController.ActiveSceneIndex < 1)
+            return;
+        instance.enabled = false;
+        instance.Clear();
+    }
+    private static void AfterLoadScene()
+    {
+        if (!instance || SceneController.ActiveSceneIndex < 1)
+            return;
+        instance.Start();
+    }
+    static MiniMap instance;
+    public void Start()
+    {
+        enabled = true;
+        instance = this;
         if ("The Minimap must be attached to a GameObject with a RectTransform component.".printWarningIf(!TryGetComponent(out _view)))
             return;
         if (this.TryFindGameObjectWithTag(Tag, out GameObject found))
             camera = found.GetComponent<Camera>();
-
         if ($"{Tag} cannot be found.".printWarningIf(!camera))
             return;
-
+        elements.Clear();
         imgPool = PoolManager.Add<Image>(polConfig, Init);
         foreach (var info in Tags)
             foreach (var obj in GameObject.FindGameObjectsWithTag(info.tag))
                 elements.Add(obj.transform, null);
     }
+    public void Clear()
+    {
+        foreach (var item in elements)
+        {
+            if (item.Value)
+                imgPool.Despawn(item.Value);
+        }
+        elements.Clear();
+    }
     private void FixedUpdate()
     {
         
-        if (!camera || !view || elements.IsEmpty() || imgPool.Size == 0)
+        if (!isActiveAndEnabled || !camera || !view || elements.IsEmpty() || imgPool.Size == 0)
             return;
 
         if (target)

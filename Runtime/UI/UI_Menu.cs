@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using Yu5h1Lib;
 using Yu5h1Lib.UI;
 using Yu5h1Lib.Game;
+using UnityEngine.Events;
 
 public class UI_Menu : UIControl
 {
@@ -26,6 +27,8 @@ public class UI_Menu : UIControl
 
     public bool activeSelf => gameObject.activeSelf;
 
+    public UnityEvent shown;
+
     private void OnEnable()
     {
 
@@ -33,13 +36,13 @@ public class UI_Menu : UIControl
     public void Engage()
     {
         UI_Manager.Engage(this);
+        shown?.Invoke();
     }
     public void Dismiss(bool force = false)
     {
         if (DisallowDismiss && !force)
             return;
         UI_Manager.Dismiss(this);
-
     }
 
     public void ChangeMenu(UI_Menu next, bool dismiss) => UI_Manager.ChangeMenu(this, next, dismiss);
@@ -70,6 +73,8 @@ public class UI_Menu : UIControl
     public void SetGamePause(bool pause) => GameManager.IsGamePause = pause;
 
     public void ToggleActive(GameObject obj) => obj.SetActive(!obj.activeSelf);
+
+    public void MoveToLast() => UI_Manager.MoveToLast(transform);
 
     public void ActivateCurrntSaveSelection(LayoutGroup group)
     {

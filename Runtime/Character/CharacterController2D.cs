@@ -111,6 +111,7 @@ namespace Yu5h1Lib.Game.Character
 
         #region Movement
         public bool UseCustomVelocity;
+        public bool MovePositionOrChangeVelocity;
         private Vector2 _velocity;
         public override Vector2 velocity
         {
@@ -286,7 +287,11 @@ namespace Yu5h1Lib.Game.Character
 
             if (UseCustomVelocity)
                 rigidbody.MovePosition(rigidbody.position + (velocity = transform.TransformDirection(momentum) * Time.fixedDeltaTime));
-            else /// deprecated using velocity control movement . this method will causing flick movement
+            else if (MovePositionOrChangeVelocity)
+            {
+                rigidbody.MovePosition(rigidbody.position + (Vector2)(transform.TransformDirection(momentum) * Time.fixedDeltaTime));
+            }
+            else/// deprecated using velocity control movement . this method will causing flick movement
                 velocity = transform.TransformDirection(momentum);
         }
 
@@ -348,7 +353,7 @@ namespace Yu5h1Lib.Game.Character
                 return;
             if (!v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
                 CheckForwardFrom(-forwardSign);
-
+            AddForce(v);
         }
         #region Coroutine
         private Coroutine TemporarilyInvincibleCoroutine;
@@ -394,8 +399,16 @@ namespace Yu5h1Lib.Game.Character
         }
         private IEnumerator MoveTo(Vector2 destination,float forward)
         {
+            //float x = 0;
             while (Vector2.Distance(detector.bottom, destination) > 0.5f) {
-                InputMovement = (destination - position).normalized * 0.5f;
+                var dir = (destination - position).normalized;
+                var inputDir = dir * 0.5f;
+                //if (x == transform.position.x && IsGrounded) // not moving
+                //{
+                //    AddForce(up * JumpPower);
+                //}
+                //x = transform.position.x;
+                InputMovement = inputDir;
                 yield return null;
             }
             InputMovement = Vector2.zero;
