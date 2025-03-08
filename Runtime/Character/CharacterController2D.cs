@@ -111,7 +111,6 @@ namespace Yu5h1Lib.Game.Character
 
         #region Movement
         public bool UseCustomVelocity;
-        public bool MovePositionOrChangeVelocity;
         private Vector2 _velocity;
         public override Vector2 velocity
         {
@@ -286,11 +285,7 @@ namespace Yu5h1Lib.Game.Character
             localVelocity = momentum;
 
             if (UseCustomVelocity)
-                rigidbody.MovePosition(rigidbody.position + (velocity = transform.TransformDirection(momentum) * Time.fixedDeltaTime));
-            else if (MovePositionOrChangeVelocity)
-            {
-                rigidbody.MovePosition(rigidbody.position + (Vector2)(transform.TransformDirection(momentum) * Time.fixedDeltaTime));
-            }
+                rigidbody.MovePosition(rigidbody.position + (velocity = transform.TransformDirection(momentum) * Time.fixedDeltaTime));                
             else/// deprecated using velocity control movement . this method will causing flick movement
                 velocity = transform.TransformDirection(momentum);
         }

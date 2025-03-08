@@ -9,10 +9,10 @@ using Yu5h1Lib.Game.Character;
 
 public class SceneController : SingletonBehaviour<SceneController>
 {
-    public bool IsLevel;
     public static Vector3? startPosition;
     public static Quaternion? startRotation;
 
+    public bool IsLevel;
     public string[] StartLines;
     public bool NoTalking;
 
@@ -102,7 +102,8 @@ public class SceneController : SingletonBehaviour<SceneController>
     {        
 #if UNITY_EDITOR
         UnityEditor.Selection.activeObject = null;
-#endif
+#endif        
+        LoadSceneAsyncHandler?.Invoke(0);
         BeginLoadSceneAsync();
         yield return GameManager.ui_Manager.Loading.BeginLoad();
         var operation = SceneManager.LoadSceneAsync(SceneIndex,LoadSceneMode.Single);

@@ -7,9 +7,9 @@ using Yu5h1Lib.Game.Character;
 public class ImpactForce2D : MonoBehaviour
 {
     [SerializeField]
-    private Vector2 _impactOffset = new Vector2(0, 0.5f);
-    public Vector2 impactOffset => transform.rotation * _impactOffset;
-    public Vector2 impactPos => ((Vector2)transform.position) + impactOffset;
+    private Vector2 _offset = new Vector2(0, 0.5f);
+    public Vector2 offset => transform.rotation * _offset;
+    public Vector2 impactPos => ((Vector2)transform.position) + offset;
     [SerializeField]
     private Vector2 _size = Vector2.one;
     public Vector2 size => _size * transform.localScale;
@@ -37,6 +37,8 @@ public class ImpactForce2D : MonoBehaviour
                 otherRigidbody.AddForce(force);
         }
     }
+    public void Impact(Vector3 velocity) => Push(-velocity);
+   
     [ContextMenu(nameof(PushTest))]
     public void PushTest()
     {
@@ -49,7 +51,7 @@ public class ImpactForce2D : MonoBehaviour
         if (!enabled)
             return;
         var originalMatrix = Gizmos.matrix;
-        DrawGizmosWireCube(size, _impactOffset, transform, Color.magenta);
+        DrawGizmosWireCube(size, _offset, transform, Color.magenta);
         Gizmos.matrix = originalMatrix;
 
     }

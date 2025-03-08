@@ -65,6 +65,8 @@ namespace Yu5h1Lib.Game.Character
                 attribute.StatDepleted += OnStatDepleted;
 
             animator = GetComponent<Animator>();
+            animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
+
             #region initinalize State machine behaviour
             foreach (var item in animator.GetBehaviours<BaseCharacterSMB>())
                 item.Init(this);
@@ -112,7 +114,7 @@ namespace Yu5h1Lib.Game.Character
             if (IsInteracting)
                 return;
             var gravitation = gravityDirection;
- 
+
             var localAnimVelocity = transform.InverseTransformDirection(animator.velocity);
             localVelocity = transform.InverseTransformDirection(velocity);
 
