@@ -126,6 +126,13 @@ namespace Yu5h1Lib
 
             if (input.GetButtonDown("Cancel"))
                 OnCancelPressed();
+
+#if UNITY_EDITOR
+            if (playerController && Input.GetKeyDown(KeyCode.F10))
+            {
+                playerController.Floatable = !playerController.Floatable;
+            }
+#endif
         }
         public void OnSubmitPressed()
         {

@@ -18,8 +18,8 @@ public class CameraAssist : MonoBehaviour
 
     [SerializeField]
     private UnityEvent completed;
-    //[SerializeField]
-    //private UnityEvent stopped;
+    [SerializeField]
+    private UnityEvent stopped;
 
     private Vector3[] positions;
     private Vector3 GetCenter()
@@ -41,9 +41,13 @@ public class CameraAssist : MonoBehaviour
         => controller.Focus(new AnimatedInfo(){ delay = delay,duration = duration,keepTracking = keepTracking }, GetCenter, OnCompleted);
     public void StopPerformance() => StopPerformance(0);
     public void StopPerformance(float delay)
-        => controller.StopPerformance(new AnimatedInfo() { delay = delay, duration = 0.5f, keepTracking = false }, null);
+        => controller.StopPerformance(new AnimatedInfo() { delay = delay, duration = 0.5f, keepTracking = false }, OnStopped);
 
     private void OnCompleted() => completed?.Invoke();
-    //private void OnStopped() => stopped?.Invoke();
+    private void OnStopped() => stopped?.Invoke();
 
+    public void AddTarget(Collider2D other)
+       => controller.AddTarget(other.transform);
+    public void RemoveTarget(Collider2D other)
+        => controller.RemoveTarget(other.transform);
 }

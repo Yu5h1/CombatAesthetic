@@ -16,7 +16,9 @@ public class SceneController : SingletonBehaviour<SceneController>
     public string[] StartLines;
     public bool NoTalking;
 
+    [ContextMenuItem("Reset", nameof(ResetDefaultStartPoint))]
     public Vector3 defaultStartPoint;
+    public void ResetDefaultStartPoint() => defaultStartPoint = transform.position;
 
     #region Scene Preset
     void Reset() {}

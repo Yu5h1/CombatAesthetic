@@ -15,4 +15,5 @@ public static class MyEditorGUILayoutEx
         current = val;
         return true;
     }
+
 }

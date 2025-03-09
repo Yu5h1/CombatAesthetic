@@ -38,7 +38,8 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField] protected float JumpPower = 6;
         [SerializeField] protected float MaxAirborneSpeed = 3.5f;
         [SerializeField] protected Vector2 AirborneMultiplier = new Vector2(0.1f, 0.025f);
-        [SerializeField] protected Vector2 FloatingMultiplier = new Vector2(0.15f, 0.5f);
+        [SerializeField] private Vector2 _FloatingMultiplier = new Vector2(0.15f, 0.5f);
+        protected Vector2 FloatingMultiplier => _FloatingMultiplier.Multiply(transform.localScale);
         [SerializeField] protected Vector2 GroundMultiplier = new Vector2(1, 1);
         [SerializeField] protected bool _Floatable;
         [SerializeField] protected float InvincibleDuration;
@@ -90,7 +91,7 @@ namespace Yu5h1Lib.Game.Character
         }
         public float BoostMultiplier { get => GroundMultiplier.x; set => GroundMultiplier.x = value; }
 
-        public bool Floatable { get => _Floatable; protected set => _Floatable = value; }
+        public bool Floatable { get => _Floatable; set => _Floatable = value; }
         [SerializeField,ReadOnly]
         protected bool _underControl;
         public bool underControl { get => _underControl && Conscious > 0; protected set => _underControl = value; }
