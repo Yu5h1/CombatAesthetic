@@ -130,6 +130,7 @@ public class CameraController : SingletonBehaviour<CameraController>
 
     protected override void Init(){
         _cursorRendererSource = Resources.Load<SpriteRenderer>("UI/Cursor");
+        IsPerforming = false;
     }
     public void Start()
     {
@@ -158,7 +159,9 @@ public class CameraController : SingletonBehaviour<CameraController>
     }
     private void FixedUpdate()
     {
-        if (Target == null || IsPerforming || !follow)
+        if (IsPerforming)
+            return;
+        if (Target == null || !follow)
             return;
         Follow();
     }

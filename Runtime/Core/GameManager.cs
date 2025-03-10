@@ -218,15 +218,6 @@ namespace Yu5h1Lib
         //        }
         //    }
         //}
-        public void StopCameraPerformance(float duration)
-        {
-            if (!playerController)
-                return;
-            cameraController.StopPerformance(new CameraController.AnimatedInfo() {
-                duration = duration,
-                keepTracking = false,
-            }, EnablePlayerControl);
-        }
         private void PlayerHealthDepleted(AttributeType flag)
         {
             if (flag.HasFlag(AttributeType.Health))
@@ -253,8 +244,16 @@ namespace Yu5h1Lib
                 return;
             instance.playerController.controllable = flag;
         }
+        public void TogglePlayerFly()
+        {
+            if (!playerController)
+                return;
+            playerController.Floatable = !playerController.Floatable;
+        }
         #endregion        
+
     }    
+    
     public interface IGameManager
     {
         void EnablePlayerControl();

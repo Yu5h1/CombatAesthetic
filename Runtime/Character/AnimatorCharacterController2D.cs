@@ -82,7 +82,7 @@ namespace Yu5h1Lib.Game.Character
             
             skillBehaviours = new SkillBehaviour[_Skills.Length];
             for (int i = 0; i < skillBehaviours.Length; i++)
-                skillBehaviours[i] = _Skills[i].GetBehaviour(this);
+                skillBehaviours[i] = _Skills[i].CreateBehaviour(this);
 
             if (CompareTag("Player"))
                 attribute.ui = UI_Manager.instance.PlayerAttribute_UI;
@@ -249,6 +249,18 @@ namespace Yu5h1Lib.Game.Character
             }
             return true;
         }
+        public void RandomCurrentSkill()
+        {
+            var enabledSkills = skillBehaviours.Where(b => b.enable).ToArray();
+            if (enabledSkills.Length <= 1)
+                return;
+            if (enabledSkills.Length != skillBehaviours.Length)
+            {
+                indexOfSkill = optionalSkills.IndexOf(enabledSkills.RandomElement().data);
+            }
+            else if (optionalSkills.IsValid(2))
+                indexOfSkill = optionalSkills.IndexOf(optionalSkills.RandomElement());
+        }
         public override void HitFrom(Vector2 v)
         {
             if (!isActiveAndEnabled || IsInvincible)
@@ -334,6 +346,7 @@ namespace Yu5h1Lib.Game.Character
                         switch (fxSkill.casts[i].targetingMode)
                         {
                             case TargetingMode.Position:
+                      
                                 pos = scanner.target.transform.position;
                                 rot = Quaternion.identity;
                                 break;

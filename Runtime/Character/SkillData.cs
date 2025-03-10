@@ -43,7 +43,7 @@ namespace Yu5h1Lib.Game.Character
             }
         }
         public virtual System.Type GetBehaviourType() => typeof(SkillBehaviour);
-        public virtual SkillBehaviour GetBehaviour(AnimatorCharacterController2D controller)
+        public virtual SkillBehaviour CreateBehaviour(AnimatorCharacterController2D controller)
             => SkillBehaviour.Constructor(this, controller);
         public override string ToString() => $"{GetType()}";
     }

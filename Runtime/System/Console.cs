@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using Yu5h1Lib;
 
 public class Console : MonoBehaviour
 {
@@ -28,9 +29,18 @@ public class Console : MonoBehaviour
                     inputString = inputString.Substring(0, inputString.Length - 1);
             }
             else if (c == '\n' || c == '\r')
+            {
+                
+                if (!inputString.IsEmpty() && commands.TryGet(c => inputString.StartsWith(c.phrase), out Command command))
+                    command.action.Invoke();
                 inputString = "";
+            }
             else
                 inputString += c;
         }
+    }
+    private void OnGUI()
+    {
+        //GUILayout.Label(inputString);
     }
 }

@@ -55,10 +55,8 @@ public class LineRendererController : ComponentController<LineRenderer>
             OnHitStateChanged();
         }
     }
-    [SerializeField]
-    private bool UseDepth = false;
     [SerializeField] 
-    private MinMax depth;
+    private MinMax depthRange;
     [SerializeField]
     private bool breakOnHit = true;
     [SerializeField]
@@ -157,8 +155,8 @@ public class LineRendererController : ComponentController<LineRenderer>
 
         if (!IsPerforming)
         {
-            var hit = UseDepth ?
-                Physics2D.Linecast(start, end, layer,depth.Min,depth.Max):
+            var hit = depthRange.Length > 0 ?
+                Physics2D.Linecast(start, end, layer,depthRange.Min,depthRange.Max):
                 Physics2D.Linecast(start, end, layer);
 #if UNITY_EDITOR
             if (hit)
@@ -222,6 +220,9 @@ public class LineRendererController : ComponentController<LineRenderer>
         this.StartCoroutine(ref performCoroutine,
             FadeProcess(ConnectDelay, ConnectDuration, 1, defaultColor: new Color(1, 1, 1, 0), performEnd: InvokeConnected));
     }
+    [ContextMenu(nameof(Disconnect))]
+    public void Disconnect() => IsConnecting = false;
+
     public void Disconnect(int index, Style style = Style.Extend)
     {
         _IsConnecting = false;

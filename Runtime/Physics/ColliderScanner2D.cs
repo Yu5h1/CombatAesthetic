@@ -7,8 +7,8 @@ using Yu5h1Lib.Game.Character;
 
 [System.Serializable]
 public class ColliderScanner2D : CollierCastInfo2D
-{
-	public TagOption Tag;
+{    
+    public TagOption Tag;
 	public Vector2 direction;
 
     private Transform _transform;
@@ -35,13 +35,16 @@ public class ColliderScanner2D : CollierCastInfo2D
 
 
     public RaycastHit2D result => results.IsValid(resultIndex) ? results[resultIndex] : default;
-    public Transform target { get; set; }
+    [SerializeField, ReadOnly]
+    private Transform _target;
+    public Transform target { get => _target; set => _target = value; }
     private int _resultIndex = -1;
     public int resultIndex
     {
         get => _resultIndex;
         protected set
         {
+            
             if (_resultIndex == value)
                 return;
             Transform last = result.transform;
@@ -57,7 +60,7 @@ public class ColliderScanner2D : CollierCastInfo2D
 
 
     public override void Init()
-    {
+    {                    
         base.Init();
         if (!collider)
             return;
@@ -83,7 +86,6 @@ public class ColliderScanner2D : CollierCastInfo2D
         hit = default(RaycastHit2D);
         var dir = direction.IsZero() ? Vector2.zero : (Vector2)transform.TransformDirection(direction);
 
-        int r = -1;
         for (int i = 0; i < Scan(dir); i++)
 		{
             if (Tag.Compare(results[i].transform.gameObject))
@@ -108,13 +110,13 @@ public class ColliderScanner2D : CollierCastInfo2D
                 {
 
                     hit = results[i];
-                    r = i;
+                    resultIndex = i;
 
                     return true;
                 }
             }
         }
-        resultIndex = r;
+        resultIndex = -1;
         return false;
     }
     public bool GetGroundHeight(Vector2 pos, Vector2 groundDir,out float height)
@@ -122,7 +124,7 @@ public class ColliderScanner2D : CollierCastInfo2D
         height = 0f;
         if (groundDir.IsZero())
             return false;
-        var hit = Physics2D.Raycast(pos, groundDir.normalized, distance * 2,ObstacleMask);
+        var hit = Physics2D.Raycast(pos, groundDir.normalized, distance * 2, LayerMask.GetMask("PhysicsObject"));
         if (!hit)
             return false;
         height = hit.point.y; 

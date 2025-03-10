@@ -33,4 +33,11 @@ public class LineGroup : MonoBehaviour
         else if (lineControllers.All(l => !l.IsConnecting))
             AllDisconnected?.Invoke(); 
     }
+    public void ConnectAll()
+    {
+        foreach (var line in lineControllers)
+            line.IsConnecting = true;
+    }
+    public bool IsNotPerforming()
+        => lineControllers.All(l => !l.IsPerforming);
 }

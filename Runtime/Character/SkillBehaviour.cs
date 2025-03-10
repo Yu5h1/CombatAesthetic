@@ -7,6 +7,7 @@ namespace Yu5h1Lib.Game.Character
     public abstract class SkillBehaviour {
         public AnimatorCharacterController2D owner { get; protected set; }
         public SkillData data { get; protected set; }
+        public bool enable = true;
         public abstract bool IsReady { get; }
         
         protected abstract void Init();
@@ -14,7 +15,7 @@ namespace Yu5h1Lib.Game.Character
         protected abstract void OnSelect();
         protected bool Activate()
         {
-            if (!IsReady || !owner.underControl)
+            if (!enable || !IsReady || !owner.underControl)
                 return OnActivate(false);
             owner.attribute.Affect(AffectType.NEGATIVE, data.costs);
             return OnActivate(true);
@@ -22,7 +23,7 @@ namespace Yu5h1Lib.Game.Character
         protected virtual bool OnActivate(bool successed) => successed;
         public void Update(HostData2D.HostBehaviour2D host)
         {
-            if (owner.IsInteracting || !owner.underControl )
+            if (!enable || owner.IsInteracting || !owner.underControl )
                 return;
             if (!data.parallelizable && owner.currentSkillBehaviour != this )
                 return;

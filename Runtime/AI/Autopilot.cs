@@ -16,6 +16,8 @@ namespace Yu5h1Lib.Game.Character
         public bool StopActing = false;
         public bool StopMoving = false;
 
+        public bool randomSkill;
+
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
         public class Behaviour : Behaviour2D<Autopilot>
@@ -114,6 +116,8 @@ namespace Yu5h1Lib.Game.Character
                         return false;
                     }
                     Wait(Random.Range(0,data.frequency));
+                    if (data.randomSkill && Body is AnimatorCharacterController2D animBody)
+                        animBody.RandomCurrentSkill();
                     return updateInput(true, false, false);
                 }else
                     return false;
@@ -183,7 +187,7 @@ namespace Yu5h1Lib.Game.Character
             {
                 if (!target || !(Body is AnimatorCharacterController2D animBody) || !animBody.currentSkill)
                     return false;
-                return distanceBetweenTarget < animBody.currentSkill.distance;
+                return distanceBetweenTarget < animBody.currentSkill.distance * ((Vector2)Body.transform.localScale).magnitude;
             }
 
             public virtual void DetectEnemy()
@@ -231,7 +235,8 @@ namespace Yu5h1Lib.Game.Character
             }
             private void OnNodeArrived()
             {
-                Wait(Random.Range(data.PatrolWaitTimeOnNode.Min, data.PatrolWaitTimeOnNode.Max));
+                if (data.PatrolWaitTimeOnNode.Length > 0)
+                    Wait(Random.Range(data.PatrolWaitTimeOnNode.Min, data.PatrolWaitTimeOnNode.Max));
             }
             public void print(string msg)
             {
