@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
 using NullReferenceException = System.NullReferenceException;
 using TargetingMode = Yu5h1Lib.Game.Character.SkillData.TargetingMode;
 
@@ -352,7 +350,7 @@ namespace Yu5h1Lib.Game.Character
                                 break;
                             case TargetingMode.Position_Ground:
                                 pos = scanner.target.transform.position;
-                                if (scanner.GetGroundHeight(pos, scanner.target.transform.down(), out float height))
+                                if (scanner.GetGroundHeight(pos, -scanner.target.transform.up, out float height))
                                     pos.y = height;
                                 else
                                 {

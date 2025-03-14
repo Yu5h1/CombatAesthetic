@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using Yu5h1Lib;
 
 public static class Vector2Ex
 {
@@ -23,7 +24,23 @@ public static class Vector2Ex
         float cosThreshold = Mathf.Cos(threshold * Mathf.Deg2Rad);
         return dot >= cosThreshold;
     }
-    public static Quaternion DirectionToQuaternion2D(this Vector2 dir)
-        => Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+    public static Quaternion DirectionToQuaternion2D(this Vector2 dir,Direction direction = Direction.right)
+    {
+        var degree = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+        switch (direction)
+        {
+            case Direction.left:
+                degree -= 180;
+                break;
+            case Direction.up:
+                degree -= 90;
+                break;
+            case Direction.down:
+                degree += 90;
+                break;
+        }
+        return Quaternion.Euler(0, 0, degree);
+    }
 
 }

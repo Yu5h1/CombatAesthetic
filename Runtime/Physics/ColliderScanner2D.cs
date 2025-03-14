@@ -12,15 +12,15 @@ public class ColliderScanner2D : CollierCastInfo2D
 	public Vector2 direction;
 
     private Transform _transform;
-    public Transform transform 
+    public Transform transform
     {
         get => useCircleCast ? _transform : collider.transform;
         set => _transform = value;
     }
 
     [ReadOnly]
-    private Vector2 _localStart;
-    public Vector2 start => useCircleCast ? transform.position : transform.TransformPoint(_localStart);
+    private Vector2 _startOffset;
+    public Vector2 start => useCircleCast ? transform.position : transform.TransformPoint(_startOffset);
     public LayerMask ObstacleMask;
     public Vector2 size { get; private set; }
     [SerializeField]
@@ -65,7 +65,7 @@ public class ColliderScanner2D : CollierCastInfo2D
         if (!collider)
             return;
         collider.isTrigger = true;
-        _localStart = collider.transform.InverseTransformPoint(collider.GetPoint(collider.transform.TransformDirection(-direction)));
+        _startOffset = collider.transform.InverseTransformPoint(collider.GetPoint(collider.transform.TransformDirection(-direction)));
         size = collider.GetSize();
     }
     public void Init(Transform transform)

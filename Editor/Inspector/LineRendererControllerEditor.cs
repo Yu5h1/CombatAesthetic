@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Yu5h1Lib.EditorExtension;
+using Yu5h1Lib;
 
 [CustomEditor(typeof(LineRendererController)), CanEditMultipleObjects]
 public class LineRendererControllerEditor : Editor<LineRendererController> {

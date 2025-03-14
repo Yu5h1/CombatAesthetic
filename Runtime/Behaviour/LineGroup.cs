@@ -8,7 +8,7 @@ using Yu5h1Lib;
 
 public class LineGroup : MonoBehaviour
 {
-
+    
     [SerializeField]
     private LineRendererController[] _lineControllers;
     public LineRendererController[] lineControllers => _lineControllers;
@@ -21,16 +21,21 @@ public class LineGroup : MonoBehaviour
         if (!lineControllers.IsEmpty())
         for (int i = 0; i < lineControllers.Length; i++)
         {
-            lineControllers[i].HitStateChanged += HitStateChanged;
+                lineControllers[i].connected += OnAllConnected;
+                lineControllers[i].disconnected += OnAllDisconnected;
         }
     }
 
     private bool IsConnecting(LineRendererController controller) => controller.IsConnecting;
-    private void HitStateChanged()
+
+    private void OnAllConnected()
     {
-        if (lineControllers.All( l => l.IsConnecting))
+        if (lineControllers.All(l => l.IsConnecting))
             AllConnected?.Invoke();
-        else if (lineControllers.All(l => !l.IsConnecting))
+    }
+    private void OnAllDisconnected()
+    {
+        if (lineControllers.All(l => !l.IsConnecting))
             AllDisconnected?.Invoke(); 
     }
     public void ConnectAll()
