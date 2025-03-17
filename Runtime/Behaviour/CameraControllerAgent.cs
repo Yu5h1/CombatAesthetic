@@ -26,8 +26,13 @@ public class CameraControllerAgent : MonoBehaviour
     // For UnityEvent
     public void StopPerformance(float duration) => CallStopPerformance(0,duration,false);
 
+    private void Start() {}
     public static void CallStopPerformance(float delay,float duration,bool keepTracking)
     {
+        if (CameraController.Exists() == false)
+            return;
+
+        
         controller.StopPerformance(new CameraController.AnimatedInfo()
         {
             delay = delay,

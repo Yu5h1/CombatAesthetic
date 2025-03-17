@@ -33,9 +33,8 @@ namespace Yu5h1Lib
                 case PlayModeStateChange.EnteredPlayMode:
                     break;
                 case PlayModeStateChange.ExitingPlayMode:
-                    SceneController.RemoveInstanceCache();
+                    SceneController.UnloadSingleton();
                     SceneController.ClearLoadAsyncEvent();
-
                     if (enableClearLevelCacheOnExitGame)
                         ClearLevelCache();
                     break;

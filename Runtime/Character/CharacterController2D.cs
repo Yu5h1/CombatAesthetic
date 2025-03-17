@@ -7,19 +7,45 @@ namespace Yu5h1Lib.Game.Character
     [DisallowMultipleComponent, RequireComponent(typeof(ColliderDetector2D))]
     public class CharacterController2D : Rigidbody2DBehaviour
     {
-        private static float _gravityScale = 0.03333f;
+        #region Setting
         public static Vector2 scaledGravity { get; protected set; } = new Vector2(0, -0.32699673f);
+        public static string GetKey(string parameterName) => $"{typeof(CharacterController2D).FullName}_{parameterName}";
+        public static string gravityScaleKey => GetKey($"{nameof(gravityScale)}");
         public static float gravityScale
-        { 
-            get => _gravityScale;
-            set {
-                if (_gravityScale == value)
+        {
+            get => PlayerPrefs.GetFloat(gravityScaleKey, 0.03333f);
+            set
+            {
+                if (gravityScale == value)
                     return;
+                PlayerPrefs.SetFloat(gravityScaleKey, value);
                 scaledGravity = Physics2D.gravity * gravityScale;
             }
         }
-        public static float FallingDamageDistanceStart = 5;
-        public static float FallingDamageMultiplier = 0.5f;
+        public static string FallingDamageHeightKey => GetKey($"{nameof(FallingDamageHeight)}");
+        public static float FallingDamageHeight
+        {
+            get => PlayerPrefs.GetFloat(FallingDamageHeightKey, 5);
+            set
+            {
+                if (FallingDamageHeight == value)
+                    return;
+                PlayerPrefs.SetFloat(FallingDamageHeightKey, value);
+            }
+        }
+        public static string FallingDamageMultiplierKey => GetKey($"{nameof(FallingDamageMultiplier)}");
+        public static float FallingDamageMultiplier
+        {
+            get => PlayerPrefs.GetFloat(FallingDamageMultiplierKey, 0.5f);
+            set
+            {
+                if (FallingDamageMultiplier == value)
+                    return;
+                PlayerPrefs.SetFloat(FallingDamageMultiplierKey, value);
+            }
+        }
+        #endregion
+
         #region Components   
         [SerializeField]
         private Collider2D _hurtBox;
@@ -153,16 +179,9 @@ namespace Yu5h1Lib.Game.Character
         //public float FallingTimeElapsed => Time.time - lastFallingTime;
 
 
-        public bool Initinalized { get; private set; }
-        private void Initinalize()
+        protected override void OnInitializing()
         {
-            if (Initinalized)
-                return;
-            Init();
-            Initinalized = true;
-        }
-        protected virtual void Init()
-        {            
+            base.OnInitializing();
             if (!$"{name}'s Detector does not Exist ! ".printWarningIf(!TryGetComponent(out _detector)))
                 detector.GroundStateChanged += OnGroundStateChanged;
             if (!$"{name}'s Attribute does not Exist ! ".printWarningIf(!TryGetComponent(out _attribute)))
@@ -185,9 +204,9 @@ namespace Yu5h1Lib.Game.Character
             {
                 var fallingDistance = lastfallingHeight - detector.groundHit.point.y;
                 var unbouncable = detector.groundHit.rigidbody == null || detector.groundHit.rigidbody.sharedMaterial == null || detector.groundHit.rigidbody.sharedMaterial.bounciness == 0;
-                if (unbouncable && attribute && localVelocity.y < -9.55f && fallingDistance > FallingDamageDistanceStart)
+                if (unbouncable && attribute && localVelocity.y < -9.55f && fallingDistance > FallingDamageHeight)
                 {
-                    var damage = Mathf.Floor(fallingDistance - FallingDamageDistanceStart) * FallingDamageMultiplier;
+                    var damage = Mathf.Floor(fallingDistance - FallingDamageHeight) * FallingDamageMultiplier;
 
                     // 0.5
                     damage = Mathf.Floor(damage * 2) / 2;
@@ -205,11 +224,6 @@ namespace Yu5h1Lib.Game.Character
             }
         }
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            Initinalize();
-        }
         protected virtual void Update()
         {
             if (!IsScriptedActing)
@@ -307,7 +321,7 @@ namespace Yu5h1Lib.Game.Character
         protected virtual bool UpdateInputInstruction()
         {
 
-            if (GameManager.IsGamePause || !Initinalized || !controllable ||
+            if (GameManager.IsGamePause || !initialized || !controllable ||
                host == null)
             {
                 InputMovement = Vector2.zero;
@@ -343,13 +357,15 @@ namespace Yu5h1Lib.Game.Character
             velocity = Vector2.zero;
         }
 
-        public virtual void HitFrom(Vector2 v)
+        public virtual bool HitFrom(Vector2 v,bool push, bool faceToFrom)
         {
             if (!isActiveAndEnabled || IsInvincible)
-                return;
-            if (!v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
+                return false;
+            if (faceToFrom && !v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
                 CheckForwardFrom(-forwardSign);
-            AddForce(v);
+            if (push)
+                AddForce(v);
+            return true;
         }
         #region Coroutine
         private Coroutine TemporarilyInvincibleCoroutine;

@@ -1,5 +1,4 @@
 using UnityEngine;
-using static SceneController;
 using Yu5h1Lib;
 using UnityEngine.UI;
 using Yu5h1Lib.UI;
@@ -42,7 +41,11 @@ public class UI_Manager : MonoBehaviour
     public UI_DialogBase EndCredits => Build(nameof(EndCredits), ref _EndCredits);
 
     public UI_Statbar statbar_UI_Source => Resources.Load<UI_Statbar>($"UI/BaseStatBar_UI");
-    public UI_Attribute attribute_UI_Source => Resources.Load<UI_Attribute>("UI/BaseAttribute_UI");    
+    public UI_Attribute attribute_UI_Source => Resources.Load<UI_Attribute>("UI/BaseAttribute_UI");
+
+    [SerializeField]
+    private UI_TextPerformance _textPerformance;
+    public UI_TextPerformance textPerformance => _textPerformance;
 
     public static bool IsSpeaking() =>
        (instance._Dialog_UI?.gameObject?.activeInHierarchy == true) || (instance._EndCredits?.gameObject?.activeSelf == true);
@@ -53,9 +56,22 @@ public class UI_Manager : MonoBehaviour
             loadAsyncBehaviours = Loading.GetComponentsInChildren<LoadAsyncBehaviour>(true);
         if (!loadAsyncBehaviours.IsEmpty())
         {
-            LoadSceneAsyncHandler -= OnLoadAsyncBehaviours;
-            LoadSceneAsyncHandler += OnLoadAsyncBehaviours;
+            SceneController.LoadSceneAsyncHandler -= OnLoadAsyncBehaviours;
+            SceneController.LoadSceneAsyncHandler += OnLoadAsyncBehaviours;
         }
+        SceneController.BeginLoadSceneAsyncHandler -= BeginLoadSceneAsync;
+        SceneController.BeginLoadSceneAsyncHandler += BeginLoadSceneAsync;
+    }
+
+    private void BeginLoadSceneAsync()
+    {
+        textPerformance?.Stop();
+    }
+
+    private void OnLoadAsyncBehaviours(float percentage)
+    {
+        foreach (var item in loadAsyncBehaviours)
+            item.OnProcessing(percentage);
     }
     public void Start()
     {
@@ -64,7 +80,7 @@ public class UI_Manager : MonoBehaviour
         if (EndCredits.transform.gameObject.activeSelf)
             EndCredits.gameObject.SetActive(false);
 
-        if (IsStartScene)
+        if (SceneController.IsStartScene)
         {
             if (_LevelSceneMenu)
                 GameObject.DestroyImmediate(_LevelSceneMenu.gameObject);
@@ -73,7 +89,7 @@ public class UI_Manager : MonoBehaviour
             StartSceneMenu.Engage();
             
         }
-        else if (IsLevelScene || GameManager.instance.playerController)
+        else if (SceneController.IsLevelScene || GameManager.instance.playerController)
         {
             if (_StartSceneMenu)
                 GameObject.DestroyImmediate(_StartSceneMenu.gameObject);            
@@ -82,7 +98,6 @@ public class UI_Manager : MonoBehaviour
             playerMenu.previous = LevelSceneMenu;
             LevelSceneMenu.previous = playerMenu;
             LevelSceneMenu.Dismiss(false);
-
             playerMenu?.Engage();
         }
 }
@@ -189,11 +204,7 @@ public class UI_Manager : MonoBehaviour
             Debug.LogWarning($"{n} does not exists.");
         return result;
     }
-    private void OnLoadAsyncBehaviours(float percentage)
-    {
-        foreach (var item in loadAsyncBehaviours)
-            item.OnProcessing(percentage);
-    }
+
 
     public void ToggleActive(GameObject obj) => obj.SetActive(!obj.activeSelf);
     public void ToggleEnabled(Behaviour b) => b.enabled = !b.enabled;

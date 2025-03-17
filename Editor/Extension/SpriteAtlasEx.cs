@@ -1,9 +1,11 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using UnityEditor.U2D;
-using UnityEngine.U2D;
+//using UnityEditor.U2D;
+//using UnityEngine.U2D;
+using System.ComponentModel;
 
+[EditorBrowsable(EditorBrowsableState.Never), Browsable(false)]
 public static class SpriteAtlasEx
 {
     [MenuItem("CONTEXT/SpriteAtlasImporter/ExportAtlasAsPNG")]

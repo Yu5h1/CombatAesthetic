@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 using Yu5h1Lib;
+using Yu5h1Lib.Game.Character;
 
 public class Teleporter : PlayerEvent2D
 {
@@ -93,8 +95,25 @@ public class Teleporter : PlayerEvent2D
       
     }
 
-    #region MyRegion
+    #region Methods
     private void ResetDestination() => destination = transform.position;
     #endregion
+
+    private static HashSet<CharacterController2D> teleportingCharacters = new HashSet<CharacterController2D>();
+    public static bool MoveCharacter(CharacterController2D character, Vector2 pos, Quaternion? rot = null)
+    {
+        if (!character || !character.gameObject.IsBelongToActiveScene())
+            return false;
+        teleportingCharacters.Add(character);
+        character.rigidbody.simulated = false;
+        character.transform.position = pos;
+        if (rot != null)
+            character.transform.rotation = rot.Value;
+        character.rigidbody.simulated = true;
+        teleportingCharacters.Remove(character);
+        return true;
+    }
+    public static bool IsTeleporting(CharacterController2D character) => teleportingCharacters.Contains(character);
+    public static bool IsTeleporting(Transform t) => teleportingCharacters.Any(c => c.transform == t);
 
 }

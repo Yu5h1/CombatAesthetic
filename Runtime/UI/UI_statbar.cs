@@ -18,10 +18,11 @@ public class UI_Statbar : UI_Stat
     //private Image _reduce;
     //public Image reduce => _reduce;
 
-    protected override void Reset()
+
+    protected override void OnInitializing()
     {
-        base.Reset();
-        //FindOrCreateImage(out _background,nameof(background));
+        base.OnInitializing();
+                //FindOrCreateImage(out _background,nameof(background));
 
         //if (!FindOrCreateImage(out _fill,nameof(fill))) {
         //    _fill.type = Image.Type.Filled;
@@ -79,7 +80,7 @@ public class UI_Statbar : UI_Stat
             Vector2 size, bool UpDown)
     {
         var result = new GameObject(name).AddComponent<UI_Statbar>();
-        result.Reset();
+        result.Init();
         return result;
     } 
     #endregion

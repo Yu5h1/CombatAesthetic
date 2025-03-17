@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,11 @@ using Yu5h1Lib.Game.Character;
 public class ImpactForce2D : MonoBehaviour
 {
     [SerializeField]
+    private Vector2 _force = new Vector2(0, 1);
+    public Vector2 force => _force * forceMultiplier;
+    [SerializeField]
+    private float forceMultiplier = 1.0f;
+    [SerializeField]
     private Vector2 _offset = new Vector2(0, 0.5f);
     public Vector2 offset => transform.rotation * _offset;
     public Vector2 impactPos => ((Vector2)transform.position) + offset;
@@ -14,14 +20,13 @@ public class ImpactForce2D : MonoBehaviour
     private Vector2 _size = Vector2.one;
     public Vector2 size => _size * transform.localScale;
 
-    [SerializeField]
-    private float forceMultiplier = 1.0f;
+
 
     public LayerMask validlayers { get; private set; }
     private void Start() {
         validlayers = LayerMask.GetMask("Character", "PhysicsObject");
-    }
 
+    }
     public void Push(Vector3 force)
     {
         if (!enabled)
@@ -38,7 +43,8 @@ public class ImpactForce2D : MonoBehaviour
         }
     }
     public void Impact(Vector3 velocity) => Push(-velocity);
-   
+    public void Impact() => Push(force);
+
     [ContextMenu(nameof(PushTest))]
     public void PushTest()
     {

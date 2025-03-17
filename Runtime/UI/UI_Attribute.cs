@@ -9,9 +9,10 @@ public class UI_Attribute : UIControl
     public UI_Stat[] uI_stats;
     private CanvasGroup canvasGroup;
 
-    protected override void Awake()
+
+    protected override void OnInitializing()
     {
-        base.Awake();
+        base.OnInitializing();
         TryGetComponent(out canvasGroup);
     }
     public void Prepare(AttributeBehaviour attribute)

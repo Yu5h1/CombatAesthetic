@@ -49,5 +49,6 @@ public static class GameObjectEx
                 return true;
         return false;
     }
-    public static bool IsBelongToActiveScene(this GameObject gameObject) => gameObject.scene == SceneManager.GetActiveScene();
+    public static bool IsBelongToActiveScene(this GameObject gameObject) 
+        => gameObject.scene == SceneManager.GetActiveScene();
 }

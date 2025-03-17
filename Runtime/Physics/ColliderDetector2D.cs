@@ -45,8 +45,9 @@ namespace Yu5h1Lib.Game.Character
         private ColliderScanner2D _scanner;
         public ColliderScanner2D scanner => _scanner;
 
-        void Awake()
+        protected override void OnInitializing()
         {
+            base.OnInitializing();
             //scanner.filter.layerMask = LayerMask.GetMask("Character");
             filter = new ContactFilter2D()
             {
@@ -55,14 +56,8 @@ namespace Yu5h1Lib.Game.Character
             };
             if (!collider && TryGetComponent(out CapsuleCollider2D c))
                 collider = c;
-            Init();
             ignoreSiblingColliders = true;
-
             scanner.Init(transform);
-        }
-        protected override void OnEnable()
-        {
-            base.OnEnable();
         }
         private void LateUpdate()
         {

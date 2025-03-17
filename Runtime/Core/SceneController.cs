@@ -12,17 +12,22 @@ public class SceneController : SingletonBehaviour<SceneController>
     public static Vector3? startPosition;
     public static Quaternion? startRotation;
 
-    public bool IsLevel;
-    public string[] StartLines;
-    public bool NoTalking;
+    public static bool IsLevelScene => ActiveSceneIndex > 0;
 
     [ContextMenuItem("Reset", nameof(ResetDefaultStartPoint))]
     public Vector3 defaultStartPoint;
     public void ResetDefaultStartPoint() => defaultStartPoint = transform.position;
 
+
+    [SerializeField]
+    private UnityEvent _started;
+    [SerializeField]
+    private UnityEvent _loaded;
     #region Scene Preset
     void Reset() {}
-    protected override void Init() {}
+    protected override void Init() {
+        
+    }
     #endregion
     private void Start()
     {
@@ -30,35 +35,33 @@ public class SceneController : SingletonBehaviour<SceneController>
         Time.timeScale = 1;
         gameObject.layer = LayerMask.NameToLayer("Boundary");
 
-        if (SceneController.IsLevelScene || GameManager.instance.playerController)
+        if (IsLevelScene || GameManager.instance.playerController)
         {
             CheckPoint.InitinalizeCheckPoints();
-            if (startPosition == null && !StartLines.IsEmpty() && !NoTalking)
-            {
-                GameManager.IsGamePause = true;
-                GameManager.ui_Manager.Dialog_UI.lines = StartLines;                
-                GameManager.ui_Manager.Dialog_UI.gameObject.SetActive(true);
-            }
             CameraController.instance.PrepareSortingLayerSprites();
             Debug.Log($"{PoolManager.instance} was Created.\n{PoolManager.canvas}");
         }
     }
-    private void OnAfterLoadSceneAsync() {
-        if (ActiveSceneIndex > 0 && startPosition != null)
+    private void OnAfterLoadSceneAsync()
+    {
+        if (startPosition == null)
+            _started?.Invoke();
+        else
         {
-            GameManager.MovePlayer(startPosition.Value,startRotation);
+            GameManager.MovePlayer(startPosition.Value, startRotation);
             startPosition = null;
+            _loaded?.Invoke();
         }
     }
-
     private void OnTriggerExit2D(Collider2D other)
     {
         // Avoiding OnTriggerExit2D triggered on EditorApplication.Exit
-        if (GameManager.IsQuit || IsSceneTransitioning || GameManager.IsMovingPlayer)
+        if (GameManager.IsQuit || IsSceneTransitioning || Teleporter.IsTeleporting(other.transform))
             return;
         if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
             attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 100000000);
     }
+    public void log(string msg) => msg.print();
     #region Static 
     public static event UnityAction BeginLoadSceneAsyncHandler;
     public static event UnityAction<float> LoadSceneAsyncHandler;
@@ -68,6 +71,11 @@ public class SceneController : SingletonBehaviour<SceneController>
         BeginLoadSceneAsyncHandler = null;
         LoadSceneAsyncHandler = null;
         AfterLoadSceneAsyncHandler = null;
+    }
+    public static void RegistryLoadEvents()
+    {
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
     public static Scene ActiveScene => SceneManager.GetActiveScene();
     public static int ActiveSceneIndex => ActiveScene.buildIndex;
@@ -86,9 +94,9 @@ public class SceneController : SingletonBehaviour<SceneController>
         StringSearchOption.EndsWith => ActiveScene.name.EndsWith(name),
         _ => ActiveScene.name.Equals(name)
     };
-    public static bool IsStartScene => IsSceneName("Start");
-    public static bool IsLevelScene => instance.IsLevel;
 
+
+    public static bool IsStartScene => IsSceneName("Start");
     public static bool IsSceneTransitioning;
     private static bool IsSceneUnLoaded() => !IsSceneTransitioning;
     public static void ReloadCurrentScene() => LoadScene(ActiveScene.buildIndex);
@@ -155,27 +163,24 @@ public class SceneController : SingletonBehaviour<SceneController>
     {
         BeginLoadSceneAsyncHandler?.Invoke();
     }
-    private static void AfterLoadSceneAsync()
-    {
-        GameManager.instance.Start();
-        GameManager.ui_Manager.Start();
-        AfterLoadSceneAsyncHandler?.Invoke();
-        instance.OnAfterLoadSceneAsync();
-        SoundManager.instance.Start();
-    }
-    public static void RegistryLoadEvents()
-    {
-        SceneManager.sceneUnloaded -= OnSceneUnloaded;
-        SceneManager.sceneUnloaded += OnSceneUnloaded;
-    }
-    private static void OnSceneUnloaded(Scene scene)
+    private static void OnSceneUnloaded(Scene scene) => UnloadSingleton();
+    public static void UnloadSingleton()
     {
         if (GameManager.IsQuit)
             return;
+        KeyCodeEventManager.RemoveInstanceCache();
         CameraController.RemoveInstanceCache();
         PoolManager.RemoveInstanceCache();
         RemoveInstanceCache();
         IsSceneTransitioning = false;
+    }
+    private static void AfterLoadSceneAsync()
+    {
+        GameManager.instance.Start();
+        GameManager.ui_Manager.Start();
+        SoundManager.instance.Start();
+        instance.OnAfterLoadSceneAsync();
+        AfterLoadSceneAsyncHandler?.Invoke();
     }
 
     #endregion

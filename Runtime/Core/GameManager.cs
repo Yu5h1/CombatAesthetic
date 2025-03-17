@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -49,8 +50,6 @@ namespace Yu5h1Lib
         public static InputSystemUIInputModule InputModule => instance._InputModule;
         public static BaseInput input => InputModule.input;
         #endregion
-        
-        public static CameraController cameraController => CameraController.instance;
 
         public static bool IsGamePause 
         { 
@@ -74,7 +73,7 @@ namespace Yu5h1Lib
 
         [ReadOnly]
         public CharacterController2D playerController;
-        public Texture2D cursor;
+        public CursorInfo cursor;
 
         public UnityEvent CancelPressed;
         void Awake()
@@ -97,14 +96,14 @@ namespace Yu5h1Lib
                 item.uiInputModule = InputModule;
             }
             var player = GameObject.FindWithTag("Player");
-            
+
             if (player)
             {
                 if (player.transform.root != player.transform)
                     player = player.transform.root.gameObject;
 
-                cameraController.Target = player.transform;
-                cameraController.Focus(player.transform);
+                CameraController.instance.Target = player.transform;
+                CameraController.instance.Focus(player.transform);
                 if (player.TryGetComponent(out playerController))
                 {
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
@@ -113,16 +112,21 @@ namespace Yu5h1Lib
                 }
                 PoolManager.instance.PrepareFromResourece("Fx");
                 OnFoundPlayer?.Invoke();
-            }else
-                Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
+            }
+            else
+                cursor.Use();
 
             //foreach (var agent in transform.GetComponentsInChildren<GameManagementAgent>())
             //    agent.GameStart?.Invoke();
         }
         void Update()
         {
-            SoundManager.instance.audioListener.transform.Sync(playerController ? 
-                playerController.transform : cameraController.transform, true, false, false);
+            if (playerController)
+            {
+                SoundManager.instance.audioListener.transform.Sync(playerController ?
+                    playerController.transform : CameraController.instance.transform, true, false, false);
+            }
+             
 
             if (input.GetButtonDown("Cancel"))
                 OnCancelPressed();
@@ -191,18 +195,10 @@ namespace Yu5h1Lib
         #endregion
         #region Static
 
-        public static bool IsMovingPlayer { get; private set; }
         public static void MovePlayer(Vector2 pos,Quaternion? rot = null)
         {
-            IsMovingPlayer = true;
-            instance.playerController.rigidbody.simulated = false;
-            instance.playerController.transform.position = pos;
-            if (rot != null)
-                instance.playerController.transform.rotation = rot.Value;
-            instance.playerController.rigidbody.simulated = true;
-            if (cameraController.follow)
-                cameraController.Focus(instance.playerController.transform);
-            IsMovingPlayer = false; 
+            if (Teleporter.MoveCharacter(instance.playerController, pos, rot) && CameraController.instance.follow)
+                CameraController.instance.Focus(instance.playerController.transform);
         }
 
         #endregion

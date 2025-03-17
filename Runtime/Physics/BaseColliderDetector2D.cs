@@ -38,8 +38,9 @@ public class BaseColliderDetector2D : Rigidbody2DBehaviour , ITransform2D
         base.Reset();
         _collider = GetComponent<CapsuleCollider2D>();
     }
-    public virtual void Init()
+    protected override void OnInitializing()
     {
+        base.OnInitializing();
         if (!_collider)
         {
             Debug.LogWarning($"({name})'s collider of decteor was unassigned.");
@@ -47,7 +48,6 @@ public class BaseColliderDetector2D : Rigidbody2DBehaviour , ITransform2D
         }
         extents = _collider.GetSize() * 0.5f;
     }
-
     /// <summary>
     /// 
     /// </summary>

@@ -78,7 +78,7 @@ public class Scanner2D : BaseMonoBehaviour
             castInfo.collider = collider;
     }
 
-    public void Init()
+    protected override void OnInitializing()
     {
         castInfo.Init();
         if (collider)
@@ -87,9 +87,7 @@ public class Scanner2D : BaseMonoBehaviour
             _offset = collider.transform.InverseTransformPoint(collider.GetPoint(collider.transform.TransformDirection(-direction)));
             size = collider.GetSize();
         }
-        
     }
-
     private void Start()
     {
         Init();

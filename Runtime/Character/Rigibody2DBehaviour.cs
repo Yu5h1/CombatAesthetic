@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Yu5h1Lib;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public abstract class Rigidbody2DBehaviour : MonoBehaviour
+public abstract class Rigidbody2DBehaviour : BaseMonoBehaviour
 {
 
     [SerializeField]
@@ -17,15 +18,13 @@ public abstract class Rigidbody2DBehaviour : MonoBehaviour
     public Vector2 right => transform.right;
     public Vector2 left => -right;
 
-    protected virtual void Reset() {
-        _rigidbody = GetComponent<Rigidbody2D>();
-    }
-    protected virtual void OnEnable()
+    protected override void OnInitializing()
     {
-        if (!_rigidbody)
-            _rigidbody = GetComponent<Rigidbody2D>();
-        rigidbody.bodyType = RigidbodyType2D.Dynamic;
+        if (TryGetComponent(out _rigidbody))
+            rigidbody.bodyType = RigidbodyType2D.Dynamic;
     }
+    protected virtual void Reset() => Init(true);
+        
     protected virtual void OnDisable()
     {
         rigidbody.bodyType = RigidbodyType2D.Kinematic;

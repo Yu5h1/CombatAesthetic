@@ -56,9 +56,9 @@ namespace Yu5h1Lib.Game.Character
 
         public float fixedPoseDirSpeed = 5;
 
-        protected override void Init()
+        protected override void OnInitializing()
         {
-            base.Init();
+            base.OnInitializing();
             if (attribute)
                 attribute.StatDepleted += OnStatDepleted;
 
@@ -259,15 +259,13 @@ namespace Yu5h1Lib.Game.Character
             else if (optionalSkills.IsValid(2))
                 indexOfSkill = optionalSkills.IndexOf(optionalSkills.RandomElement());
         }
-        public override void HitFrom(Vector2 v)
+        public override bool HitFrom(Vector2 v, bool push, bool faceToFrom)
         {
-            if (!isActiveAndEnabled || IsInvincible)
-                return;
-            //face to impact Direction
-            if (!v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
-                CheckForwardFrom(-forwardSign);
+            if (!base.HitFrom(v, push, faceToFrom))
+                return false;
             animParam.Hurt();
             _Hited?.Invoke(v);
+            return true;
         }
         private void OnStatDepleted(AttributeType AttributeType)
         {

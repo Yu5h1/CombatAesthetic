@@ -13,8 +13,12 @@ public class Dialog : MonoBehaviour
 
     public UnityEvent ConversationOver;
 
-	public void Perform()
+    private void Start() {}
+
+    public void Perform()
 	{
+        if (!isActiveAndEnabled || content.IsEmpty())
+            return;
 		StartCoroutine(DelayPrompt(delay));
 	}
     private IEnumerator DelayPrompt(float delay)
@@ -26,5 +30,15 @@ public class Dialog : MonoBehaviour
         yield return new WaitUntil(GameManager.NotSpeaking);
         ConversationOver?.Invoke();
         GameManager.SetPlayerControllable(true);
+    }
+
+    public Color color = Color.white;
+    public float lifeTime = 1;
+    public float fadeInTime = 1;
+    public float fadeOutTime = 1f;
+
+    public void ShowInnerThoughts(string text)
+    {
+        GameManager.ui_Manager.textPerformance?.ShowInnerThoughts(text, color, fadeInTime, lifeTime);
     }
 }
