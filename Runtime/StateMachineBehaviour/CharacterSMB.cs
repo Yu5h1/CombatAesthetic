@@ -13,7 +13,8 @@ public class CharacterSMB : BaseCharacterSMB
 
     public Vector2 rootMotionWeight = Vector2.one;
     public Vector2 rigidbodyVelocityWeight = Vector2.one;
-    
+
+    public bool affectByMultiplier;
 
     public float FixAngleWeight = 1;
     public ProcessStep CheckForwardType = ProcessStep.Excute;

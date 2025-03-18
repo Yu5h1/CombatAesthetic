@@ -128,7 +128,10 @@ public class CameraController : SingletonBehaviour<CameraController>
 
     public bool follow = true;
 
-    protected override void Init(){
+    public bool allowStopPerformance = true;
+
+    protected override void Init()
+    {
         _cursorRendererSource = Resources.Load<SpriteRenderer>("UI/Cursor");
         IsPerforming = false;
     }
@@ -421,19 +424,18 @@ public class CameraController : SingletonBehaviour<CameraController>
         if (collider)
             Focus(collider.bounds.center);
     }
-    public void StopPerformance()
-    {
-        if (coroutineCache != null)
-            StopCoroutine(coroutineCache);
-        IsPerforming = false;
-        transform.position = GetFollowPoint();
-        follow = true;
-    }
+    public void StopPerformance() => StopPerformance(default,null);
     public void StopPerformance(AnimatedInfo info,UnityAction completed)
     {
+        if (!allowStopPerformance)
+            return;
         if (info.duration == 0)
         {
-            StopPerformance();
+            if (coroutineCache != null)
+                StopCoroutine(coroutineCache);
+            IsPerforming = false;
+            transform.position = GetFollowPoint();
+            follow = true;
             completed?.Invoke();
             return;
         }
@@ -481,7 +483,9 @@ public class CameraController : SingletonBehaviour<CameraController>
             AnimatedInfo info = default(AnimatedInfo),AnimationCurve curve = null)
     {
         curve ??= AnimatedShotCurve;
-        IsPerforming = true;        
+        IsPerforming = true;
+
+
         if (info.duration == 0 && curve.keys.IsEmpty())
             yield break;
         if (info.delay > 0)

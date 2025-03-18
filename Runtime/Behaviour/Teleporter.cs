@@ -69,7 +69,7 @@ public class Teleporter : PlayerEvent2D
             {
                 TeleporterExit.ignores.Add(other);
                 if (other.CompareTag("Player"))
-                    GameManager.MovePlayer(TeleporterExit.transform.position);
+                    GameManager.MovePlayer(TeleporterExit.destination);
                 else
                     other.transform.position = TeleporterExit.transform.position;
             }

@@ -187,9 +187,6 @@ namespace Yu5h1Lib.Game.Character
             if (!$"{name}'s Attribute does not Exist ! ".printWarningIf(!TryGetComponent(out _attribute)))
                 attribute.Init();
 
-            if (rigidbody)
-                rigidbody.gravityScale = 0;
-
             if (host)
                 hostBehaviour = host.CreateBehaviour(this);
 

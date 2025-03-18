@@ -16,33 +16,16 @@ public abstract class EventMask2D : BaseEvent2D
     protected virtual void OnDisable() => owner = null;
 }
 [System.Serializable]
-public class TagOption
+public class TagOption : Tags
 {
-    [Tooltip("Compare root transform.")]
-    public bool root = true;
     public enum ComparisionType
     {
         Equal = 0,
         NotEqual = 1
     }
-    [DropDownTag(true)]
-    public string tag = "Untagged";
-
-    private string[] _tags;
-    public string[] tags 
-    { 
-        get
-        { 
-            if (_tags == null)
-                _tags = tag.Split(',');
-            return _tags;
-        }
-    }
-
     public ComparisionType type = ComparisionType.NotEqual;
-    public override string ToString() => tag;
-    public bool IsUntagged => tag.IsEmpty() || tag.Equals("Untagged");
-    public bool Compare(GameObject obj)
+    
+    public override bool Compare(GameObject obj)
     {
         var otherTag = root ? obj.transform.root.tag : obj.tag;
         if (IsUntagged)

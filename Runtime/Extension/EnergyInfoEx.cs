@@ -1,4 +1,5 @@
 
+[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never), System.ComponentModel.Browsable(false)]
 public static class EnergyInfoEx
 {
 

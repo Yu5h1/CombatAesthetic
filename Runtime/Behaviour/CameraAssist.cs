@@ -14,6 +14,7 @@ public class CameraAssist : MonoBehaviour
     public Vector3 offset;
     public Transform[] targets;
     public bool keepTracking = false;
+    public bool allowStop = true;
     //public AnimationCurve curve;
 
     [SerializeField]
@@ -37,9 +38,25 @@ public class CameraAssist : MonoBehaviour
         => Focus(0);
     public void Focus(float delay)
         => controller.Focus(new AnimatedInfo(){ delay = delay,duration = duration,keepTracking = keepTracking }, GetCenter, OnCompleted);
+
+    public void Focus(bool allowStop)
+    {
+        controller.allowStopPerformance = allowStop;
+        Focus();
+    }
+
     public void StopPerformance() => StopPerformance(0);
     public void StopPerformance(float delay)
-        => CameraControllerAgent.CallStopPerformance(delay,0.5f,false);
+        => CameraControllerAgent.CallStopPerformance(delay, 0.5f, false);
+
+    public void StopPerformance(bool force)
+    {
+        if (force)
+            controller.allowStopPerformance = true; ;
+        StopPerformance(0);
+    }
+
+
 
     private void OnCompleted() => completed?.Invoke();
 
@@ -47,4 +64,9 @@ public class CameraAssist : MonoBehaviour
        => controller.AddTarget(other.transform);
     public void RemoveTarget(Collider2D other)
         => controller.RemoveTarget(other.transform);
+
+    public void EnableStopPerformance()
+        => controller.allowStopPerformance = true;
+    public void DisableStopPerformance()
+        => controller.allowStopPerformance = false;
 }

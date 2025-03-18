@@ -24,7 +24,9 @@ public class BaseColliderDetector2D : Rigidbody2DBehaviour , ITransform2D
     #region property
     public Vector2 position => rigidbody == null ? transform.position : rigidbody.position;
     public Vector2 offset => _collider.offset;
-    public Vector2 extents { get; private set; }
+    [SerializeField,ReadOnly]
+    private Vector2 _extents;
+    public Vector2 extents { get => _extents; private set => _extents = value; }
     public Vector2 center => position + (transform.right * new Vector2(offset.x, 0)) + (transform.up * new Vector2(0, offset.y));
     public Vector2 front => center + (right * extents.x);
     public Vector2 top => center + (up * extents.y);

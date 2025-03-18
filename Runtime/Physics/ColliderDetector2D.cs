@@ -158,13 +158,13 @@ namespace Yu5h1Lib.Game.Character
                 return;
             var surfaceHitPoint = groundHit.collider.ClosestPoint(groundHit.point);
             var localclosetGroundPoint = (Vector2)transform.InverseTransformPoint(surfaceHitPoint);
-            var localBottomY = -extents.y;
+            var localBottomY = -extents.y + offset.y;
             var distance = localBottomY.Distance(localclosetGroundPoint.y);
             if (Threshold <= 0 || distance > Threshold)
             {
                 transform.position = transform.TransformPoint(0, Mathf.
-                    Sign(localclosetGroundPoint.y - localBottomY) * distance);
-                //Debug.Log("Fix incorrect height caused by rigibody momentum");
+                    Sign(localclosetGroundPoint.y - localBottomY) * distance); 
+                
             }
         }
         public bool CheckCliff()

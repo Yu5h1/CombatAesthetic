@@ -119,8 +119,16 @@ namespace Yu5h1Lib.Game.Character
             if (!Floatable && localVelocity.y < -5f )
                 stateInfo.VelocityWeight.y = 1;
 
-            /// momentum is based on animation velocity
-            var momentum = (localVelocity * stateInfo.VelocityWeight) + (localAnimVelocity * stateInfo.rootMotionWeight);
+            #region momentum is based on animation velocity
+
+            var animVelocity = localAnimVelocity * stateInfo.rootMotionWeight;
+
+            if (stateInfo.affectByMultiplier)
+               animVelocity *= Floatable ? FloatingMultiplier : IsGrounded ? GroundMultiplier : AirborneMultiplier;
+
+            var momentum = (localVelocity * stateInfo.VelocityWeight) + animVelocity; 
+
+            #endregion
 
             if (IsGrounded)
             {
@@ -448,8 +456,11 @@ namespace Yu5h1Lib.Game.Character
     public struct StateInfo
     {
         public bool controllable;
-        public Vector2 rootMotionWeight;
+        public Vector2 rootMotionWeight;        
         public Vector2 VelocityWeight;
+
+        public bool affectByMultiplier;
+
         public float fixAngleWeight;
     }
 

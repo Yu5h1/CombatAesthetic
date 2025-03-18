@@ -31,8 +31,6 @@ public class CameraControllerAgent : MonoBehaviour
     {
         if (CameraController.Exists() == false)
             return;
-
-        
         controller.StopPerformance(new CameraController.AnimatedInfo()
         {
             delay = delay,

@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using static Yu5h1Lib.GameObjectUtility;
 using static Yu5h1Lib.ResourcesUtility;
 
+[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never), System.ComponentModel.Browsable(false)]
 public static class GameObjectEx
 {
     public static T FindOrCreate<T>(out T result, System.Func<T> fnCreate, bool includeInactive = true, System.Action<T> Init = null)
@@ -31,7 +32,7 @@ public static class GameObjectEx
     #region IfNUll
     public static T InstantiateFromResourecsIfNull<T>(ref T target, string path) where T : Object
         => target ?? (target = InstantiateFromResourecs<T>(path));
-    public static T InstantiateFromResourecsIfNull<T>(ref T target,string path, Transform parent) where T : Object
+    public static T InstantiateFromResourecsIfNull<T>(ref T target, string path, Transform parent) where T : Object
         => target ?? (target = InstantiateFromResourecs<T>(path, parent));
     public static T FindOrCreateIfNull<T>(ref T result, bool includeInactive = true, System.Action<T> Init = null) where T : Component
         => result ?? (result = FindOrCreate(out result, Create<T>, includeInactive, Init));
@@ -42,13 +43,13 @@ public static class GameObjectEx
 
 
 
-    public static bool EqualAnyLayer(this GameObject obj,params string[] layerNames)
+    public static bool EqualAnyLayer(this GameObject obj, params string[] layerNames)
     {
         foreach (var item in layerNames)
             if (obj.layer.Equals(LayerMask.NameToLayer(item)))
                 return true;
         return false;
     }
-    public static bool IsBelongToActiveScene(this GameObject gameObject) 
+    public static bool IsBelongToActiveScene(this GameObject gameObject)
         => gameObject.scene == SceneManager.GetActiveScene();
 }

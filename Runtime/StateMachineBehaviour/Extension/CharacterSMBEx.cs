@@ -10,7 +10,8 @@ public static class CharacterSMBEx
             controllable = false,
             rootMotionWeight = Vector2.zero,
             VelocityWeight = Vector2.one,
-            fixAngleWeight = 1f
+            fixAngleWeight = 1f,
+            affectByMultiplier = false
         };
         if (csmb == null)
             return false;
@@ -18,6 +19,7 @@ public static class CharacterSMBEx
         info.rootMotionWeight = csmb.rootMotionWeight;
         info.VelocityWeight = csmb.rigidbodyVelocityWeight;
         info.fixAngleWeight = csmb.FixAngleWeight;
+        info.affectByMultiplier = csmb.affectByMultiplier;
         return true;
     }
 }

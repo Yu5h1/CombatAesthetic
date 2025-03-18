@@ -1,9 +1,12 @@
-
-
+using System.ComponentModel;
 using UnityEngine;
 
-public static class LayerMaskEx
+namespace Yu5h1Lib
 {
-	public static bool Contains(this LayerMask layerMask,GameObject gameObject)
-         => ((1 << gameObject.layer) & layerMask.value) != 0;
+	[EditorBrowsable(EditorBrowsableState.Never), Browsable(false)]
+	public static class LayerMaskEx
+	{
+		public static bool Contains(this LayerMask layerMask, GameObject gameObject)
+			 => ((1 << gameObject.layer) & layerMask.value) != 0;
+	} 
 }

@@ -18,6 +18,10 @@ namespace Yu5h1Lib.Game.Character
 
         public bool randomSkill;
 
+
+        public float targetfoundWaitTime = 0.5f;
+        public float targetLostWaitTime = 0.1f;
+
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
         public class Behaviour : Behaviour2D<Autopilot>
@@ -147,13 +151,13 @@ namespace Yu5h1Lib.Game.Character
                     patrol.target = target.transform;
                     emojiControl?.ShowEmoji("exclamation mark", 2);
                     SoundManager.Play($"µo²{ª±®a", transform.position);
-                    Wait(0.5f);
+                    Wait(data.targetfoundWaitTime);
                 }
                 else
                 {
                     patrol.target = null;
                     emojiControl?.HideEmoji();
-                    Wait(0.1f);
+                    Wait(data.targetLostWaitTime);
                 }
                 
             }
