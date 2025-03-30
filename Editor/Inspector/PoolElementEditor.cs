@@ -1,23 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Yu5h1Lib.EditorExtension;
-using UnityEditor.Graphs;
 
-[CustomEditor(typeof(PoolElement))]
-public class PoolElementEditor : Editor<PoolElement> {
-   public override void OnInspectorGUI()
-   {
-        DrawDefaultInspector();
-        if (targetObject.map != null)
+[CustomEditor(typeof(PoolElementHandler))]
+public class PoolElementEditor : Editor<PoolElementHandler>
+{
+    public override void OnInspectorGUI()
+    {
+        this.Iterate(OnProperty);
+
+    }
+    public void OnProperty(SerializedProperty property)
+    {
+        if (property.name == "element")
         {
+            Component source = null;
+            if (targetObject.element)
+                PoolManager.element_source_Maps.TryGetValue(targetObject.element, out source);
             EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.ObjectField("Source", targetObject.map.Source, typeof(Component), true);
-            EditorGUILayout.ObjectField("Source", targetObject.map.Element, typeof(Component), true);
+            EditorGUILayout.ObjectField("Source", source, typeof(Component), true);
             EditorGUI.EndDisabledGroup();
         }
-        else
-            EditorGUILayout.LabelField("Map is Null");
-   }
+        EditorGUILayout.PropertyField(property);
+    }
 }

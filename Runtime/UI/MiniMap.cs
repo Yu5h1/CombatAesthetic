@@ -87,7 +87,8 @@ public class MiniMap : MonoBehaviour
         if ($"{Tag} cannot be found.".printWarningIf(!camera))
             return;
         elements.Clear();
-        imgPool = PoolManager.Add<Image>(polConfig, Init);
+        imgPool = PoolManager.Add<Image>(polConfig);
+        imgPool.init += initializeImage;
         foreach (var info in Tags)
             foreach (var obj in GameObject.FindGameObjectsWithTag(info.tag))
                 elements.Add(obj.transform, null);
@@ -164,7 +165,7 @@ public class MiniMap : MonoBehaviour
         }
     }
     #region Pool Event
-    private void Init(Component img)
+    private void initializeImage(Component img)
     {
 
     }

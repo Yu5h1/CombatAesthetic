@@ -3,30 +3,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Yu5h1Lib;
 
 public class CollisionEvent2D : EventMask2D
 {
     [SerializeField]
-    private UnityEvent<Collider2D> OnCollisionEnter2DEvent;
+    private UnityEvent<Collision2D> _CollisionEnter;
+    
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!isActiveAndEnabled || !Validate(collision.gameObject))
+        if (!Validate(collision.gameObject.transform))
             return;
-        OnCollisionEnter2DEvent?.Invoke(collision.collider);
+        _CollisionEnter?.Invoke(collision);
     }
+    public void log(Collider2D collider) => collider.name.print();
 }
-public class CollisionEvent2D<T> : MonoBehaviour where T : Behaviour
+public class CollisionEvent2D<T> : BaseMonoBehaviour where T : Behaviour
 {
     [Serializable]
     public class TEvent : UnityEvent<T> { }
 
-    public TEvent OnCollisionEnter2DEvent;
+    [SerializeField]
+    private TEvent _CollisionEnter;
 
+    protected override void OnInitializing() { }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!isActiveAndEnabled || !collision.gameObject.TryGetComponent(out T behaviour))
+        if (!IsAvailable() || !collision.gameObject.TryGetComponent(out T behaviour))
             return;
-        OnCollisionEnter2DEvent?.Invoke(behaviour);
+        _CollisionEnter?.Invoke(behaviour);
     }
+
     
 }

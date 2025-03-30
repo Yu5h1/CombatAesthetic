@@ -14,15 +14,14 @@ public class ParticleTracor : BaseParticleSystemBehaviour
     public Vector3[] SmoothDamps;
     //private UpdateParticlesJob job = new UpdateParticlesJob();
     #endregion
-    protected override void OnEnable()
+    protected void OnEnable()
     {
-        base.OnEnable();
         particles = new ParticleSystem.Particle[particleSystem.main.maxParticles];
         SmoothDamps = new Vector3[particleSystem.main.maxParticles];
         //job.SmoothDamps = new NativeArray<Vector3>(SmoothDamps, Allocator.TempJob);
 
     }
-    private void OnDisable()
+    protected void OnDisable()
     {
         //job.SmoothDamps.Dispose();
     }

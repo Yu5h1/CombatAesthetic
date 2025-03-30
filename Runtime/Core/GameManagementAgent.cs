@@ -16,9 +16,11 @@ public class GameManagementAgent : MonoBehaviour,IGameManager
 
     public void Continue()
     {
-        if (GameManager.IsGamePause)
-            GameManager.IsGamePause = false;
+        if (GameManager.IsGamePaused)
+            GameManager.IsGamePaused = false;
     }
+    public void SetGamePause(bool pasue) => GameManager.IsGamePaused = pasue;
+
     public void ChangeBGMvolume(float val) => SoundManager.bgmVolume = val;
     public void ChangeSFXvolume(float val) => SoundManager.sfxVolume = val;
     public void LoadBGMvolume(Slider s) => s.value = SoundManager.bgmVolume;

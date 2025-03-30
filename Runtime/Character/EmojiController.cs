@@ -48,7 +48,19 @@ public class EmojiController : MonoBehaviour
     {
         spriteRenderer.sprite = sprite;
         spriteRenderer.enabled = true;
-        yield return new WaitForSeconds(lifeTime);
+        yield return new WaitForSeconds(0.05f);
+        spriteRenderer.enabled = false;
+        yield return new WaitForSeconds(0.06f);
+        spriteRenderer.enabled = true;
+        yield return new WaitForSeconds(0.07f);
+        spriteRenderer.enabled = false;
+        yield return new WaitForSeconds(0.08f);
+        spriteRenderer.enabled = true;
+        yield return new WaitForSeconds(0.09f);
+        spriteRenderer.enabled = false;
+        yield return new WaitForSeconds(0.1f);
+        spriteRenderer.enabled = true;
+        yield return new WaitForSeconds(lifeTime > 0.45f ? lifeTime - 0.45f : lifeTime);
         spriteRenderer.enabled = false;
     }
 

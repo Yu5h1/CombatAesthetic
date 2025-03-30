@@ -23,14 +23,14 @@ public class TriggerObserver2D : EventMask2D
         add => _LastColliderExit.AddListener(value);
         remove => _LastColliderExit.RemoveListener(value);
     }
-    private void Start()
+    protected override void Start()
     {
         foreach (var c in GetComponents<Collider2D>())
             c.isTrigger = true;
     }
     private void OnTriggerEnter2D(Collider2D collider)
     {
-        if (!isActiveAndEnabled || !Validate(collider.gameObject))
+        if (!Validate(collider))
             return;
         if (colliders.IsEmpty())
             _FirstColliderEnter?.Invoke();
@@ -44,4 +44,7 @@ public class TriggerObserver2D : EventMask2D
         if (colliders.IsEmpty())
             _LastColliderExit?.Invoke();
     }
+
+    
+
 }

@@ -5,34 +5,14 @@ using UnityEngine.Events;
 using UnityEngine.PlayerLoop;
 using UnityEngine.Pool;
 
+using Serializable = System.SerializableAttribute;
+
 namespace Yu5h1Lib
 {
-    [System.Serializable]
+    [Serializable]
     public class ComponentPool
     {
-        public class Map
-        {
-            public Component Source { get; private set; }
-            public Component Element { get; private set; }
-            public Map(Component source,Component element)
-            { 
-                Source = source;
-                Element = element;
-                elementMaps.Add(element, this);
-            }
-
-            private static Dictionary<Component, Map> _Maps;
-            public static Dictionary<Component, Map> elementMaps
-            {
-                get
-                {
-                    if (_Maps == null)
-                        _Maps = new Dictionary<Component, Map>();
-                    return _Maps;
-                }
-            }
-        }
-        [System.Serializable]
+        [Serializable]
         public struct Config
         {
             public int PrepareCount;
@@ -61,8 +41,8 @@ namespace Yu5h1Lib
 
         public bool UseFIFO;
 
-        public event System.Action<Component> initAction;        
-        public static bool TryCreate<T>(T source, Transform root, Config config, out ComponentPool result, System.Action<Component> init) where T : Component
+        public event System.Action<Component> init;
+        public static bool TryCreate<T>(T source, Transform root, Config config, out ComponentPool result) where T : Component
         {
             result = null;
             if (source == null)
@@ -77,7 +57,6 @@ namespace Yu5h1Lib
                 parent = new GameObject($"{source.name}(Pool)").transform,
                 Capacity = config.Capacity,
             };
-            result.initAction += init;
             result.parent.hideFlags = HideFlags.NotEditable;
             result.parent.SetParent(root);
             if (source.gameObject.IsBelongToActiveScene())
@@ -100,12 +79,13 @@ namespace Yu5h1Lib
         }
         private T Create<T>() where T : Component
         {
-            var member = (T)GameObject.Instantiate(Source);
-            member.gameObject.SetActive(false);
-            member.GetOrAdd(out PoolElement element);
-            element.map = new Map(Source, member);
-            initAction?.Invoke(member);
-            return member;
+            var element = (T)GameObject.Instantiate(Source);
+            element.gameObject.SetActive(false);
+            PoolManager.element_source_Maps.Add(element, Source);
+            element.GetOrAdd(out PoolElementHandler handler);
+            handler.element = element;
+            init?.Invoke(element);
+            return element;
         }
         private bool Join(Component obj)
         {

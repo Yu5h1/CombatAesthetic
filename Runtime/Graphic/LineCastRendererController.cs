@@ -14,8 +14,9 @@ namespace Yu5h1Lib
         private int segmentsPerSegment = 5;
         [SerializeField]
         private List<Transform> targets;
-        public LayerMask layer;
-        public TagOption tagOption;
+
+        [SerializeField]
+        private TagLayerMask tagLayerMask;
 
         [SerializeField]
         private MinMax depthRange;
@@ -103,13 +104,13 @@ namespace Yu5h1Lib
             if (!IsPerforming)
             {
                 var hit = depthRange.Length > 0 ?
-                    Physics2D.Linecast(start, end, layer, depthRange.Min, depthRange.Max) :
-                    Physics2D.Linecast(start, end, layer);
+                    Physics2D.Linecast(start, end, tagLayerMask.layers, depthRange.Min, depthRange.Max) :
+                    Physics2D.Linecast(start, end, tagLayerMask.layers);
 #if UNITY_EDITOR
                 if (hit)
                     Debug.DrawLine(start, hit.point);
 #endif
-                if (hit && tagOption.Compare(hit.transform.gameObject))
+                if (hit && tagLayerMask.Validate(this,hit.transform))
                     result = hit;
             }
 

@@ -7,7 +7,6 @@ namespace Yu5h1Lib.Game.Character
 {
     public class Autopilot : HostData2D
     {
-        public bool enable;
         public float waitDuration = 1;
         public float frequency = 1;
         //public AudioClip 
@@ -17,16 +16,21 @@ namespace Yu5h1Lib.Game.Character
         public bool StopMoving = false;
 
         public bool randomSkill;
+        public int primarySkill = -1;
 
+        public bool keepChasing;
 
         public float targetfoundWaitTime = 0.5f;
         public float targetLostWaitTime = 0.1f;
+
+        [AutoFill(typeof(AutoFillResources), "Texture","*png|*.jpg|*.bmp")]
+        public string exclamationMark = "exclamation mark";
 
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
         public class Behaviour : Behaviour2D<Autopilot>
         {
-            public ColliderScanner2D scanner => Body.detector.scanner;
+            public Scanner2D scanner => Body.scanner;
             public enum NodeState { Success, Failure, Running, Waiting }
             public bool IsNotReady => GameManager.IsBusy() || "body does not exist !".printWarningIf(!Body) || !Body.underControl;
             protected Patrol patrol;
@@ -48,9 +52,9 @@ namespace Yu5h1Lib.Game.Character
                     
                 }
             }
-
-            public bool IsTargetInSkillRange;
-            public bool waiting;
+            public bool KeepChasing { get; set; }
+            public bool IsTargetInSkillRange { get; private set; }
+            public bool IsWaiting { get; private set; }
 
             private Coroutine waitCoroutine;
 
@@ -59,21 +63,23 @@ namespace Yu5h1Lib.Game.Character
                 base.Init(controller);
                 patrol = controller.GetComponent<Patrol>();
                 emojiControl = controller.GetComponent<EmojiController>();
+                KeepChasing = data.keepChasing;
             }
 
             #region input
             public override Vector2 GetMovement()
             {
-                if (IsNotReady || Body.IsActing || waiting || data.StopMoving)
+                if (IsNotReady || Body.IsActing || IsWaiting || data.StopMoving)
                     return Vector2.zero;
                 IsTargetInSkillRange = false;
                 if (target)
                 {
                     var distanceBetweenTarget = GetDistanceBetweenTarget(out Vector2 selfPoint,out Vector2 targetPoint);
 
-                    RaycastHit2D obstacleHit = default(RaycastHit2D);
-                    if (scanner.ObstacleMask.value != 0)
-                        obstacleHit = Physics2D.Linecast(Body.position, target.position, scanner.ObstacleMask);
+                    //RaycastHit2D obstacleHit = default(RaycastHit2D);
+                    //if (scanner.ObstacleMask.value != 0)
+                    //    obstacleHit = Physics2D.Linecast(Body.position, target.position, scanner.ObstacleMask);
+                    scanner.ObstacleHitTest(Body.position, target.position, out RaycastHit2D obstacleHit);
 
                     var DirectionToTarget = (targetPoint - selfPoint).normalized;
 
@@ -83,6 +89,7 @@ namespace Yu5h1Lib.Game.Character
                         return Vector2.zero;
                     }
 
+                    ///change mode to Action
                     if (IsWithinSkillRange(distanceBetweenTarget))
                     {
                         if (Vector2.Dot(DirectionToTarget, Body.right) > 0)
@@ -93,7 +100,7 @@ namespace Yu5h1Lib.Game.Character
                         }
                         else //turn around
                             movement = new Vector2(-Body.forwardSign,0);
-                    }else if (waiting)
+                    }else if (IsWaiting)
                         movement = Vector2.zero;
                     else 
                     {
@@ -109,7 +116,7 @@ namespace Yu5h1Lib.Game.Character
 
             public override bool GetInputState(UpdateInput updateInput)
             {
-                if (IsNotReady || target == null || waiting || Body.IsActing || data.StopActing)
+                if (IsNotReady || target == null || IsWaiting || Body.IsActing || data.StopActing)
                     return false;
                 if (IsTargetInSkillRange)
                 {
@@ -121,14 +128,16 @@ namespace Yu5h1Lib.Game.Character
                     }
                     Wait(Random.Range(0,data.frequency));
                     if (data.randomSkill && Body is AnimatorCharacterController2D animBody)
-                        animBody.RandomCurrentSkill();
+                    {
+                        animBody.RandomCurrentSkill(data.primarySkill);
+                    }
                     return updateInput(true, false, false);
                 }else
                     return false;
             }
             public override void GetInputState(string bindingName, UpdateInput updateInput)
             {
-                throw new System.NotImplementedException();
+                //throw new System.NotImplementedException();
             }
 
             public override bool ShiftIndexOfSkill(out bool next)
@@ -149,7 +158,7 @@ namespace Yu5h1Lib.Game.Character
                 if (target)
                 {
                     patrol.target = target.transform;
-                    emojiControl?.ShowEmoji("exclamation mark", 2);
+                    emojiControl?.ShowEmoji(data.exclamationMark, 2);
                     SoundManager.Play($"µo²{ª±®a", transform.position);
                     Wait(data.targetfoundWaitTime);
                 }
@@ -164,9 +173,9 @@ namespace Yu5h1Lib.Game.Character
             #endregion
             #region Process
             IEnumerator WaitProcess(float delay) {
-                waiting = true;
+                IsWaiting = true;
                 yield return new WaitForSeconds(delay);
-                waiting = false;
+                IsWaiting = false;
             }
             #endregion
 
@@ -196,7 +205,7 @@ namespace Yu5h1Lib.Game.Character
 
             public virtual void DetectEnemy()
             {
-                if (target != null && Vector2.Distance(Body.position, patrol.Destination) > scanner.distance )
+                if (!KeepChasing && target != null && Vector2.Distance(Body.position, patrol.Destination) > scanner.distance )
                 {
                     target = null;
                     return;
@@ -204,7 +213,7 @@ namespace Yu5h1Lib.Game.Character
                 if (scanner.Scan(out RaycastHit2D hit))
                 {
 #if UNITY_EDITOR
-                    Debug.DrawLine(scanner.start, hit.point, Color.cyan);
+                    Debug.DrawLine(scanner.offset, hit.point, Color.cyan);
 #endif
                     if (hit.collider.TryGetComponent(out CharacterController2D c))
                     {
@@ -212,7 +221,8 @@ namespace Yu5h1Lib.Game.Character
                         return;
                     }
                 }
-                target = null;
+                if (!KeepChasing)
+                    target = null;
             }
             //public void FollowTarget()
             //{

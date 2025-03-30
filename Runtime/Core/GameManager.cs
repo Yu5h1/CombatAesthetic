@@ -16,11 +16,7 @@ namespace Yu5h1Lib
         public static bool IsQuit = false;
         public static GameSetting Setting => GameSetting.instance;
         public static DebugSetting debugSetting => DebugSetting.instance;
-        public static bool DebugMode
-        {
-            get => debugSetting.enable;
-            set => debugSetting.enable = value;
-        }
+
         [RuntimeInitializeOnLoadMethod]
         private static void Initialize() {
             Application.wantsToQuit -= Application_wantsToQuit;
@@ -37,10 +33,13 @@ namespace Yu5h1Lib
         }
         #region Components
         public RectTransform rectTransform => (RectTransform)transform;
+        [SerializeField,ReadOnly]
         private EventSystem _eventSystem;
         public static EventSystem eventsystem => instance._eventSystem;
+        [SerializeField, ReadOnly]
         private Canvas _canvas_overlay;
         public static Canvas canvas_overlay => instance._canvas_overlay;
+        [SerializeField, ReadOnly]
         private UI_Manager _ui_manager;
         public static UI_Manager ui_Manager => instance._ui_manager;
         private InputSystemUIInputModule _InputModule;
@@ -48,50 +47,100 @@ namespace Yu5h1Lib
         public static BaseInput input => InputModule.input;
         #endregion
 
-        public static bool IsGamePause 
+        private bool _isPaused;
+        public bool isPaused
         { 
-            get => Time.timeScale == 0; 
+            get => _isPaused;
             set 
             {
-                if (IsGamePause == value)
+                if (isPaused == value)
                     return;
+                _isPaused = value;
                 Time.timeScale = value ? 0 : 1;
-                OnPauseStateChanged?.Invoke(value);
+                //Physics2D.simulationMode = value ? SimulationMode2D.Script : SimulationMode2D.FixedUpdate;
+                OnPauseStateChanged();
+                _pauseStateChanged?.Invoke(isPaused);
             } 
         }
+
+        public static bool IsGamePaused
+        {
+            get => instance.isPaused;
+            set => instance.isPaused = value;
+        }
+
         public static bool IsSpeaking() => UI_Manager.IsSpeaking();
         public static bool NotSpeaking() => !UI_Manager.IsSpeaking();
 
-        public static bool IsBusy() => IsGamePause || IsSpeaking();
+        public static bool IsBusy() => IsGamePaused || IsSpeaking() || CameraController.IsPerforming;
 
-        public static event UnityAction<bool> OnPauseStateChanged;
-        public static event UnityAction OnFoundPlayer;
+        [SerializeField]
+        private UnityEvent<bool> _pauseStateChanged;
+        public static event UnityAction<bool> PauseStateChanged
+        { 
+            add  => instance._pauseStateChanged.AddListener(value);
+            remove => instance._pauseStateChanged.RemoveListener(value);
+        }
+
+        [SerializeField]
+        private UnityEvent<CharacterController2D> _foundPlayer;
+        public static event UnityAction<CharacterController2D> FoundPlayer
+        {
+            add => instance._foundPlayer.AddListener(value);
+            remove => instance._foundPlayer.RemoveListener(value);
+        }
+
         public static event UnityAction<CharacterController2D> overridePlayerFailed;
 
         [ReadOnly]
         public CharacterController2D playerController;
-        public CursorInfo cursor;
+        [SerializeReference, ReadOnly]
+        public CharacterController2D[] characters ;
+
+        public CursorInfo[] cursors;
+
+
 
         public UnityEvent CancelPressed;
-        void Awake()
+
+        [SerializeField,ReadOnly]
+        private bool _IsReady;
+        public static bool IsReady { get => instance._IsReady; private set => instance._IsReady = value; }
+
+        protected override void OnInstantiated()
         {
+            gameObject.name = gameObject.GetOriginalName();
+        }
+        
+        protected override void Awake()
+        {
+            base.Awake();
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = 60;
-            TryGetComponent(out _eventSystem);
-            TryGetComponent(out _canvas_overlay);
-            TryGetComponent(out _ui_manager);
-            TryGetComponent(out _InputModule);
             DontDestroyOnLoad(this);
         }
-        protected override void Init() {}
+
+        protected override void OnInitializing() 
+        {
+            this.GetComponent(ref _eventSystem);
+            this.GetComponent(ref _canvas_overlay);
+            this.GetComponent(ref _ui_manager);
+            this.GetComponent(ref _InputModule);
+        }
 
         public void Start()
         {
+            IsReady = false;
+
             Input.imeCompositionMode = IMECompositionMode.Off;
+            Time.timeScale = 1;
+            isPaused = false;
+
             foreach (var item in FindObjectsByType<PlayerInput>(FindObjectsInactive.Include,FindObjectsSortMode.None))
             {
                 item.uiInputModule = InputModule;
             }
+            characters = GameObject.FindObjectsByType<CharacterController2D>(FindObjectsInactive.Include,FindObjectsSortMode.InstanceID);
             var player = GameObject.FindWithTag("Player");
 
             if (player)
@@ -108,13 +157,14 @@ namespace Yu5h1Lib
                     playerController.attribute.StatDepleted += PlayerHealthDepleted;
                 }
                 PoolManager.instance.PrepareFromResourece("Fx");
-                OnFoundPlayer?.Invoke();
+                _foundPlayer?.Invoke(player.GetComponent<CharacterController2D>());
             }
             else
-                cursor.Use();
+                cursors[0].Use();
 
             //foreach (var agent in transform.GetComponentsInChildren<GameManagementAgent>())
             //    agent.GameStart?.Invoke();
+            IsReady = true;
         }
         void Update()
         {
@@ -134,6 +184,16 @@ namespace Yu5h1Lib
                 playerController.Floatable = !playerController.Floatable;
             }
 #endif
+        }
+        private void OnPauseStateChanged()
+        {
+            if (IsQuit || !IsReady )
+                return;
+            if (!characters.IsEmpty())
+            {
+                foreach (var c in characters)
+                    c.PauseStateChange(IsGamePaused);
+            }
         }
         public void OnSubmitPressed()
         {
@@ -237,14 +297,19 @@ namespace Yu5h1Lib
                 return;
             instance.playerController.controllable = flag;
         }
+
+        #endregion
+
+        #region Toggles
         public void TogglePlayerFly()
         {
             if (!playerController)
                 return;
             playerController.Floatable = !playerController.Floatable;
         }
-        #endregion        
+        public void ToggleGamePause() => IsGamePaused = !IsGamePaused;
 
+        #endregion
     }    
     
     public interface IGameManager

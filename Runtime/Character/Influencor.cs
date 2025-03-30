@@ -11,13 +11,9 @@ public class Influencor : BaseMonoBehaviour
     private EnergyInfo info;
 
 
-//#pragma warning disable 0109 
-//    private new Rigidbody2D rigidbody;
-//#pragma warning restore 0109 
-    protected override void OnInitializing()
-    {
+    private void Start() {}
 
-    }
+    protected override void OnInitializing() { }
 
     //public void Affect(Collider2D other, Vector2 strength)
     //{
@@ -30,14 +26,14 @@ public class Influencor : BaseMonoBehaviour
     //}
     public void Affect(Collider2D other)
     {
-        if (!isActiveAndEnabled)
+        if (!IsAvailable())
             return;
         if (other.TryGetComponentInParent(out AttributeBehaviour stat,true))
             stat.Affect(affectType, info);
     }
     public void Hit(Collider2D other)
     {
-        if (!isActiveAndEnabled)
+        if (!IsAvailable())
             return;
         if (other.TryGetComponentInParent(out AnimatorCharacterController2D controller, true))
         {
@@ -46,25 +42,25 @@ public class Influencor : BaseMonoBehaviour
             }else
                 controller.HitFrom(TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.velocity : -controller.velocity,false , true);
         }
-            
     }
-    public void RecoilHit()
+    public void Affect(CharacterController2D other)
     {
-        if (!isActiveAndEnabled)
+        if (!IsAvailable() || !other.IsAvailable() || other.IsInvincible)
             return;
-        if (this.TryGetComponentInParent(out CharacterController2D controller, true))
-            controller.HitFrom(-controller.velocity,true,true);
+        other.attribute.Affect(affectType, info);
     }
+
+    public void RecoilHit() => RecoilHit(1);
     public void RecoilHit(float multiplier)
     {
-        if (!isActiveAndEnabled)
+        if (!IsAvailable())
             return;
         if (this.TryGetComponentInParent(out CharacterController2D controller, true))
-            controller.HitFrom(-controller.velocity * multiplier, false, true);
+            controller.HitFrom(-controller.velocity * multiplier,true, false);
     }
     public void AddForce(Collider2D other)
     {
-        if (!isActiveAndEnabled)
+        if (!IsAvailable())
             return;
         if (other.TryGetComponentInParent(out AnimatorCharacterController2D controller, true))
             controller.AddForce(transform.up * info.amount);

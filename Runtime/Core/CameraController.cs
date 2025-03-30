@@ -55,10 +55,11 @@ public class CameraController : SingletonBehaviour<CameraController>
     //public Rect ScreenInteractionArea;
 
     #region cache
+    public static bool IsPerforming { get; private set; }
 
     private float dollyProportion = 0.75f;
     private Vector3 currentVelocity;
-    public static bool IsPerforming { get; private set; }
+    
     public Timer timer { get; private set; } = new Timer();
     public Timer.Wait waiter;
 
@@ -130,7 +131,11 @@ public class CameraController : SingletonBehaviour<CameraController>
 
     public bool allowStopPerformance = true;
 
-    protected override void Init()
+    public UnityEvent<Camera> _start;
+
+
+    protected override void OnInstantiated() { }
+    protected override void OnInitializing()
     {
         _cursorRendererSource = Resources.Load<SpriteRenderer>("UI/Cursor");
         IsPerforming = false;
@@ -142,6 +147,7 @@ public class CameraController : SingletonBehaviour<CameraController>
         //    PrepareSortingLayerSprites();
         //}
         waiter = timer.Waiting();
+        _start?.Invoke(camera);
     }
     private void Update()
     {
@@ -408,10 +414,6 @@ public class CameraController : SingletonBehaviour<CameraController>
     {
         camera.transform.position = point + followOffset;
     }
-    public void Focus(Vector3 point,float duration)
-    {
-        this.StartCoroutine(ref coroutineCache, PerformFocusProcess(point,duration));
-    }
     public void Focus(Transform target) 
     {
         if (target)
@@ -459,22 +461,6 @@ public class CameraController : SingletonBehaviour<CameraController>
         for (int i = 0; i < Targets.Count ; i++)
             positions[i] = Targets[i].position;
         return GetCenter(positions);
-    }
-
-    public IEnumerator PerformFocusProcess(Vector3 point, float? duration = null)
-    {
-        var curveDuration = AnimatedShotCurve.keys.Last().time;
-        timer.duration = duration ?? curveDuration;
-        //timer.useUnscaledTime = true;
-        timer.Start();
-        IsPerforming = true;
-        while (!timer.IsCompleted)
-        {
-            timer.Tick();
-            camera.transform.position = Vector3.Lerp(camera.transform.position, point, AnimatedShotCurve.Evaluate(timer.normalized * curveDuration));
-            yield return null;
-        }
-        IsPerforming = false;
     }
     private Vector3 animatedStartPoint;
     private Vector3 GetAnimatedStartPoint() => animatedStartPoint;
@@ -531,16 +517,6 @@ public class CameraController : SingletonBehaviour<CameraController>
         currentVelocity = Vector3.zero;
         follow = true;
     }
-
-    public IEnumerator Perform(UnityAction<Timer> update)
-    {
-        IsPerforming = true;
-        timer.Start();
-        timer.Update += update;
-        yield return waiter;
-        IsPerforming = false;
-    }
-
     #endregion
 
     //#if UNITY_EDITOR

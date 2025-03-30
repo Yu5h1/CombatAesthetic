@@ -3,6 +3,7 @@ using Yu5h1Lib.Runtime;
 
 public class CharacterSMB : BaseCharacterSMB
 {
+    
     [SerializeField]
     private bool _Controllable = true;    
     private bool IsInControlInterval { get; set; }
@@ -19,11 +20,11 @@ public class CharacterSMB : BaseCharacterSMB
     public float FixAngleWeight = 1;
     public ProcessStep CheckForwardType = ProcessStep.Excute;
 
-    //OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
+
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (!owner)
-            return;
+        if (!owner || animator.GetDominantLayer() != layerIndex)
+            return;        
         owner.currentState = this;
         if (CheckForwardType == ProcessStep.Enter)
             owner.CheckForward();

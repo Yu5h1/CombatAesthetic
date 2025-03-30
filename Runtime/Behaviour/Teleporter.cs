@@ -33,14 +33,14 @@ public class Teleporter : PlayerEvent2D
     {
         destination = transform.position + new Vector3(1,1,0);
     }
-    private void Awake()
-    {
-    }
-    private void Start()
+
+
+    private void Start() 
     {
         foreach (var c in GetComponents<Collider2D>())
             c.isTrigger = true;
     }
+
     private void OnEnable()
     {
         if (GateStates.ContainsKey(name))

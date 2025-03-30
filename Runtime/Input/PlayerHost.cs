@@ -7,7 +7,6 @@ namespace Yu5h1Lib.Game.Character {
     [CreateAssetMenu(menuName = "Scriptable Objects/PlayerInput")]
     public class PlayerHost : HostData2D
     {
-        public EventType eventType;
         public static bool UseWorldInputAxis{
             get => PlayerPrefs.GetInt("UseWorldInputAxis", 0) == 1;
             set => PlayerPrefs.SetInt("UseWorldInputAxis", value ? 1 : 0);
@@ -24,6 +23,8 @@ namespace Yu5h1Lib.Game.Character {
             public bool IsInteractionKey => input.GetMouseButton(0);
             public bool IsInteractionKeyUp => input.GetMouseButtonUp(0);
 
+            private Vector2 lastInputMovement = Vector2.zero;
+
             public Vector2 GetMovementFromGlobalDirection(Vector2 direction)
             {
                 var dir = transform.InverseTransformDirection(direction);
@@ -33,12 +34,18 @@ namespace Yu5h1Lib.Game.Character {
             }
             public override Vector2 GetMovement()
             {
-                if (GameManager.IsSpeaking())
+                if (GameManager.IsSpeaking() || !Body.controllable)
                     return Vector2.zero;
 
                 var y = input.GetAxisRaw("Vertical");
                 if (y == 0)
                     y = input.GetAxisRaw("Jump");
+
+                #region Jump
+                if (input.GetButtonDown("Vertical") || input.GetButtonDown("Jump"))
+                    Body.TriggerJump = true;
+                #endregion
+
                 var axis = new Vector2(input.GetAxisRaw("Horizontal"), y);
 
                 if (UseWorldInputAxis)
@@ -49,16 +56,16 @@ namespace Yu5h1Lib.Game.Character {
                     else if (angle >= 45 && angle < 135)
                     {
                         //left
-                        axis = new Vector2(axis.y, -axis.x);
+                        //axis = new Vector2(axis.y, -axis.x);
                     }
                     else if (angle >= -135 && angle < -45)
                     {
-                        axis = new Vector2(-axis.y, axis.x);
+                        //axis = new Vector2(-axis.y, axis.x);
                     }
                     else
                         axis *= -1;
                 }
- 
+                lastInputMovement = axis;
                 return axis;
             }
             public override bool GetInputState(UpdateInput updateInput)

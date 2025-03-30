@@ -9,7 +9,7 @@ namespace Yu5h1Lib
 	public class Tags
 	{
         [Tooltip("Compare root transform.")]
-        public bool root = true;
+        public bool root = false;
         [DropDownTag(true)]
         public string tag = "Untagged";
         private string[] _tags;

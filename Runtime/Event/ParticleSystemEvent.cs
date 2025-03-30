@@ -7,30 +7,43 @@ using static UnityEngine.ParticleSystem;
 [DisallowMultipleComponent]
 public class ParticleSystemEvent : BaseParticleSystemBehaviour
 {
-    //public bool TriggerByCircleCast;
-    public UnityEvent ParticleTriggerEnter;
-    public UnityEvent ParticleCollision;
-    public UnityEvent OnParticleSystemStoppedEvent;
-    public UnityEvent<Collider2D,Vector2> ParticleTriggerEnterCollider;
+    [SerializeField]
+    private TagLayerMask filter;
+
+    [SerializeField]
+    private UnityEvent<Collider2D> _triggerEnter;
+    [SerializeField]
+    private UnityEvent<GameObject> _particleCollision;
+    [SerializeField]
+    private UnityEvent OnParticleSystemStoppedEvent;
+
     protected ParticleSystem.Particle[] particles;
-    protected override void OnEnable()
+
+    protected override void OnInitializing()
     {
-        base.OnEnable();
+        base.OnInitializing();
         var main = particleSystem.main;
         main.stopAction = ParticleSystemStopAction.Callback;
     }
+
+    private void Start()
+    {
+        
+    }
+    public void SetTriggerList2D(IEnumerable<Collider2D> targets)
+        => particleSystem.SetTriggerList2D(filter.Filter(targets));
+
     //private void FixedUpdate()
     //{
-        //if (!TriggerByCircleCast)
-        //    return;
+    //if (!TriggerByCircleCast)
+    //    return;
 
     //}
     private void OnParticleTrigger()
     {
-        if (TryGetTriggerCollider(ParticleSystemTriggerEventType.Enter, out Particle particle, out Component component))
-            if (component.TryGetComponent(out Collider2D collider))
-                ParticleTriggerEnterCollider?.Invoke(collider, (Vector2)(particle.velocity * particle.GetCurrentSize(particleSystem)));
-        ParticleTriggerEnter?.Invoke();
+        if (TryGetTriggerCollider(ParticleSystemTriggerEventType.Enter, out Particle particle, out Component component)
+            && component is Collider2D collider && filter.Validate(this,collider))
+            _triggerEnter?.Invoke(collider);
     }
     private void OnParticleTriggerEnter(GameObject gameObject)
     { 
@@ -41,9 +54,8 @@ public class ParticleSystemEvent : BaseParticleSystemBehaviour
     {
         OnParticleSystemStoppedEvent?.Invoke();
     }
-    //private void OnParticleSystemStopped();
     private void OnParticleCollision(GameObject other) {
-        ParticleCollision?.Invoke();
+        _particleCollision?.Invoke(other);
     }
     //private void OnParticleUpdateJobScheduled() {}
     public void DismissParticleOnTriggerEnter()
@@ -77,6 +89,10 @@ public class ParticleSystemEvent : BaseParticleSystemBehaviour
                 }
         }
         return false;
-    } 
+    }
+    private void OnDisable()
+    {
+        particleSystem.ClearTriggerList();
+    }
     #endregion
 }

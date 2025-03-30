@@ -11,7 +11,7 @@ namespace Yu5h1Lib
     [DisallowMultipleComponent]
     public class CheckPoint : PlayerEvent2D
     {
-        public static void InitinalizeCheckPoints()
+        public static void InitializeCheckPoints()
         {
             checkPoints = FindObjectsByType<CheckPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (var item in checkPoints)
@@ -30,15 +30,6 @@ namespace Yu5h1Lib
         private void Reset() 
         {
             GetComponent<CircleCollider2D>().isTrigger = true;
-        }
-        private void Awake()
-        {
-            if (checkPoints.IsEmpty())
-            {
-                checkPoints = FindObjectsByType<CheckPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-                foreach (var item in checkPoints)
-                    item.PerformIsChecked();
-            }
         }
         private void PerformIsChecked()
         {

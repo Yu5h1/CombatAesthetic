@@ -6,7 +6,7 @@ using Yu5h1Lib.EditorExtension;
 using UnityEditorInternal;
 using Yu5h1Lib.Runtime;
 
-[CustomEditor(typeof(Scanner2D))]
+[CustomEditor(typeof(Scanner2D)),CanEditMultipleObjects]
 public class Scanner2DEditor : Editor<Scanner2D>
 {
     private Transform transform => targetObject.transform;

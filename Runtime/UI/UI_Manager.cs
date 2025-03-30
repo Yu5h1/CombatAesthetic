@@ -24,6 +24,8 @@ public class UI_Manager : MonoBehaviour
     public LoadAsyncAgent _Loading;
     public LoadAsyncAgent Loading => Build(nameof(Loading), ref _Loading);
 
+
+
     private UI_Menu _LevelSceneMenu;
     public UI_Menu LevelSceneMenu => Build(nameof(LevelSceneMenu), ref _LevelSceneMenu);
     private UI_Menu _StartSceneMenu;
@@ -102,6 +104,32 @@ public class UI_Manager : MonoBehaviour
         }
 }
     #region Events
+    private void OnRectTransformDimensionsChange()
+    {
+        AdjustAspectRatio();
+    }
+    void AdjustAspectRatio()
+    {
+        float targetAspect = 16f / 9f;
+        float currentAspect = (float)Screen.width / Screen.height;
+
+        if (Mathf.Abs(currentAspect - (16f / 10f)) < Mathf.Abs(currentAspect - targetAspect))
+        {
+            targetAspect = 16f / 10f;
+        }
+
+        int newWidth = Screen.width;
+        int newHeight = (int)(newWidth / targetAspect);
+
+        if (newHeight > Screen.height)
+        {
+            newHeight = Screen.height;
+            newWidth = (int)(newHeight * targetAspect);
+        }
+
+        Screen.SetResolution(newWidth, newHeight, Screen.fullScreen);
+    }
+
     public void PointerClick()
     {
 
@@ -110,8 +138,13 @@ public class UI_Manager : MonoBehaviour
     {
         if (GameManager.IsSpeaking() || CameraController.IsPerforming)
             return;
+        if (StoryPerformance.current && !StoryPerformance.current.IsCompleted)
+        {
+            StoryPerformance.current.MarkAsCompleted();
+            return;
+        }
         currentMenu?.ReturnToPrevious();
-    } 
+    }
     #endregion
 
     public static void Engage(UI_Menu menu)

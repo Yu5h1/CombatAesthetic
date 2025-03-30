@@ -70,7 +70,7 @@ public class UI_Menu : UIControl
     public void ActiveIfHasAnyRecords(Selectable control) => UI_Manager.ActiveIfHasAnyRecords(control);
     public void SetInteractableIfHasAnyRecords(Selectable control) => UI_Manager.SetInteractableIfHasAnyRecords(control);
 
-    public void SetGamePause(bool pause) => GameManager.IsGamePause = pause;
+    public void SetGamePause(bool pause) => GameManager.IsGamePaused = pause;
 
     public void ToggleActive(GameObject obj) => obj.SetActive(!obj.activeSelf);
 

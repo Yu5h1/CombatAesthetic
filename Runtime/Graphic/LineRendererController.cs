@@ -39,16 +39,8 @@ namespace Yu5h1Lib
 
         //public Vector3[] positionsCache { get; private set; }
 
-        protected override void Reset()
+        private void Start()
         {
-            base.Reset();
-            TryGetComponent(out _edgeCollider);
-        }
-
-        protected override void Start()
-        {
-            base.Start();
-            TryGetComponent(out _edgeCollider);
             Connect();
         }
 

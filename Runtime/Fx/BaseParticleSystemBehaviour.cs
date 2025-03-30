@@ -1,18 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Yu5h1Lib;
-using static UnityEngine.ParticleSystem;
 
 [RequireComponent(typeof(ParticleSystem))]
-public abstract class BaseParticleSystemBehaviour : BaseEvent2D
+public abstract class BaseParticleSystemBehaviour : BaseMonoBehaviour
 {
+    [SerializeField,ReadOnly]
+    private ParticleSystem _particleSystem;
 #pragma warning disable 0109
-    protected new ParticleSystem particleSystem;
+    public new ParticleSystem particleSystem{ get => _particleSystem; protected set => _particleSystem = value; }
 #pragma warning restore 0109
     public float normalizedTime => particleSystem.time.GetNormal(particleSystem.main.duration);
-    protected virtual void OnEnable()
+
+    protected override void OnInitializing()
     {
-        particleSystem = particleSystem ?? GetComponent<ParticleSystem>();
+        this.GetComponent(ref _particleSystem);
     }
 }

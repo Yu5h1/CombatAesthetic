@@ -13,8 +13,6 @@ namespace Yu5h1Lib
     [CustomEditor(typeof(GameManager))]
     public class GameManagerEditor : Editor<GameManager>
     {
- 
-
 
         [InitializeOnLoadMethod]
         private static void EditorInitialize()
@@ -31,12 +29,16 @@ namespace Yu5h1Lib
                 case PlayModeStateChange.ExitingEditMode:
                     break;
                 case PlayModeStateChange.EnteredPlayMode:
+                    if (Utility.SceneUtility.GetSceneOfDontDestroyOnLoad(out Scene sceneOfDontDestroyOnLoad))
+                        SceneVisibilityManager.instance.DisablePicking(sceneOfDontDestroyOnLoad);
                     break;
                 case PlayModeStateChange.ExitingPlayMode:
                     SceneController.UnloadSingleton();
                     SceneController.ClearLoadAsyncEvent();
                     if (enableClearLevelCacheOnExitGame)
                         ClearLevelCache();
+
+                    
                     break;
                 default:
                     break;
@@ -49,15 +51,6 @@ namespace Yu5h1Lib
             DrawDefaultInspector();
         }
         #region MenuItems
-        public const string ToggleDebugMode_Label = "Game Manager/DebugMode";
-        [MenuItem(ToggleDebugMode_Label)]
-        private static void ToggleDebugMode() => GameManager.DebugMode = !GameManager.DebugMode;
-        [MenuItem(ToggleDebugMode_Label, true)]
-        private static bool ToggleDebugModeItemChecked()
-        {
-            Menu.SetChecked(ToggleDebugMode_Label, GameManager.DebugMode);
-            return true;
-        }
 
         [MenuItem("Game Manager/Clear Level Cache")]
         public static void ClearLevelCache()

@@ -14,7 +14,7 @@ public class CameraAssist : MonoBehaviour
     public Vector3 offset;
     public Transform[] targets;
     public bool keepTracking = false;
-    public bool allowStop = true;
+    //public bool allowStop = true;
     //public AnimationCurve curve;
 
     [SerializeField]

@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Yu5h1Lib;
-using Yu5h1Lib.Game.Character;
 
 public class SceneController : SingletonBehaviour<SceneController>
 {
@@ -23,21 +22,16 @@ public class SceneController : SingletonBehaviour<SceneController>
     private UnityEvent _started;
     [SerializeField]
     private UnityEvent _loaded;
-    #region Scene Preset
-    void Reset() {}
-    protected override void Init() {
-        
-    }
-    #endregion
+
+    protected override void OnInstantiated() {}
+    protected override void OnInitializing() {}
     private void Start()
     {
         $"{GameManager.instance} is ready.".print();
-        Time.timeScale = 1;
         gameObject.layer = LayerMask.NameToLayer("Boundary");
-
         if (IsLevelScene || GameManager.instance.playerController)
         {
-            CheckPoint.InitinalizeCheckPoints();
+            CheckPoint.InitializeCheckPoints();
             CameraController.instance.PrepareSortingLayerSprites();
             Debug.Log($"{PoolManager.instance} was Created.\n{PoolManager.canvas}");
         }
@@ -61,8 +55,25 @@ public class SceneController : SingletonBehaviour<SceneController>
         if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
             attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 100000000);
     }
+
+
+    #region Methods
+
     public void log(string msg) => msg.print();
+
+    [ContextMenu(nameof(Test))]
+    public void Test()
+    {
+        if (Yu5h1Lib.Utility.SceneUtility.GetSceneOfDontDestroyOnLoad(out Scene scene))
+            scene.name.print();
+    }
+    #endregion
+
+
+
     #region Static 
+
+
     public static event UnityAction BeginLoadSceneAsyncHandler;
     public static event UnityAction<float> LoadSceneAsyncHandler;
     public static event UnityAction AfterLoadSceneAsyncHandler;
@@ -157,6 +168,10 @@ public class SceneController : SingletonBehaviour<SceneController>
         yield return new WaitUntil(IsSceneUnLoaded);
         AfterLoadSceneAsync();
         LoadSceneAsyncHandler?.Invoke(1.0f);
+
+        if (StoryPerformance.current != null)
+            yield return StoryPerformance.current.WaitCompleted();
+
         yield return GameManager.ui_Manager.Loading.EndLoad();
     }
     private static void BeginLoadSceneAsync()

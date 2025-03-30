@@ -8,12 +8,8 @@ namespace Yu5h1Lib
     public class ResourcesManager : SingletonBehaviour<ResourcesManager>
     {
 
-
-        protected override void Init()
-        {
-            
-        }
-
+        protected override void OnInstantiated() { }
+        protected override void OnInitializing() { }
 
         private Dictionary<string, Object> resourceCache = new Dictionary<string, Object>();
 

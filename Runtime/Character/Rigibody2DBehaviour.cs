@@ -20,8 +20,7 @@ public abstract class Rigidbody2DBehaviour : BaseMonoBehaviour
 
     protected override void OnInitializing()
     {
-        if (TryGetComponent(out _rigidbody))
-            rigidbody.bodyType = RigidbodyType2D.Dynamic;
+        this.GetComponent(ref _rigidbody);
     }
     protected virtual void Reset() => Init(true);
         

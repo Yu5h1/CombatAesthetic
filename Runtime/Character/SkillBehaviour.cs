@@ -16,11 +16,12 @@ namespace Yu5h1Lib.Game.Character
         protected bool Activate()
         {
             if (!enable || !IsReady || !owner.underControl)
-                return OnActivate(false);
+                return OnActivated(false);
             owner.attribute.Affect(AffectType.NEGATIVE, data.costs);
-            return OnActivate(true);
+            return OnActivated(true);
         }
-        protected virtual bool OnActivate(bool successed) => successed;
+        protected virtual bool OnActivated(bool successed) => successed;
+
         public void Update(HostData2D.HostBehaviour2D host)
         {
             if (!enable || owner.IsInteracting || !owner.underControl )

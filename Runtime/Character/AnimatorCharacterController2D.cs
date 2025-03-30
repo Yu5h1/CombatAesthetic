@@ -1,7 +1,8 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 using NullReferenceException = System.NullReferenceException;
-using TargetingMode = Yu5h1Lib.Game.Character.SkillData.TargetingMode;
 
 namespace Yu5h1Lib.Game.Character
 {
@@ -10,7 +11,9 @@ namespace Yu5h1Lib.Game.Character
     public class AnimatorCharacterController2D : CharacterController2D
     {
         #region Animator     
-        public Animator animator { get; private set; }
+        private Animator _animator;
+        public Animator animator { get => _animator; private set => _animator = value; }
+
         public CharacterSMB[] states { get; private set; }
         private CharacterSMB _currentState;
         public CharacterSMB currentState
@@ -52,6 +55,7 @@ namespace Yu5h1Lib.Game.Character
         public SkillData currentSkill => optionalSkills.IsValid(indexOfSkill) ? optionalSkills[indexOfSkill] : null;
         public SkillBehaviour currentSkillBehaviour => currentSkill == null ? null :
             skillBehaviours[_Skills.IndexOf(optionalSkills[indexOfSkill])];
+
         #endregion
 
         public float fixedPoseDirSpeed = 5;
@@ -62,10 +66,10 @@ namespace Yu5h1Lib.Game.Character
             if (attribute)
                 attribute.StatDepleted += OnStatDepleted;
 
-            animator = GetComponent<Animator>();
+            this.GetComponent(ref _animator);
             animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
 
-            #region initinalize State machine behaviour
+            #region initialize State machine behaviour
             foreach (var item in animator.GetBehaviours<BaseCharacterSMB>())
                 item.Init(this);
             states = animator.GetBehaviours<CharacterSMB>();
@@ -76,7 +80,7 @@ namespace Yu5h1Lib.Game.Character
                 throw new NullReferenceException("animParam(AnimParamSMB) is null");
             #endregion
 
-            #region initinalize skill
+            #region initialize skill
             
             skillBehaviours = new SkillBehaviour[_Skills.Length];
             for (int i = 0; i < skillBehaviours.Length; i++)
@@ -86,7 +90,7 @@ namespace Yu5h1Lib.Game.Character
                 attribute.ui = UI_Manager.instance.PlayerAttribute_UI;
             if (!optionalSkills.IsEmpty())
                 currentSkillBehaviour.Select();
-            #endregion            
+            #endregion
         }
         
         protected override void Reset()
@@ -97,18 +101,36 @@ namespace Yu5h1Lib.Game.Character
         protected override void Update()
         {
             base.Update();
-            if (!IsInteracting)
-                animParam?.Update();
+            if (IsInteracting)
+                return;
+            animParam?.Update();
         }
+        public override void PauseStateChange(bool paused)
+        {
+            base.PauseStateChange(paused);
+            rigidbody.sleepMode = paused ? RigidbodySleepMode2D.StartAsleep : RigidbodySleepMode2D.StartAwake;
+            
+            //if (animator)
+            //{
+            //    rigidbody.isKinematic = paused;
+            //    animator.speed = paused ? 0 : 1;
+            //}
+
+        }
+        //protected override void FixedUpdate()
+        //{
+        //    if (Time.timeScale == 0)
+        //        return;
+        //    PerformDetection();
+        //}
         private void OnAnimatorMove()
         {
-            currentState.GetMoveInfo(out stateInfo);
+            currentState.GetStateInfo(out stateInfo);
             underControl = stateInfo.controllable && Conscious > 10;
+            //ProcessMovement();
         }
         protected override void ProcessMovement()
         {
-            if (Time.timeScale == 0)
-                return;
             if (IsInteracting)
                 return;
             var gravitation = gravityDirection;
@@ -170,7 +192,6 @@ namespace Yu5h1Lib.Game.Character
             }
             else
             {
-
                 RotateToGravitationSmooth(gravitation, stateInfo.fixAngleWeight);
                 ProcessingGravitation(gravitation, stateInfo.VelocityWeight, ref momentum);
             }
@@ -196,6 +217,8 @@ namespace Yu5h1Lib.Game.Character
                 rigidbody.MovePosition(rigidbody.position + (velocity = transform.TransformDirection(momentum) * Time.fixedDeltaTime));
             else /// deprecated using velocity control movement . this method will causing flick movement
                 velocity = transform.TransformDirection(momentum);
+
+            TriggerJump = false;
         }
         private void ProcessingGravitation(Vector2 gravitation, Vector2 VelocityWeight, ref Vector2 momentum)
         {           
@@ -206,13 +229,13 @@ namespace Yu5h1Lib.Game.Character
             var gMomentum = Quaternion.Inverse(localGQ) * momentum;
 
             if (gMomentum.y > Physics2D.gravity.y)
-                momentum += (Vector2)(localGQ * (Physics2D.gravity * gravityScale));
+                momentum += (Vector2)(localGQ * scaledGravity);
 
             if (underControl && !IsInteracting && Mathf.Abs(momentum.x) < MaxAirborneSpeed)
                 momentum += new Vector2(Mathf.Abs(InputMovement.x), InputMovement.y) * AirborneMultiplier;
         }
 
-        protected void RotateToGravitationSmooth(Vector2 gravitation,float fixAngleWeight,bool fade= true)
+        protected void RotateToGravitationSmooth(Vector2 gravitation,float fixAngleWeight,bool fade = true)
         {
             if (fixAngleWeight == 0)
                 return;
@@ -255,17 +278,15 @@ namespace Yu5h1Lib.Game.Character
             }
             return true;
         }
-        public void RandomCurrentSkill()
+        public void RandomCurrentSkill(int primaryIndex = -1)
         {
-            var enabledSkills = skillBehaviours.Where(b => b.enable).ToArray();
-            if (enabledSkills.Length <= 1)
+            var enabledSkills = skillBehaviours.Where(b => b.enable && b.data.incantation.IsEmpty()).ToArray();
+            if (enabledSkills.Length == 1)
                 return;
-            if (enabledSkills.Length != skillBehaviours.Length)
-            {
+            if (primaryIndex < 0)
                 indexOfSkill = optionalSkills.IndexOf(enabledSkills.RandomElement().data);
-            }
-            else if (optionalSkills.IsValid(2))
-                indexOfSkill = optionalSkills.IndexOf(optionalSkills.RandomElement());
+            else
+                indexOfSkill = Random.value < 0.5f ? optionalSkills.IndexOf(enabledSkills.RandomElement().data) : primaryIndex;
         }
         public override bool HitFrom(Vector2 v, bool push, bool faceToFrom)
         {
@@ -295,113 +316,87 @@ namespace Yu5h1Lib.Game.Character
             animParam.IndexOfSkill = index;
             animParam.TriggerAction();
         }
-        private void Hit()
+        #region FX
+        public void CastHitBox(string offsetName)
         {
-
-            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.casts.Length > 0)
-                CastFXOnTransform(fxSkill.casts[0].source, transform.Find("HitBoxOffset"));
-
-            //var hitboxType = detector.collider.bounds.size.magnitude > 2 ? "HitBoxBig" : "HitBox";
-            //var fx = PoolManager.Spawn<Transform>(hitboxType, detector.front, offsetTransform.rotation);
-            //foreach (var mask in fx.GetComponents<EventMask2D>())
-            //    mask.owner = transform;
-        }
-        private void SpawnFX(string name, Vector3 pos, Quaternion rot)
-        {
-            var fx = PoolManager.Spawn<Transform>(name, pos, rot);
-            foreach (var mask in fx.GetComponents<EventMask2D>())
-                mask.owner = transform;
-        }
-
-        public void CastFXOnTarget()
-        {
-            if (currentSkillBehaviour == null)
-                return;
-            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.casts.Length > 0) {
-                var targetTag = tag == "Player" ? "Enemy" : "Player";
-                $"finding {targetTag} ".print();
-                Collider2D[] results = Physics2D.OverlapCircleAll(transform.position, currentSkill.distance);
-
-                foreach (Collider2D collider in results)
+            var t = transform.Find(offsetName) ?? transform;
+            var hitBox = caster.Retrieve("HitBox", t.position, t.rotation);
+            var origiParent = hitBox.parent;
+            hitBox.transform.localScale = transform.localScale;
+            if (t.TryGetComponent(out Collider2D info))
+            {
+                foreach (var col in hitBox.GetComponents<Collider2D>())
+                    col.enabled = false;
+                switch (info)
                 {
-                    if (collider.gameObject == gameObject)
-                        continue;
-
-                    if (collider.CompareTag(targetTag))
-                        CastFXOnTransform(fxSkill.casts[0].source, collider.transform);
+                    case BoxCollider2D box:
+                        if (hitBox.TryGetComponent(out BoxCollider2D hitbox))
+                        {
+                            hitbox.enabled = true;
+                            hitbox.offset = box.offset;
+                            hitbox.size = box.size;
+                        }
+                        break;
+                    case CircleCollider2D circle:
+                        if (hitBox.TryGetComponent(out CircleCollider2D hitCircle))
+                        {
+                            hitCircle.enabled = true;
+                            hitCircle.offset = circle.offset;
+                            hitCircle.radius = circle.radius;
+                        }
+                        break;
                 }
             }
         }
-        public void CastFX()
+        public void CastFxOnTransform(Transform offsetT)
         {
             if (currentSkillBehaviour == null)
                 return;
-            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && !fxSkill.casts.IsEmpty())
+            if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && !fxSkill.castInfos.IsEmpty())
             {
-                var offsetTransform = transform.Find("FxOffset") ?? transform;
-                
                 if (scanner.target)
-                    for (int i = 0; i < fxSkill.casts.Length; i++)
-                    {
-                        if ($"{name}'s skill Fx [{i}] is empty.".printWarningIf(fxSkill.casts[i].source.IsEmpty()))
-                            continue;
-                        var pos = offsetTransform.position;
-                        var rot = offsetTransform.rotation;
-                        switch (fxSkill.casts[i].targetingMode)
-                        {
-                            case TargetingMode.Position:
-                      
-                                pos = scanner.target.transform.position;
-                                rot = Quaternion.identity;
-                                break;
-                            case TargetingMode.Position_Ground:
-                                pos = scanner.target.transform.position;
-                                if (scanner.GetGroundHeight(pos, -scanner.target.transform.up, out float height))
-                                    pos.y = height;
-                                else
-                                {
-                                    "CastFX Failed cause no Ground !".printWarning();
-                                    continue;
-                                }
-                                rot = Quaternion.identity;
-                                break;
-                            case TargetingMode.Aim:
-                                rot = scanner.GetQuaternionToResult();
-                                break;
-                            default:
-                                CastFXOnTransform(fxSkill.casts[i].source, offsetTransform);
-                                break;
-                        }
-                        SpawnFX(fxSkill.casts[i].source, pos, rot);
-                    }
+                {
+                    for (int i = 0; i < fxSkill.castInfos.Length; i++)
+                        SpawnSkillFX(fxSkill, i, offsetT);
+                }
                 else
-                    CastFXOnTransform(fxSkill.casts[0].source, offsetTransform);
+                    SpawnSkillFX(fxSkill, 0, offsetT);
             }
         }
+        public void SpawnSkillFX(Anim_FX_Skill skill, int index, Transform offsetT)
+        {
+            if ($"{name}'s skill Fx [{index}] is empty.".printWarningIf(skill.castInfos[index].source.IsEmpty()))
+                return;
+            offsetT ??= transform;
+            var info = skill.castInfos[index];
+            var pos = offsetT.position;
+            var rot = offsetT.rotation;
+            caster.Cast(info, pos, rot);
+        }
+        public void CastFxOnOffset(string offsetName)
+        {
+            if ($"{name} caster does not exists".printWarningIf(!caster))
+                return;
+            CastFxOnTransform(transform.Find(offsetName) ?? transform);
+        }        
+        public void CastFX() => CastFxOnOffset("FxOffset");
+
         public void CastFXByIndex(int index)
         {
             if (currentSkillBehaviour == null)
                 return;
             if (currentSkillBehaviour.data is Anim_FX_Skill fxSkill && fxSkill.IsValid(index))
-            {
-                var t = transform.Find("FxOffset");
-                if (scanner.target)
-                    CastFXOnTransform(fxSkill.casts[index].source, t);
-                else
-                    CastFXOnTransform(fxSkill.casts[index].source, t);
-            }
+                SpawnSkillFX(fxSkill, index, transform.Find("FxOffset"));
         }
-
-        public void CastFXByName(string index)
-        { 
-
-        }
-
-        public void CastFXOnTransform(string PoolItemName,Transform offset)
+        public void CastFxWithAnimEventData(AnimatorStateEventData data)
         {
-            offset = offset ?? transform;
-            SpawnFX(PoolItemName, offset.position, offset.rotation);
+            if (animator.GetDominantLayer() != data.layer)
+                return;
+            CastFxOnOffset(data.offsetTransformName);
+            
         }
+     
+        #endregion
         public void PlayAudioClips(AudioClips clips)
         {
             if ($"{name} tring to play Empty AudioClips".printErrorIf(!clips))
@@ -414,7 +409,7 @@ namespace Yu5h1Lib.Game.Character
                 return;
           
 
-            AnimatorClipInfo[] clipInfos = animator.GetCurrentAnimatorClipInfo(0);
+            AnimatorClipInfo[] clipInfos = animator.GetCurrentAnimatorClipInfo(animator.GetDominantLayer());
             foreach (var info in clipInfos)
             {
                 if (clip.name.Compare(info.clip.name,StringComparisonStyle.StartsWith) && info.weight >= 0.9f)
@@ -425,7 +420,31 @@ namespace Yu5h1Lib.Game.Character
             }
 
         }
+    
+
+
+        public void MoveLayer(int offset)
+            => SetLayer(Mathf.Clamp(animator.GetDominantLayer() + offset, 0, animator.layerCount - 1));
+        [ContextMenu(nameof(MoveNextLayer))]
+        public void MoveNextLayer() => MoveLayer(1);
+        [ContextMenu(nameof(MoveLastLayer))]
+        public void MoveLastLayer() => MoveLayer(-1);
+        public void SetLayer(int layer)
+        {
+            if (animator.layerCount < 2)
+                return;
+            animator.Play("Intro", layer);
+            for (int i = 0; i < animator.layerCount; i++)
+                animator.SetLayerWeight(i, i == layer ? 1 : 0);
+        }
+        [ContextMenu(nameof(RestartAnimator))]
+        public void RestartAnimator()
+        {
+          
+        }
         #endregion
+
+
 
         [ContextMenu("Set as Player")]
         public void SetAsPlayer()
@@ -463,6 +482,5 @@ namespace Yu5h1Lib.Game.Character
 
         public float fixAngleWeight;
     }
-
 }
 

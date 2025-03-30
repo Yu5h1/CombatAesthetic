@@ -6,6 +6,10 @@ using Yu5h1Lib;
 
 public class TriggerEvent2D : EventMask2D
 {
+    [SerializeField]
+    private bool _ignoreTrigger = true;
+    public bool ignoreTrigger => _ignoreTrigger;
+
     public UnityEvent<Collider2D> OnTriggerEnter2DEvent;
     public UnityEvent<Collider2D> TriggerExit2D;
 
@@ -14,7 +18,7 @@ public class TriggerEvent2D : EventMask2D
     public int count => _count;
     public int counter { get; set; }
 
-    private void Start()
+    protected override void Start()
     {
         foreach (var c in GetComponents<Collider2D>())
             c.isTrigger = true;
@@ -23,9 +27,9 @@ public class TriggerEvent2D : EventMask2D
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!isActiveAndEnabled)
+        if (ignoreTrigger && other.isTrigger)
             return;
-        if (!Validate(other.gameObject))
+        if (!Validate(other))
             return;
 
         if (count > 0)
@@ -40,7 +44,7 @@ public class TriggerEvent2D : EventMask2D
     {
         if (NotAllowTriggerExit)
             return;
-        if (!Validate(other.gameObject))
+        if (!Validate(other))
             return;
         TriggerExit2D?.Invoke(other);
     }

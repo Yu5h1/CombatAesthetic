@@ -5,15 +5,14 @@ using Yu5h1Lib;
 
 public class KeyCodeEventManager : SingletonBehaviour<KeyCodeEventManager>
 {
-    public HashSet<KeyCodeEventHandler> handlers = new HashSet<KeyCodeEventHandler>();
+    public List<KeyCodeEventHandler> handlers = new List<KeyCodeEventHandler>();
 
-    protected override void Init()
-    {
-        
-    }
+    protected override void OnInstantiated() { }
+    protected override void OnInitializing() { }
+
     private void Update()
     {
-        foreach (var handler in handlers)
-            handler.Handle();
+        for (int i = handlers.Count - 1; i >= 0; i--)
+                handlers[i].Handle();
     }
 }

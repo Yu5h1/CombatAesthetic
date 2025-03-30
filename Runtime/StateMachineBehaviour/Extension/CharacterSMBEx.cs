@@ -3,7 +3,7 @@ using Yu5h1Lib.Game.Character;
 
 public static class CharacterSMBEx
 {
-	public static bool GetMoveInfo(this CharacterSMB csmb,out StateInfo info)
+	public static bool GetStateInfo(this CharacterSMB csmb,out StateInfo info)
 	{
         info = new StateInfo()
         {

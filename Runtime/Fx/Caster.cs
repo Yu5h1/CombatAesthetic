@@ -1,9 +1,13 @@
+
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Yu5h1Lib;
 using Yu5h1Lib.Runtime;
+using Serializable = System.SerializableAttribute;
 
-//[RequireComponent]
-public class Caster : MonoBehaviour
+[DisallowMultipleComponent]
+public class Caster : BaseMonoBehaviour
 {
     [System.Flags]
     public enum TargetingMode
@@ -15,97 +19,123 @@ public class Caster : MonoBehaviour
         EnvironmentSurface = 1 << 3,
         FaceTo = 1 << 4,
     }
-    [System.Serializable]
+    [Serializable]
     public class Info
     {
         [AutoFill(typeof(AutoFillResources), "Fx")]
         public string source;
-        public TargetingMode mode;
-        [FlagsOption(FlagsOptionStyle.Option)]
-        public Direction direction = Direction.right;
+        public TargetingMode targetingMode;
+        public Direction2D direction = Direction2D.right;
     }
-    [SerializeField]
+ 
+
+
+    [SerializeField,ReadOnly]
     private Scanner2D _scanner;
     private Scanner2D scanner => _scanner;
-    public Info info;
 
+    [SerializeField]
+    private CasterData[] datas;
 
-    public void Init()
-    {
-        TryGetComponent(out _scanner);
-    }
     private void Reset()
     {
         Init();
     }
-    private void OnEnable()
+    protected override void OnInitializing()
     {
-        Init();
+        this.GetComponent(ref _scanner);
     }
+    private void Start() { }
+    private void OnEnable() { }
+    #region create by data
     [ContextMenu(nameof(Cast))]
     public void Cast()
     {
-        if (!scanner)
+        if (!scanner || datas.IsEmpty())
+            return; 
+        var data = datas.RandomElement();
+        if (!data)
             return;
-        if (scanner.Scan(out RaycastHit2D hit))
-            Cast(info, transform.position, transform.rotation, hit.transform);
+        if (data.scaleMultiplier.Length == 0 && data.scaleMultiplier.Min >= 0.1f)
+            return;
+        if (!scanner.Scan(out RaycastHit2D hit) )
+            return;
+        var fx = Cast(data.info, transform.position, transform.rotation, hit.transform);
+        if (fx == null)
+            return;
+        var s = Random.Range(data.scaleMultiplier.Min, data.scaleMultiplier.Max);
+        fx.localScale = new Vector3(s, s, 1);
     }
+    #endregion
 
-    public void Cast(Transform target)
+
+    public void Cast(Info info, Vector3 defaultPos, Quaternion defaultRot)
     {
-        Cast(info, transform.position, transform.rotation, target);
+        if (scanner.Scan(out RaycastHit2D hit))
+            Cast(info, defaultPos, defaultRot, hit.transform);
     }
-    public void Cast(Info info,Vector3 pos, Quaternion rot, Transform target)
+    public Transform Cast(Info info,Vector3 defaultPos, Quaternion defaultRot, Transform target)
     {
-        switch (info.mode)
+        switch (info.targetingMode)
         {
             case TargetingMode.Position:
 
-                pos = target.transform.position;
-                rot = Quaternion.identity;
+                defaultPos = target.transform.position;
+                defaultRot = Quaternion.identity;
                 break;
             case TargetingMode.Ground:
-                pos = target.transform.position;
-                if (GetGroundHeight(pos, -target.transform.up, scanner.distance, out float height))
-                    pos.y = height;
+                defaultPos = target.transform.position;
+                if (GetGroundHeight(defaultPos, -target.transform.up, scanner.distance, out float height))
+                    defaultPos.y = height;
                 else
                 {
                     "CastFX Failed cause no Ground !".printWarning();
-                    return;
+                    return null;
                 }
-                rot = Quaternion.identity;
+                defaultRot = Quaternion.identity;
                 break;
             case TargetingMode.EnvironmentSurface:
                 if (GetEnvironmentSurfacePoint(target.transform.position, scanner.distance,out RaycastHit2D hit))
                 {
 
-                    rot = hit.normal.DirectionToQuaternion2D(info.direction);
-                    pos = hit.point;
+                    defaultRot = hit.normal.DirectionToQuaternion2D(info.direction);
+                    defaultPos = hit.point;
 
                 }
                 else
                 {
                     "CastFX Failed cause no Surface !".printWarning();
-                    return;
+                    return null;
                 }
                 break;
             case TargetingMode.Aim:
-                rot = GetQuaternionToResult(target);
+                defaultRot = GetQuaternionToResult(target);
                 break;
             default:
                 break;
         }
-        Retrieve(info.source, pos, rot);
+        return Retrieve(info.source, defaultPos, defaultRot);
     }
 
     public Vector3 GetDirectionToResult(Transform target) => target.position - transform.position;
     public Quaternion GetQuaternionToResult(Transform target) => ((Vector2)GetDirectionToResult(target)).DirectionToQuaternion2D();
 
-    public void Retrieve(string source, Vector3 pos, Quaternion rot)
+    public Transform Retrieve(string source, Vector3 pos, Quaternion rot)
     {
         var fx = PoolManager.Spawn<Transform>(source, pos, rot);
         foreach (var mask in fx.GetComponents<EventMask2D>())
-            mask.owner = transform;
+        {
+            mask.Filter.tagOption.tag = gameObject.tag;
+            mask.Filter.tagOption.mode = TagOption.FilterMode.Exclude;
+        }
+        var availableColliders = GameManager.instance.characters.
+            Where( c => c.IsAvailable() && c.transform != transform && c.detector.IsAvailable() && c.detector.collider != null ).
+            Select(d => d.detector.collider);
+        
+        foreach (var p in fx.GetComponents<ParticleSystemEvent>())
+            p.SetTriggerList2D(availableColliders);
+
+        return fx;
     }
 
     #region Static

@@ -41,9 +41,9 @@ namespace Yu5h1Lib.Game.Character
             remove => _GroundStateChanged.RemoveListener(value);
         }
 
-        [SerializeField]
-        private ColliderScanner2D _scanner;
-        public ColliderScanner2D scanner => _scanner;
+        //[SerializeField]
+        //private ColliderScanner2D _scanner;
+        //public ColliderScanner2D scanner => _scanner;
 
         protected override void OnInitializing()
         {
@@ -57,7 +57,7 @@ namespace Yu5h1Lib.Game.Character
             if (!collider && TryGetComponent(out CapsuleCollider2D c))
                 collider = c;
             ignoreSiblingColliders = true;
-            scanner.Init(transform);
+            //scanner.Init(transform);
         }
         private void LateUpdate()
         {
@@ -227,19 +227,19 @@ namespace Yu5h1Lib.Game.Character
 
         #region ContextMenu
 
-        [ContextMenu(nameof(UsedefaultScannerSetting))]
-        public void UsedefaultScannerSetting()
-        {
-            scanner.layerMask = LayerMask.GetMask("Character");
-            scanner.Tag.tag = "Player";
-            scanner.ObstacleMask = LayerMask.GetMask("PhysicsObject");
-            scanner.Tag.type = TagOption.ComparisionType.Equal;
-            scanner.filter.useTriggers = false;
-            scanner.filter.useLayerMask = true;
-            scanner.direction = Vector2.zero;
-            scanner.useCircleCast = true;
-            scanner.distance = 10;
-        }
+        //[ContextMenu(nameof(UsedefaultScannerSetting))]
+        //public void UsedefaultScannerSetting()
+        //{
+        //    scanner.layerMask = LayerMask.GetMask("Character");
+        //    scanner.Tag.tag = "Player";
+        //    scanner.ObstacleMask = LayerMask.GetMask("PhysicsObject");
+        //    scanner.Tag.type = TagOption.ComparisionType.Equal;
+        //    scanner.filter.useTriggers = false;
+        //    scanner.filter.useLayerMask = true;
+        //    scanner.direction = Vector2.zero;
+        //    scanner.useCircleCast = true;
+        //    scanner.distance = 10;
+        //}
 
         #endregion
     }

@@ -8,20 +8,23 @@ namespace Yu5h1Lib.Game.Character
     public class CharacterController2D : Rigidbody2DBehaviour
     {
         #region Setting
-        public static Vector2 scaledGravity { get; protected set; } = new Vector2(0, -0.32699673f);
         public static string GetKey(string parameterName) => $"{typeof(CharacterController2D).FullName}_{parameterName}";
-        public static string gravityScaleKey => GetKey($"{nameof(gravityScale)}");
-        public static float gravityScale
+
+        [SerializeField]
+        private float _gravityScale = 0.03333f;
+        public float gravityScale
         {
-            get => PlayerPrefs.GetFloat(gravityScaleKey, 0.03333f);
+            get => _gravityScale;
             set
             {
                 if (gravityScale == value)
                     return;
-                PlayerPrefs.SetFloat(gravityScaleKey, value);
-                scaledGravity = Physics2D.gravity * gravityScale;
+                _gravityScale = value;                
             }
         }
+        public Vector2 scaledGravity => Physics2D.gravity * gravityScale;
+        //{ get; protected set; } = new Vector2(0, -0.32699673f);
+
         public static string FallingDamageHeightKey => GetKey($"{nameof(FallingDamageHeight)}");
         public static float FallingDamageHeight
         {
@@ -56,7 +59,12 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField, ReadOnly]
         private ColliderDetector2D _detector;
         public ColliderDetector2D detector => _detector;
-        public ColliderScanner2D scanner => _detector.scanner;
+        [SerializeField, ReadOnly]
+        private Caster _caster;
+        public Caster caster => _caster;
+        [SerializeField, ReadOnly]
+        private Scanner2D _scanner;
+        public Scanner2D scanner => _scanner;
         public bool IsGrounded => detector.IsGrounded;
         public bool IsInteracting => !detector.enabled;
         #endregion
@@ -101,18 +109,19 @@ namespace Yu5h1Lib.Game.Character
         }
         public HostData2D.HostBehaviour2D hostBehaviour;
 
-        protected bool TriggerJump = false;
+        public bool TriggerJump = false;
         [SerializeField,ReadOnly]
-        protected Vector2 _Movement;
+        protected Vector2 _inputMovement;
         public Vector2 InputMovement
         {
-            get => _Movement;
+            get => _inputMovement;
             protected set
             {
-                TriggerJump = _Movement.y == 0 && value.y > 0;
-                if (_Movement == value)
+                //TriggerJump = Mathf.Approximately(_inputMovement.y, 0) && value.y > 0;
+                //TriggerJump = _inputMovement.y == 0 && value.y > 0;
+                if (_inputMovement == value)
                     return;
-                _Movement = value;
+                _inputMovement = value;
             }
         }
         public float BoostMultiplier { get => GroundMultiplier.x; set => GroundMultiplier.x = value; }
@@ -172,7 +181,7 @@ namespace Yu5h1Lib.Game.Character
         public Vector2 gravityDirection => overrideGravityDirection.magnitude == 0 ? defaultGravityDirection : overrideGravityDirection;
         public bool UseTransformUpAsGravitationOnStart;
         #endregion
-        public bool IsInvincible => !attribute || !attribute.isActiveAndEnabled;
+        public bool IsInvincible => !attribute || !attribute.isActiveAndEnabled || InvincibleCoroutine != null;
 
         private float lastfallingHeight;
         //protected float lastFallingTime;
@@ -182,10 +191,17 @@ namespace Yu5h1Lib.Game.Character
         protected override void OnInitializing()
         {
             base.OnInitializing();
-            if (!$"{name}'s Detector does not Exist ! ".printWarningIf(!TryGetComponent(out _detector)))
+            rigidbody.bodyType = RigidbodyType2D.Dynamic;
+            rigidbody.gravityScale = 0;
+
+            if (!$"{name}'s Detector does not Exist ! ".printWarningIf(!this.GetComponent(ref _detector)))
                 detector.GroundStateChanged += OnGroundStateChanged;
-            if (!$"{name}'s Attribute does not Exist ! ".printWarningIf(!TryGetComponent(out _attribute)))
+            if (!$"{name}'s Attribute does not Exist ! ".printWarningIf(!this.GetComponent(ref _attribute)))
                 attribute.Init();
+            if (!$"{name}'s Scanner does not Exist ! ".printWarningIf(!this.GetComponent(ref _scanner)))
+                scanner.Init();
+            if (!$"{name}'s Caster does not Exist ! ".printWarningIf(!this.GetComponent(ref _caster)))
+                caster.Init();
 
             if (host)
                 hostBehaviour = host.CreateBehaviour(this);
@@ -194,6 +210,8 @@ namespace Yu5h1Lib.Game.Character
                 defaultGravityDirection = up;
 
             lastfallingHeight = transform.position.y;
+
+            rigidbody.interpolation = RigidbodyInterpolation2D.None;
         }
         protected virtual void OnGroundStateChanged(bool grounded)
         {
@@ -231,6 +249,14 @@ namespace Yu5h1Lib.Game.Character
             PerformDetection();
             ProcessMovement();
         }
+        private void OnCollisionStay2D(Collision2D collision)
+        {
+            
+        }
+        public virtual void PauseStateChange(bool paused) {
+
+            
+        }
         protected void PerformDetection()
         {
             if (!detector.IsValid())
@@ -251,8 +277,6 @@ namespace Yu5h1Lib.Game.Character
         }
         protected virtual void ProcessMovement()
         {
-            if (Time.timeScale == 0)
-                return;
             if (IsInteracting) {
                 velocity = Vector2.zero;
                 return;
@@ -300,6 +324,8 @@ namespace Yu5h1Lib.Game.Character
                 rigidbody.MovePosition(rigidbody.position + (velocity = transform.TransformDirection(momentum) * Time.fixedDeltaTime));                
             else/// deprecated using velocity control movement . this method will causing flick movement
                 velocity = transform.TransformDirection(momentum);
+
+            TriggerJump = false;
         }
 
         public void CheckForwardFrom(float x)
@@ -317,11 +343,11 @@ namespace Yu5h1Lib.Game.Character
         public bool controllable = true;
         protected virtual bool UpdateInputInstruction()
         {
-
-            if (GameManager.IsGamePause || !initialized || !controllable ||
-               host == null)
+            if (GameManager.IsGamePaused || !initialized || !controllable ||
+                    host == null)
             {
-                InputMovement = Vector2.zero;
+                if (!controllable)
+                    InputMovement = Vector2.zero;
                 return false;
             }
             InputMovement = hostBehaviour.GetMovement();
@@ -356,7 +382,7 @@ namespace Yu5h1Lib.Game.Character
 
         public virtual bool HitFrom(Vector2 v,bool push, bool faceToFrom)
         {
-            if (!isActiveAndEnabled || IsInvincible)
+            if (!IsAvailable() || IsInvincible)
                 return false;
             if (faceToFrom && !v.IsZero() && Vector2.Dot(v.normalized, right) > 0)
                 CheckForwardFrom(-forwardSign);
@@ -365,10 +391,11 @@ namespace Yu5h1Lib.Game.Character
             return true;
         }
         #region Coroutine
-        private Coroutine TemporarilyInvincibleCoroutine;
-        public void ApplyInvincibilityFrames(Vector2 force)
-        {
-            if (InvincibleDuration == 0)
+        private Coroutine InvincibleCoroutine;
+        public void ApplyInvincibilityFrames(Vector2 force) => ApplyInvincibilityFrames(force,InvincibleDuration);
+
+        public void ApplyInvincibilityFrames(Vector2 force,float duration){
+            if (duration == 0)
                 return;
             var stateNullable = attribute[AttributeType.Health];
             if (stateNullable == null)
@@ -376,9 +403,8 @@ namespace Yu5h1Lib.Game.Character
             var state = stateNullable.Value;
             if (state.IsDepleted)
                 return;
-            this.StartCoroutine(ref TemporarilyInvincibleCoroutine, InvincibilityFramesProcess(InvincibleDuration));
+            this.StartCoroutine(ref InvincibleCoroutine, InvincibilityFramesProcess(duration));
         }
-        public void ApplyInvincibilityFrames(Vector2 force,float duration){ }
         private IEnumerator InvincibilityFramesProcess(float duration)
         {
             
@@ -397,6 +423,7 @@ namespace Yu5h1Lib.Game.Character
             //attribute.enabled = false;
             //yield return new WaitForSeconds(duration);
             hurtBox.enabled = true;
+            InvincibleCoroutine = null;
         }
         Coroutine performanceCoroutine;
         public bool IsScriptedActing => performanceCoroutine != null;

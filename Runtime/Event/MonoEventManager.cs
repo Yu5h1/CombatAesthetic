@@ -6,9 +6,8 @@ using Yu5h1Lib;
 
 public class MonoEventManager : SingletonBehaviour<MonoEventManager>
 {
-    protected override void Init()
-    {
-    }
+    protected override void OnInstantiated() {}
+    protected override void OnInitializing() {}
 
     public static Dictionary<Object, UnityAction<Object>> StartEvents;
 
@@ -21,6 +20,9 @@ public class MonoEventManager : SingletonBehaviour<MonoEventManager>
             item.Value?.Invoke(item.Key);
         }
     }
+
+    
+
 
     //// Update is called once per frame
     //void Update()

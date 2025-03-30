@@ -195,11 +195,21 @@ public class AttributeBehaviour : MonoBehaviour
     }
     public bool Validate(Dictionary<string,int> cost)
     {
+#if UNITY_EDITOR
+        "stats is empty".printWarningIf(stats.IsEmpty());
+#endif
         if (stats.IsEmpty())
             return false;
         foreach (var item in cost)
+        {
             if (!IsEnough(item.Key, item.Value))
+            {
+#if UNITY_EDITOR
+                $"{name} : Not enough {item.Key}".printWarning();
+#endif
                 return false;
+            }
+        }
         return true;
     }
 

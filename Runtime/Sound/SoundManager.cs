@@ -52,13 +52,18 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     public ComponentPool.Config AudioSourcePoolConfig;
 
-    protected override void Init()
+    protected override void Awake()
     {
+        base.Awake();
         $"{audioListener} is ready.".print();
         Audio_bgm.playOnAwake = false;
         Audio_bgm.loop = true;
         audio_sfx.playOnAwake = false;
     }
+
+    protected override void OnInstantiated() { }
+    protected override void OnInitializing() {}
+
     public void Start()
     {
         Audio_bgm.Stop();
@@ -90,7 +95,8 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     //}
     public void PrepareAudioSource()
     {
-        PoolManager.Add<AudioSource>(AudioSourcePoolConfig, InitAudioSource);
+        var pool = PoolManager.Add<AudioSource>(AudioSourcePoolConfig);
+        pool.init += InitAudioSource;
     }
     private static void InitAudioSource(Component c)
     {

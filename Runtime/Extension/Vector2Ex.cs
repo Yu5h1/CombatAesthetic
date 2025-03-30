@@ -27,19 +27,19 @@ namespace Yu5h1Lib
             float cosThreshold = Mathf.Cos(threshold * Mathf.Deg2Rad);
             return dot >= cosThreshold;
         }
-        public static Quaternion DirectionToQuaternion2D(this Vector2 dir, Direction direction = Direction.right)
+        public static Quaternion DirectionToQuaternion2D(this Vector2 dir, Direction2D direction = Direction2D.right)
         {
             var degree = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
             switch (direction)
             {
-                case Direction.left:
+                case Direction2D.left:
                     degree -= 180;
                     break;
-                case Direction.up:
+                case Direction2D.up:
                     degree -= 90;
                     break;
-                case Direction.down:
+                case Direction2D.down:
                     degree += 90;
                     break;
             }

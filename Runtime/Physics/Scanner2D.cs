@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using Yu5h1Lib;
 using Yu5h1Lib.Game.Character;
 
-[System.Serializable]
+[DisallowMultipleComponent]
 public class Scanner2D : BaseMonoBehaviour
 {
     [SerializeField, ReadOnly]
@@ -15,8 +15,9 @@ public class Scanner2D : BaseMonoBehaviour
     [SerializeField] private CollierCastInfo2D castInfo;
     [SerializeField] private TagOption Tag;
     [SerializeField] private bool InfiniteDistance;
-    [SerializeField] private Vector2 direction;
-    [SerializeField] private LayerMask ObstacleMask;
+    [SerializeField] private Vector2 _direction;
+    [SerializeField] private LayerMask _ObstacleMask;
+    public LayerMask ObstacleMask => _ObstacleMask;
     [ReadOnly]
     private Vector2 _offset;
     public Vector2 offset => useCircleCast ? transform.position : transform.TransformPoint(_offset);
@@ -57,20 +58,20 @@ public class Scanner2D : BaseMonoBehaviour
     //public event UnityAction<Transform> detected;
     //public event UnityAction<Transform> changed;
     //public event UnityAction<Transform> lost;
-
+   
     private void Reset()
     {
         if (Tag == null)
             Tag = new TagOption();
         Tag.tag = "Player";
-        Tag.type = TagOption.ComparisionType.Equal;
+        Tag.mode = TagOption.FilterMode.Include;
         if (castInfo == null)
             castInfo = new CollierCastInfo2D();
         castInfo.filter.useTriggers = false;
         castInfo.filter.useLayerMask = true;
         castInfo.layerMask = LayerMask.GetMask("Character");
-        ObstacleMask = LayerMask.GetMask("PhysicsObject");
-        direction = Vector2.zero;
+        _ObstacleMask = LayerMask.GetMask("PhysicsObject");
+        _direction = Vector2.zero;
         useCircleCast = true;
         castInfo.distance = 10;
 
@@ -84,7 +85,7 @@ public class Scanner2D : BaseMonoBehaviour
         if (collider)
         {
             collider.isTrigger = true;
-            _offset = collider.transform.InverseTransformPoint(collider.GetPoint(collider.transform.TransformDirection(-direction)));
+            _offset = collider.transform.InverseTransformPoint(collider.GetPoint(collider.transform.TransformDirection(-_direction)));
             size = collider.GetSize();
         }
     }
@@ -104,7 +105,7 @@ public class Scanner2D : BaseMonoBehaviour
     public bool Scan(out RaycastHit2D hit)
     {
         hit = default(RaycastHit2D);
-        var dir = direction.IsZero() ? Vector2.zero : (Vector2)transform.TransformDirection(direction);
+        var dir = _direction.IsZero() ? Vector2.zero : (Vector2)transform.TransformDirection(_direction);
 
         for (int i = 0; i < Cast(dir); i++)
         {
@@ -115,18 +116,18 @@ public class Scanner2D : BaseMonoBehaviour
                 Debug.DrawLine(offset, closetpoint, Color.yellow);
 #endif
                 var obstacleHit = default(RaycastHit2D);
-                if (ObstacleMask.value != 0)
+                if (_ObstacleMask.value != 0)
                 {
-                    obstacleHit = Physics2D.Linecast(offset, closetpoint, ObstacleMask);
+                    obstacleHit = Physics2D.Linecast(offset, closetpoint, _ObstacleMask);
 #if UNITY_EDITOR
-                    if (obstacleHit)
+                    if (obstacleHit) 
                     {
                         Debug.DrawLine(offset, obstacleHit.point, Color.blue);
                         //$"{collider.transform.parent.name} obstacleHit:({obstacleHit.collider.name}) from scanner".print();
                     }
 #endif
                 }
-                if (!obstacleHit)
+                if (!obstacleHit || obstacleHit.collider.excludeLayers.Contains(2)) //obstacle "Ignore Raycast"
                 {
 
                     hit = results[i];
@@ -139,6 +140,16 @@ public class Scanner2D : BaseMonoBehaviour
         resultIndex = -1;
         return false;
     }
+    public bool ObstacleHitTest(Vector2 start,Vector2 end,out RaycastHit2D obstacleHit)
+    {
+        obstacleHit = default;
+        if (_ObstacleMask.value == 0)
+            return false;
+        var hit = Physics2D.Linecast(start, end, _ObstacleMask);
+        if (hit && !hit.collider.excludeLayers.Contains(2)) //obstacle "Ignore Raycast"
+            obstacleHit = hit;
 
+        return obstacleHit;
+    }
 
 }

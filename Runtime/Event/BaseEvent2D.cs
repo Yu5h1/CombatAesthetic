@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using Yu5h1Lib;
 
-public class BaseEvent2D : MonoBehaviour
+public abstract class BaseEvent2D : BaseMonoBehaviour
 {
+    protected override void OnInitializing() { }
+
     public void PlayAudio()
     {
         if (TryGetComponent(out AudioSource audioSource))
@@ -37,5 +39,6 @@ public class BaseEvent2D : MonoBehaviour
         gameObject.SetActive(active);
     } 
     #endregion
-    public void Log(string msg) => msg.print();
+
+    
 }

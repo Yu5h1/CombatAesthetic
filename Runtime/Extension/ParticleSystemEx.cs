@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Yu5h1Lib;
 using static UnityEngine.ParticleSystem;
 
 public static class ParticleSystemEx
@@ -19,5 +20,29 @@ public static class ParticleSystemEx
             }
         }
         return false;
+    }
+    public static void SetTriggerList2D<T>(this ParticleSystem particleSystem, IEnumerable<T> targets) where T : Component
+    {
+        var triggerModule = particleSystem.trigger;
+        triggerModule.enabled = true;
+        particleSystem.ClearTriggerList();
+        foreach (var target in targets)
+            triggerModule.AddCollider(target);
+    }
+
+    public static Component[] GetTriggerList(this ParticleSystem particleSystem)
+    {
+        var triggerModule = particleSystem.trigger;
+        var results = new Component[triggerModule.colliderCount];
+        for (int i = 0; i < results.Length; i++)
+            results[i] = triggerModule.GetCollider(i);
+        return results;
+    }
+    public static void ClearTriggerList(this ParticleSystem particleSystem)
+    {
+        var triggerModule = particleSystem.trigger;
+        var targets = particleSystem.GetTriggerList();
+        foreach ( var target in targets )
+            triggerModule.RemoveCollider(target);
     }
 }
