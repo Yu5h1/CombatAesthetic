@@ -14,5 +14,5 @@ public abstract class EventMask2D : BaseEvent2D
     protected bool Validate(Component other)
         => _filter.Validate(this, other);
 
-    protected bool NotAllowTriggerExit => GameManager.IsQuit || SceneController.IsSceneTransitioning;
+    protected bool NotAllowTriggerExit => GameManager.IsQuit || SceneController.IsUnloading;
 }

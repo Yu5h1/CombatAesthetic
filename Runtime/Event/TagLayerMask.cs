@@ -38,7 +38,7 @@ namespace Yu5h1Lib
         public bool Validate(Behaviour behaviour,Component other)
             => behaviour.isActiveAndEnabled && Validate(other);
         public bool Validate(Component other)
-            => tagOption.Compare(other.gameObject) && layers.Contains(other.gameObject);
+            => layers.value != 0 && tagOption.Compare(other.gameObject) && layers.Contains(other.gameObject);
             //!_transformsToIgnore.Contains(other.transform) && tagOption.Compare(other.gameObject) && layers.Contains(other.gameObject);
 
         public T[] Filter<T>(IEnumerable<T> components) where T : Component

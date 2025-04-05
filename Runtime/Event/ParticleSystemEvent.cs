@@ -19,11 +19,24 @@ public class ParticleSystemEvent : BaseParticleSystemBehaviour
 
     protected ParticleSystem.Particle[] particles;
 
+
+    public ParticleSystem[] subParticleSystems { get; private set; }
+
+
+    /// <summary>
+    /// Unable to capture message
+    /// </summary>
+    //[SerializeField]
+    //private UnityEvent<ParticleSystem.Particle> _ParticleBirth;
+    //[SerializeField]
+    //private UnityEvent<ParticleSystem.Particle> _ParticleDeath;
+
     protected override void OnInitializing()
     {
         base.OnInitializing();
         var main = particleSystem.main;
         main.stopAction = ParticleSystemStopAction.Callback;
+        subParticleSystems = GetComponentsInChildren<ParticleSystem>();
     }
 
     private void Start()
@@ -31,7 +44,11 @@ public class ParticleSystemEvent : BaseParticleSystemBehaviour
         
     }
     public void SetTriggerList2D(IEnumerable<Collider2D> targets)
-        => particleSystem.SetTriggerList2D(filter.Filter(targets));
+    {
+        if (filter.layers.value == 0)
+            return;
+        particleSystem.SetTriggerList2D(filter.Filter(targets));
+    }
 
     //private void FixedUpdate()
     //{

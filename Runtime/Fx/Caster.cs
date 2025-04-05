@@ -134,6 +134,8 @@ public class Caster : BaseMonoBehaviour
         
         foreach (var p in fx.GetComponents<ParticleSystemEvent>())
             p.SetTriggerList2D(availableColliders);
+        foreach (var p in fx.GetComponentsInChildren<ParticleSystemEvent>())
+            p.SetTriggerList2D(availableColliders);
 
         return fx;
     }

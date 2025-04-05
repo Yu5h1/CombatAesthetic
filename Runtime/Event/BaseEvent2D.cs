@@ -9,6 +9,8 @@ public abstract class BaseEvent2D : BaseMonoBehaviour
 
     public void PlayAudio()
     {
+        if (GameManager.IsQuit)
+            return;
         if (TryGetComponent(out AudioSource audioSource))
             GameManager.instance.PlayAudio(audioSource);
     }
@@ -18,6 +20,12 @@ public abstract class BaseEvent2D : BaseMonoBehaviour
     }
     public void Prompt(string[] lines) => GameManager.ui_Manager.Prompt(lines);
     public void Prompt(string content) => GameManager.ui_Manager.Prompt(content);
+
+    public void SetLoadingStory(string name)
+     => GameManager.storyManager.loadingStory = name;
+
+    public void PlayStory(string name)
+        => GameManager.storyManager.Play(name);
 
     #region GameManager
 

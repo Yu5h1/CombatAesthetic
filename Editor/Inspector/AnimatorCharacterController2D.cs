@@ -32,11 +32,10 @@ public class AnimatorCharacterController2DEditor : Editor<AnimatorCharacterContr
 
     private void SkillsList_drawElement(Rect rect, int index, bool isActive, bool isFocused)
     {
-        if (EditorApplication.isPlaying)
+        if (EditorApplication.isPlaying && targetObject.skillBehaviours.IsValid(index))
         {
-            
             rect.x = rect.x + EditorGUIUtility.labelWidth - 20;
-            targetObject.skillBehaviours[index].enable = EditorGUI.Toggle(rect, targetObject.skillBehaviours[index].enable);            
+            targetObject.skillBehaviours[index].enable = EditorGUI.Toggle(rect, targetObject.skillBehaviours[index].enable);
         }
     
     }

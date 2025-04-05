@@ -3,6 +3,11 @@ using Yu5h1Lib;
 using UnityEngine.UI;
 using Yu5h1Lib.UI;
 using Yu5h1Lib.Game;
+using System.Collections.Generic;
+
+using BoolFn = System.Func<bool>;
+using System.Linq;
+using UnityEditor;
 
 [DisallowMultipleComponent]
 public class UI_Manager : MonoBehaviour
@@ -10,11 +15,15 @@ public class UI_Manager : MonoBehaviour
     private static UI_Manager _instance;
     public static UI_Manager instance{ 
         get{
-            if (_instance == null)
+            if (_instance == null || !GameManager.IsQuit)
                 _instance = GameManager.instance.GetComponent<UI_Manager>();
             return _instance;            
         }
     }
+
+    [SerializeField, ReadOnly]
+    private Canvas _canvas_overlay;
+    public static Canvas canvas_overlay => instance._canvas_overlay;
 
     [ReadOnly,SerializeField]
     private UI_Menu _currentMenu;
@@ -23,7 +32,7 @@ public class UI_Manager : MonoBehaviour
     [SerializeField,ReadOnly]
     public LoadAsyncAgent _Loading;
     public LoadAsyncAgent Loading => Build(nameof(Loading), ref _Loading);
-
+    public Image LoadingBackGround => Loading.GetComponent<Image>();
 
 
     private UI_Menu _LevelSceneMenu;
@@ -49,6 +58,22 @@ public class UI_Manager : MonoBehaviour
     private UI_TextPerformance _textPerformance;
     public UI_TextPerformance textPerformance => _textPerformance;
 
+    private static List<BoolFn> _CancelConditions = new List<BoolFn>();
+
+    public static event BoolFn cancelConditions
+    { 
+        add => _CancelConditions.Add(value);
+        remove => _CancelConditions.Remove(value);
+    }
+
+
+    public static bool visible
+    {
+        get => canvas_overlay.enabled;
+        set => canvas_overlay.enabled = value;
+    }
+
+
     public static bool IsSpeaking() =>
        (instance._Dialog_UI?.gameObject?.activeInHierarchy == true) || (instance._EndCredits?.gameObject?.activeSelf == true);
 
@@ -63,6 +88,8 @@ public class UI_Manager : MonoBehaviour
         }
         SceneController.BeginLoadSceneAsyncHandler -= BeginLoadSceneAsync;
         SceneController.BeginLoadSceneAsyncHandler += BeginLoadSceneAsync;
+
+        this.GetComponent(ref _canvas_overlay);
     }
 
     private void BeginLoadSceneAsync()
@@ -89,20 +116,29 @@ public class UI_Manager : MonoBehaviour
             if (_PlayerAttribute_UI)
                 GameObject.DestroyImmediate(_PlayerAttribute_UI.gameObject);
             StartSceneMenu.Engage();
-            
+
         }
         else if (SceneController.IsLevelScene || GameManager.instance.playerController)
         {
             if (_StartSceneMenu)
-                GameObject.DestroyImmediate(_StartSceneMenu.gameObject);            
+                GameObject.DestroyImmediate(_StartSceneMenu.gameObject);
             var playerMenu = PlayerAttribute_UI.GetComponent<UI_Menu>();
-  
+
             playerMenu.previous = LevelSceneMenu;
             LevelSceneMenu.previous = playerMenu;
             LevelSceneMenu.Dismiss(false);
             playerMenu?.Engage();
         }
-}
+    }
+    public void RemoveMenu()
+    {
+        if (_LevelSceneMenu)
+            GameObject.Destroy(_LevelSceneMenu.gameObject);
+        if (_PlayerAttribute_UI)
+            GameObject.Destroy(_PlayerAttribute_UI.gameObject);
+        if (_StartSceneMenu)
+            GameObject.Destroy(_StartSceneMenu.gameObject);
+    }
     #region Events
     private void OnRectTransformDimensionsChange()
     {
@@ -136,13 +172,20 @@ public class UI_Manager : MonoBehaviour
     }
     public void OnCancelPressed()
     {
-        if (GameManager.IsSpeaking() || CameraController.IsPerforming)
+        if (_CancelConditions.Any(c => c?.Invoke() == true))
             return;
-        if (StoryPerformance.current && !StoryPerformance.current.IsCompleted)
+        if (IsSpeaking())
         {
-            StoryPerformance.current.MarkAsCompleted();
+            Dialog_UI.Skip();
             return;
         }
+        if (CameraController.IsPerforming)
+            return;
+        //if (StoryPerformance.current && !StoryPerformance.current.IsCompleted)
+        //{
+        //    StoryPerformance.current.MarkAsCompleted();
+        //    return;
+        //}
         currentMenu?.ReturnToPrevious();
     }
     #endregion

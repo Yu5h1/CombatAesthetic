@@ -45,10 +45,11 @@ namespace Yu5h1Lib.Game.Character
         //private ColliderScanner2D _scanner;
         //public ColliderScanner2D scanner => _scanner;
 
+        public Vector3 startupScale  { get; private set; }
+
         protected override void OnInitializing()
         {
             base.OnInitializing();
-            //scanner.filter.layerMask = LayerMask.GetMask("Character");
             filter = new ContactFilter2D()
             {
                 useLayerMask = true,
@@ -57,8 +58,18 @@ namespace Yu5h1Lib.Game.Character
             if (!collider && TryGetComponent(out CapsuleCollider2D c))
                 collider = c;
             ignoreSiblingColliders = true;
-            //scanner.Init(transform);
+            startupScale = transform.localScale;
         }
+
+        private void OnEnable()
+        {
+            rigidbody.bodyType = RigidbodyType2D.Dynamic;
+        }
+        private void OnDisable()
+        {
+            rigidbody.bodyType = RigidbodyType2D.Kinematic;
+        }
+
         private void LateUpdate()
         {
             if (IsGrounded && groundHit && groundHit.collider.gameObject.CompareTag(MovingPlatformTag))
@@ -71,12 +82,12 @@ namespace Yu5h1Lib.Game.Character
             {
                 CheckPlatformStandHeight(0);
                 if (groundHit.collider.gameObject.CompareTag(MovingPlatformTag))
-                    transform.SetParentAndUnitScale(groundHit.collider.transform, true);
+                    transform.SetParentAndUnitScale(groundHit.collider.transform, true,startupScale);
             }
             else
             {
                 if (transform.parent != null)
-                    transform.SetParentAndUnitScale(null, true);
+                    transform.SetParentAndUnitScale(null, true, startupScale);
             }
         }
         #region Check Methods

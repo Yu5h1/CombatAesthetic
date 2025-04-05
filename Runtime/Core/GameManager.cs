@@ -24,9 +24,11 @@ namespace Yu5h1Lib
             IsQuit = false;
             SceneController.RegistryLoadEvents();
         }
-        private static bool Application_wantsToQuit()
+        public static bool Application_wantsToQuit()
         {
             IsQuit = true;
+            SceneController.ClearLoadAsyncEvent();
+            SceneController.UnloadSingleton();
             GameManager.RemoveInstanceCache();
             //DG.Tweening.DOTween.Clear(true);
             return true;
@@ -36,51 +38,55 @@ namespace Yu5h1Lib
         [SerializeField,ReadOnly]
         private EventSystem _eventSystem;
         public static EventSystem eventsystem => instance._eventSystem;
-        [SerializeField, ReadOnly]
-        private Canvas _canvas_overlay;
-        public static Canvas canvas_overlay => instance._canvas_overlay;
+        //[SerializeField, ReadOnly]
+        //private Canvas _canvas_overlay;
+        //public static Canvas canvas_overlay => instance._canvas_overlay;
         [SerializeField, ReadOnly]
         private UI_Manager _ui_manager;
         public static UI_Manager ui_Manager => instance._ui_manager;
+
+        [SerializeField, ReadOnly]
+        private StoryManager _storyManager;
+        public static StoryManager storyManager => GameManager.IsQuit ? null : instance._storyManager;
+
         private InputSystemUIInputModule _InputModule;
         public static InputSystemUIInputModule InputModule => instance._InputModule;
         public static BaseInput input => InputModule.input;
         #endregion
 
-        private bool _isPaused;
-        public bool isPaused
+        //private bool _isPaused;
+        public static bool IsGamePaused
         { 
-            get => _isPaused;
+            get => Time.timeScale == 0;
             set 
             {
-                if (isPaused == value)
+                if (IsGamePaused == value)
                     return;
-                _isPaused = value;
                 Time.timeScale = value ? 0 : 1;
                 //Physics2D.simulationMode = value ? SimulationMode2D.Script : SimulationMode2D.FixedUpdate;
-                OnPauseStateChanged();
-                _pauseStateChanged?.Invoke(isPaused);
+                //OnPauseStateChanged();
+                //_pauseStateChanged?.Invoke(isPaused);
             } 
         }
 
-        public static bool IsGamePaused
-        {
-            get => instance.isPaused;
-            set => instance.isPaused = value;
-        }
+        //public static bool IsGamePaused
+        //{
+        //    get => instance.isPaused;
+        //    set => instance.isPaused = value;
+        //}
 
         public static bool IsSpeaking() => UI_Manager.IsSpeaking();
         public static bool NotSpeaking() => !UI_Manager.IsSpeaking();
 
         public static bool IsBusy() => IsGamePaused || IsSpeaking() || CameraController.IsPerforming;
 
-        [SerializeField]
-        private UnityEvent<bool> _pauseStateChanged;
-        public static event UnityAction<bool> PauseStateChanged
-        { 
-            add  => instance._pauseStateChanged.AddListener(value);
-            remove => instance._pauseStateChanged.RemoveListener(value);
-        }
+        //[SerializeField]
+        //private UnityEvent<bool> _pauseStateChanged;
+        //public static event UnityAction<bool> PauseStateChanged
+        //{ 
+        //    add  => instance._pauseStateChanged.AddListener(value);
+        //    remove => instance._pauseStateChanged.RemoveListener(value);
+        //}
 
         [SerializeField]
         private UnityEvent<CharacterController2D> _foundPlayer;
@@ -103,6 +109,13 @@ namespace Yu5h1Lib
 
         public UnityEvent CancelPressed;
 
+        [SerializeField]
+        private UnityEvent _beginLoadScene;
+        public UnityEvent beginLoadScene => _beginLoadScene;
+        [SerializeField]
+        private UnityEvent _afterLoadScene;
+        public UnityEvent afterLoadScene => _beginLoadScene;
+
         [SerializeField,ReadOnly]
         private bool _IsReady;
         public static bool IsReady { get => instance._IsReady; private set => instance._IsReady = value; }
@@ -123,19 +136,19 @@ namespace Yu5h1Lib
         protected override void OnInitializing() 
         {
             this.GetComponent(ref _eventSystem);
-            this.GetComponent(ref _canvas_overlay);
-            this.GetComponent(ref _ui_manager);
             this.GetComponent(ref _InputModule);
+            this.GetComponent(ref _ui_manager);
+            this.GetComponent(ref _storyManager);
         }
 
         public void Start()
         {
             IsReady = false;
-
+            
             Input.imeCompositionMode = IMECompositionMode.Off;
+            IsGamePaused = false;
             Time.timeScale = 1;
-            isPaused = false;
-
+            
             foreach (var item in FindObjectsByType<PlayerInput>(FindObjectsInactive.Include,FindObjectsSortMode.None))
             {
                 item.uiInputModule = InputModule;
@@ -185,16 +198,16 @@ namespace Yu5h1Lib
             }
 #endif
         }
-        private void OnPauseStateChanged()
-        {
-            if (IsQuit || !IsReady )
-                return;
-            if (!characters.IsEmpty())
-            {
-                foreach (var c in characters)
-                    c.PauseStateChange(IsGamePaused);
-            }
-        }
+        //private void OnPauseStateChanged()
+        //{
+        //    if (IsQuit || !IsReady )
+        //        return;
+        //    if (!characters.IsEmpty())
+        //    {
+        //        foreach (var c in characters)
+        //            c.PauseStateChange(IsGamePaused);
+        //    }
+        //}
         public void OnSubmitPressed()
         {
         }
@@ -275,6 +288,7 @@ namespace Yu5h1Lib
         {
             if (flag.HasFlag(AttributeType.Health))
                 (overridePlayerFailed ?? OnPlayerFailed).Invoke(playerController);
+            playerController.attribute.StatDepleted -= PlayerHealthDepleted;
         }
         private static void OnPlayerFailed(CharacterController2D player)
         {

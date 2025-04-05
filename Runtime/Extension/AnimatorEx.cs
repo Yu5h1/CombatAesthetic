@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public static class AnimatorEx 
@@ -19,5 +20,13 @@ public static class AnimatorEx
             }
         }
         return maxWeight > 0 ? maxLayerIndex : 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool HasState(this Animator anim, string stateName, int layer = 0)
+    {
+        int stateID = Animator.StringToHash(stateName);
+        return anim.HasState(layer, stateID);
+
     }
 }

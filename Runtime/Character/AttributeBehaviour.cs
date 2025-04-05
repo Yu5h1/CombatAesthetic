@@ -34,7 +34,6 @@ public class AttributeBehaviour : MonoBehaviour
         get => _ui;
         set
         {
-
             if (_ui == value)
                 return;
             _ui = value;

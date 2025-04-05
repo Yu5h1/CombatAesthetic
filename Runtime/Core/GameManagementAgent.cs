@@ -8,11 +8,14 @@ using Yu5h1Lib.Game.Character;
 
 public class GameManagementAgent : MonoBehaviour,IGameManager
 {
-    public static GameManager GameManager => GameManager.instance;
-
-    //public UnityEvent GameStart;
-
-    Coroutine LoadStartSceneCoroutine;
+    public  GameManager manager
+    { 
+        get {
+            if (GameManager.IsQuit)
+                return null;
+            return GameManager.instance;
+        }
+    }
 
     public void Continue()
     {
@@ -27,12 +30,16 @@ public class GameManagementAgent : MonoBehaviour,IGameManager
     public void LoadSFXvolume(Slider s) => s.value = SoundManager.sfxVolume;
     public void ToggleUseWorldInputAxis(bool toggle) => PlayerHost.UseWorldInputAxis = toggle;
     public void LoadUseWorldInputAxis(Toggle toggle) => toggle.isOn = PlayerHost.UseWorldInputAxis;
+    public void SetLoadingStory(string name)
+    {
+        if (GameManager.IsQuit)
+            return;
+        GameManager.storyManager.loadingStory = name;
+    }
 
     #region Scene
     public void DelayLoadStartScene(float delay)
-    {
-        this.StartCoroutine(ref LoadStartSceneCoroutine, LoadSceneProcess(delay, 0));
-    }
+        => GameManager.instance.StartCoroutine(LoadSceneProcess(delay, 0));
     IEnumerator LoadSceneProcess(float delay, int index)
     {
         if (delay > 0)
@@ -42,12 +49,22 @@ public class GameManagementAgent : MonoBehaviour,IGameManager
 
     public void EnablePlayerControl()
     {
-        ((IGameManager)GameManager).EnablePlayerControl();
+        if (GameManager.IsQuit)
+            return;
+        manager.EnablePlayerControl();
     }
 
     public void DisablePlayerControl()
     {
-        ((IGameManager)GameManager).DisablePlayerControl();
+        if (GameManager.IsQuit)
+            return;
+        manager.DisablePlayerControl();
+    }
+    public void SetUIVisible(bool visible)
+    {
+        if (GameManager.IsQuit)
+            return;
+        UI_Manager.visible = visible;
     }
     #endregion
 }

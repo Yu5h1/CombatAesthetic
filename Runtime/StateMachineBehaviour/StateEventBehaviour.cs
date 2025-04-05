@@ -5,7 +5,8 @@ using Yu5h1Lib;
 public class StateEventBehaviour : StateMachineBehaviour
 {
     [SerializeField, ReadOnly]
-    private Animator animator;
+    private Animator _animator;
+    public Animator animator => _animator;
     [SerializeField,ReadOnly]
     private AnimatorEventHandler eventHandler;
     //private int lastLoopCount = 0;
@@ -15,7 +16,7 @@ public class StateEventBehaviour : StateMachineBehaviour
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        animator.GetComponent(ref animator);
+        animator.GetComponent(ref _animator);
         animator.GetComponent(ref eventHandler);
         enter?.Invoke(stateInfo);
         eventHandler?.Enter(stateInfo);
@@ -60,6 +61,8 @@ public class StateEventBehaviour : StateMachineBehaviour
     }
     public void SetAnimatorGameObjectActivate(bool activate)
     {
+        if (!animator)
+            return;
         animator.gameObject.SetActive(activate);
     }
 

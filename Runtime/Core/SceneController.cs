@@ -50,7 +50,7 @@ public class SceneController : SingletonBehaviour<SceneController>
     private void OnTriggerExit2D(Collider2D other)
     {
         // Avoiding OnTriggerExit2D triggered on EditorApplication.Exit
-        if (GameManager.IsQuit || IsSceneTransitioning || Teleporter.IsTeleporting(other.transform))
+        if (GameManager.IsQuit || IsUnloading || Teleporter.IsTeleporting(other.transform))
             return;
         if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
             attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 100000000);
@@ -108,25 +108,33 @@ public class SceneController : SingletonBehaviour<SceneController>
 
 
     public static bool IsStartScene => IsSceneName("Start");
-    public static bool IsSceneTransitioning;
-    private static bool IsSceneUnLoaded() => !IsSceneTransitioning;
+    public static bool Isloading { get; private set; }
+    /// <summary>
+    /// There is a difference between IsLoading and IsUnloading. The unloading process ends faster than the loading process.
+    /// </summary>
+    public static bool IsUnloading;
+    private static bool IsSceneUnLoaded() => !IsUnloading;
     public static void ReloadCurrentScene() => LoadScene(ActiveScene.buildIndex);
     public static void LoadScene(string SceneName) => LoadScene(SceneManager.GetSceneByName(SceneName).buildIndex);
     public static void LoadScene(int SceneIndex) {
-        IsSceneTransitioning = true;
+        IsUnloading = true;
         if (LoadSceneAsyncCoroutine != null)
             GameManager.instance.StopCoroutine(LoadSceneAsyncCoroutine);
         LoadSceneAsyncCoroutine = GameManager.instance.StartCoroutine(LoadSceneAsynchronously(SceneIndex));
     }
     private static Coroutine LoadSceneAsyncCoroutine;
     private static IEnumerator LoadSceneAsynchronously(int SceneIndex)
-    {        
+    {
+        Isloading = true;
 #if UNITY_EDITOR
         UnityEditor.Selection.activeObject = null;
-#endif        
+#endif             
+        
         LoadSceneAsyncHandler?.Invoke(0);
         BeginLoadSceneAsync();
-        yield return GameManager.ui_Manager.Loading.BeginLoad();
+        yield return GameManager.ui_Manager.Loading.BeginLoad();        
+        //Application.backgroundLoadingPriority = GameManager.storyManager.Play() ? ThreadPriority.Low ThreadPriority.Normal;
+
         var operation = SceneManager.LoadSceneAsync(SceneIndex,LoadSceneMode.Single);
         operation.allowSceneActivation = false;
         while (!operation.isDone)
@@ -135,6 +143,10 @@ public class SceneController : SingletonBehaviour<SceneController>
 
             if (operation.progress >= 0.9f)
             {
+                if (GameManager.storyManager.ValidateLoadingStory())
+                    yield return new WaitForSeconds(1);
+                if (GameManager.storyManager.TryPlayLoadingStory())
+                    yield return new WaitWhile(GameManager.storyManager.IsPerforming);
                 operation.allowSceneActivation = true;
             }
             yield return null;
@@ -167,30 +179,28 @@ public class SceneController : SingletonBehaviour<SceneController>
 
         yield return new WaitUntil(IsSceneUnLoaded);
         AfterLoadSceneAsync();
-        LoadSceneAsyncHandler?.Invoke(1.0f);
-
-        if (StoryPerformance.current != null)
-            yield return StoryPerformance.current.WaitCompleted();
+        LoadSceneAsyncHandler?.Invoke(1.0f);   
 
         yield return GameManager.ui_Manager.Loading.EndLoad();
+        Isloading = false;
     }
     private static void BeginLoadSceneAsync()
     {
         BeginLoadSceneAsyncHandler?.Invoke();
+        GameManager.instance.beginLoadScene?.Invoke();
     }
     private static void OnSceneUnloaded(Scene scene) => UnloadSingleton();
     public static void UnloadSingleton()
     {
-        if (GameManager.IsQuit)
-            return;
         KeyCodeEventManager.RemoveInstanceCache();
         CameraController.RemoveInstanceCache();
         PoolManager.RemoveInstanceCache();
         RemoveInstanceCache();
-        IsSceneTransitioning = false;
+        IsUnloading = false;
     }
     private static void AfterLoadSceneAsync()
     {
+        GameManager.instance.afterLoadScene?.Invoke();
         GameManager.instance.Start();
         GameManager.ui_Manager.Start();
         SoundManager.instance.Start();

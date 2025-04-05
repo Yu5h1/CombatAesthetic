@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class TransformEx
 {
-    public static void SetParentAndUnitScale(this Transform t,Transform parent,bool worldPositionStays = true)
+    public static void SetParentAndUnitScale(this Transform t,Transform parent,bool worldPositionStays = true,Vector3 ScaleInTopHierachy = default(Vector3))
     {
         t.SetParent(parent, worldPositionStays);
         if (parent)
@@ -16,6 +16,6 @@ public static class TransformEx
             );
         }
         else
-            t.localScale = Vector3.one;
+            t.localScale = ScaleInTopHierachy == Vector3.zero ? Vector3.one : ScaleInTopHierachy;
     }
 }

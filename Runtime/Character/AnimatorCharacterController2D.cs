@@ -105,18 +105,18 @@ namespace Yu5h1Lib.Game.Character
                 return;
             animParam?.Update();
         }
-        public override void PauseStateChange(bool paused)
-        {
-            base.PauseStateChange(paused);
-            rigidbody.sleepMode = paused ? RigidbodySleepMode2D.StartAsleep : RigidbodySleepMode2D.StartAwake;
+        //public override void PauseStateChange(bool paused)
+        //{
+        //    base.PauseStateChange(paused);
+        //    rigidbody.sleepMode = paused ? RigidbodySleepMode2D.StartAsleep : RigidbodySleepMode2D.StartAwake;
             
-            //if (animator)
-            //{
-            //    rigidbody.isKinematic = paused;
-            //    animator.speed = paused ? 0 : 1;
-            //}
+        //    //if (animator)
+        //    //{
+        //    //    rigidbody.isKinematic = paused;
+        //    //    animator.speed = paused ? 0 : 1;
+        //    //}
 
-        }
+        //}
         //protected override void FixedUpdate()
         //{
         //    if (Time.timeScale == 0)

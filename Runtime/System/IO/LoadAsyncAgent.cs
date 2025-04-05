@@ -8,8 +8,21 @@ namespace Yu5h1Lib
     [DisallowMultipleComponent]
     public class LoadAsyncAgent : BaseMonoBehaviour
     {
-        public UnityEvent begin;
-        public UnityEvent end;
+        [SerializeField]
+        private UnityEvent begin;
+
+
+        [SerializeField]
+        private UnityEvent beginTransitionEnter;
+        [SerializeField]
+        private UnityEvent beginTransitionExit;
+        [SerializeField]
+        private UnityEvent endTransitionEnter;
+        [SerializeField]
+        private UnityEvent endTransitionExit;
+
+        [SerializeField]
+        private UnityEvent end;
 
         protected override void OnInitializing() {}
 
@@ -21,14 +34,26 @@ namespace Yu5h1Lib
         {
             gameObject.SetActive(true);
             transform.SetAsLastSibling();
-            begin?.Invoke();            
+            begin?.Invoke();
+            beginTransitionEnter?.Invoke();
+            yield return BeginTransition();
+            beginTransitionExit?.Invoke();
+        }
+        protected internal virtual IEnumerator BeginTransition()
+        {
+            yield return null;
+        }
+        protected internal virtual IEnumerator EndTransition()
+        {
             yield return null;
         }
         protected internal virtual IEnumerator EndLoad()
         {
+            endTransitionEnter?.Invoke();
+            yield return EndTransition();
+            endTransitionExit?.Invoke();
             gameObject.SetActive(false);
             end?.Invoke();
-            yield return null;
         }
     } 
 }

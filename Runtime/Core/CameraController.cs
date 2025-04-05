@@ -10,6 +10,7 @@ using UnityEngine.Events;
 public class CameraController : SingletonBehaviour<CameraController>
 {
     public event UnityAction<SpriteRenderer,Color,float> OverrideFadeMethod;
+    [SerializeField,ReadOnly]
     private Camera _camera;
 #pragma warning disable 0109
     public new Camera camera { 

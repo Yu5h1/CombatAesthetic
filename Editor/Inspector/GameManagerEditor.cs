@@ -32,13 +32,9 @@ namespace Yu5h1Lib
                     if (Utility.SceneUtility.GetSceneOfDontDestroyOnLoad(out Scene sceneOfDontDestroyOnLoad))
                         SceneVisibilityManager.instance.DisablePicking(sceneOfDontDestroyOnLoad);
                     break;
-                case PlayModeStateChange.ExitingPlayMode:
-                    SceneController.UnloadSingleton();
-                    SceneController.ClearLoadAsyncEvent();
+                case PlayModeStateChange.ExitingPlayMode:                    
                     if (enableClearLevelCacheOnExitGame)
                         ClearLevelCache();
-
-                    
                     break;
                 default:
                     break;
@@ -48,6 +44,7 @@ namespace Yu5h1Lib
 
         public override void OnInspectorGUI()
         {
+            EditorGUILayout.HelpBox(@$"Isloading: {SceneController.Isloading} ",MessageType.Info);
             DrawDefaultInspector();
         }
         #region MenuItems

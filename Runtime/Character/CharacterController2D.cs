@@ -253,10 +253,10 @@ namespace Yu5h1Lib.Game.Character
         {
             
         }
-        public virtual void PauseStateChange(bool paused) {
+        //public virtual void PauseStateChange(bool paused) {
 
             
-        }
+        //}
         protected void PerformDetection()
         {
             if (!detector.IsValid())
