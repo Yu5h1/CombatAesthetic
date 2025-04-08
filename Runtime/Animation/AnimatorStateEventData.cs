@@ -7,5 +7,6 @@ public class AnimatorStateEventData : ScriptableObject
 {
     public int layer;
     public string offsetTransformName;
+    public bool HitBox;
  
 }

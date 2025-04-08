@@ -7,13 +7,14 @@ public abstract class BaseEvent2D : BaseMonoBehaviour
 {
     protected override void OnInitializing() { }
 
-    public void PlayAudio()
+    public void PlayAudioClip(AudioClip clip)
     {
-        if (GameManager.IsQuit)
+        if ($"{name} tring to play Null AudioClip".printErrorIf(!clip))
             return;
-        if (TryGetComponent(out AudioSource audioSource))
-            GameManager.instance.PlayAudio(audioSource);
+        AudioManager.Play(clip, transform.position);
     }
+
+
     public void Spawn(string name)
     {
         PoolManager.Spawn<Transform>(name, transform.position, transform.rotation);

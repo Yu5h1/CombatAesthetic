@@ -120,9 +120,11 @@ public class Caster : BaseMonoBehaviour
     public Vector3 GetDirectionToResult(Transform target) => target.position - transform.position;
     public Quaternion GetQuaternionToResult(Transform target) => ((Vector2)GetDirectionToResult(target)).DirectionToQuaternion2D();
 
-    public Transform Retrieve(string source, Vector3 pos, Quaternion rot)
+    public Transform Retrieve(string source, Vector3 pos, Quaternion rot,bool followScale = false)
     {
         var fx = PoolManager.Spawn<Transform>(source, pos, rot);
+        if (followScale)
+            fx.transform.localScale = transform.localScale;
         foreach (var mask in fx.GetComponents<EventMask2D>())
         {
             mask.Filter.tagOption.tag = gameObject.tag;

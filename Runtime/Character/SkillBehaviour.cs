@@ -21,7 +21,6 @@ namespace Yu5h1Lib.Game.Character
             return OnActivated(true);
         }
         protected virtual bool OnActivated(bool successed) => successed;
-
         public void Update(HostData2D.HostBehaviour2D host)
         {
             if (!enable || owner.IsInteracting || !owner.underControl )

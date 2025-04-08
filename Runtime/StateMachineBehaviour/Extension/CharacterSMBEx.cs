@@ -5,14 +5,7 @@ public static class CharacterSMBEx
 {
 	public static bool GetStateInfo(this CharacterSMB csmb,out StateInfo info)
 	{
-        info = new StateInfo()
-        {
-            controllable = false,
-            rootMotionWeight = Vector2.zero,
-            VelocityWeight = Vector2.one,
-            fixAngleWeight = 1f,
-            affectByMultiplier = false
-        };
+        info = StateInfo.Default;
         if (csmb == null)
             return false;
         info.controllable = csmb.Controllable;

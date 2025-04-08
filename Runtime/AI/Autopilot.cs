@@ -159,7 +159,7 @@ namespace Yu5h1Lib.Game.Character
                 {
                     patrol.target = target.transform;
                     emojiControl?.ShowEmoji(data.exclamationMark, 2);
-                    SoundManager.Play($"發現玩家", transform.position);
+                    AudioManager.Play($"發現玩家", transform.position);
                     Wait(data.targetfoundWaitTime);
                 }
                 else

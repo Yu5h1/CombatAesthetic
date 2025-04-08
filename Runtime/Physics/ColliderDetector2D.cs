@@ -17,7 +17,7 @@ namespace Yu5h1Lib.Game.Character
         public RaycastHit2D groundHit { get; private set; }
         private bool _IsGrounded;
         public bool IsGrounded 
-        { 
+        {
             get => _IsGrounded;
             private set {
                 if (IsGrounded == value)

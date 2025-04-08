@@ -53,6 +53,7 @@ namespace Yu5h1Lib.Game.Character
         public int indexOfSkill;
 
         public SkillData currentSkill => optionalSkills.IsValid(indexOfSkill) ? optionalSkills[indexOfSkill] : null;
+
         public SkillBehaviour currentSkillBehaviour => currentSkill == null ? null :
             skillBehaviours[_Skills.IndexOf(optionalSkills[indexOfSkill])];
 
@@ -320,9 +321,8 @@ namespace Yu5h1Lib.Game.Character
         public void CastHitBox(string offsetName)
         {
             var t = transform.Find(offsetName) ?? transform;
-            var hitBox = caster.Retrieve("HitBox", t.position, t.rotation);
-            var origiParent = hitBox.parent;
-            hitBox.transform.localScale = transform.localScale;
+            var hitBox = caster.Retrieve("HitBox", t.position, t.rotation,true);
+            //var origiParent = hitBox.parent;
             if (t.TryGetComponent(out Collider2D info))
             {
                 foreach (var col in hitBox.GetComponents<Collider2D>())
@@ -392,7 +392,10 @@ namespace Yu5h1Lib.Game.Character
         {
             if (animator.GetDominantLayer() != data.layer)
                 return;
-            CastFxOnOffset(data.offsetTransformName);
+            if (data.HitBox)
+                CastHitBox(data.offsetTransformName);
+            else
+                CastFxOnOffset(data.offsetTransformName);
             
         }
      
@@ -414,7 +417,7 @@ namespace Yu5h1Lib.Game.Character
             {
                 if (clip.name.Compare(info.clip.name,StringComparisonStyle.StartsWith) && info.weight >= 0.9f)
                 {
-                    SoundManager.Play(clip, transform.position);
+                    AudioManager.Play(clip, transform.position);
                     break;
                 }
             }
@@ -477,10 +480,17 @@ namespace Yu5h1Lib.Game.Character
         public bool controllable;
         public Vector2 rootMotionWeight;        
         public Vector2 VelocityWeight;
-
         public bool affectByMultiplier;
-
         public float fixAngleWeight;
+
+        public static readonly StateInfo Default = new StateInfo()
+        {
+            controllable = false,
+            rootMotionWeight = Vector2.zero,
+            VelocityWeight = Vector2.one,
+            fixAngleWeight = 1f,
+            affectByMultiplier = false
+        };
     }
 }
 

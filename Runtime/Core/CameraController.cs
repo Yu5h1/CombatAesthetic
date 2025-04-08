@@ -514,9 +514,11 @@ public class CameraController : SingletonBehaviour<CameraController>
 
     IEnumerator StopFocusProcess(AnimatedInfo animatedInfo,UnityAction completed)
     {
+        allowStopPerformance = false;
         yield return FocusProcess(GetPosition, GetFollowPoint, completed, animatedInfo);
         currentVelocity = Vector3.zero;
         follow = true;
+        allowStopPerformance = true;
     }
     #endregion
 

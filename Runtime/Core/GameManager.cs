@@ -5,11 +5,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using Yu5h1Lib.Game.Character;
+using Yu5h1Lib.Runtime;
 
 namespace Yu5h1Lib
 {
     [RequireComponent(typeof(EventSystem), typeof(Canvas), typeof(InputSystemUIInputModule))]
-    [RequireComponent(typeof(UI_Manager), typeof(SoundManager))]
+    [RequireComponent(typeof(UI_Manager), typeof(AudioManager))]
     [DisallowMultipleComponent]
     public partial class GameManager : SingletonBehaviour<GameManager> , IGameManager
     {
@@ -27,6 +28,7 @@ namespace Yu5h1Lib
         public static bool Application_wantsToQuit()
         {
             IsQuit = true;
+            UI_Manager.ClearCancelActions();
             SceneController.ClearLoadAsyncEvent();
             SceneController.UnloadSingleton();
             GameManager.RemoveInstanceCache();
@@ -139,6 +141,16 @@ namespace Yu5h1Lib
             this.GetComponent(ref _InputModule);
             this.GetComponent(ref _ui_manager);
             this.GetComponent(ref _storyManager);
+
+            UI_Manager.AddCancelAction(typeof(CameraController), () =>
+            {
+                if (CameraController.IsPerforming)
+                {
+                    CameraControllerAgent.CallStopPerformance(0,0.33f,false);
+                    return true;
+                }
+                return false;
+            });
         }
 
         public void Start()
@@ -163,6 +175,7 @@ namespace Yu5h1Lib
 
                 CameraController.instance.Target = player.transform;
                 CameraController.instance.Focus(player.transform);
+
                 if (player.TryGetComponent(out playerController))
                 {
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
@@ -183,11 +196,9 @@ namespace Yu5h1Lib
         {
             if (playerController)
             {
-                SoundManager.instance.audioListener.transform.Sync(playerController ?
+                AudioManager.instance.audioListener.transform.Sync(playerController ?
                     playerController.transform : CameraController.instance.transform, true, false, false);
             }
-             
-
             if (input.GetButtonDown("Cancel"))
                 OnCancelPressed();
 
@@ -288,7 +299,7 @@ namespace Yu5h1Lib
         {
             if (flag.HasFlag(AttributeType.Health))
                 (overridePlayerFailed ?? OnPlayerFailed).Invoke(playerController);
-            playerController.attribute.StatDepleted -= PlayerHealthDepleted;
+            //playerController.attribute.StatDepleted -= PlayerHealthDepleted;
         }
         private static void OnPlayerFailed(CharacterController2D player)
         {

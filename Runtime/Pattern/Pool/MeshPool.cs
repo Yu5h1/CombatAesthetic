@@ -32,6 +32,7 @@ public static class MeshPool
     }
 
     private static Mesh CreatePooledItem() => new Mesh() { name = $"{container.CountAll}.{nameof(Mesh)}" };
+ 
     private static void OnDestroyPoolObject(Mesh mesh) => Object.Destroy(mesh);
     private static void OnReturnedToPool(Mesh mesh){}
     private static void OnTakeFromPool(Mesh mesh) {}

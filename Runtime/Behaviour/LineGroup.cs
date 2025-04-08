@@ -28,10 +28,14 @@ public class LineGroup : MonoBehaviour
 
     private bool IsConnecting(LineRendererController controller) => controller.IsConnecting;
 
+    public bool CheckConntecting(LineRendererController l) => !l.IsPerforming && l.IsConnecting;
+    public bool allConntecting() => lineControllers.All(CheckConntecting);
+
+
     public bool AlreadyInvokeAllConnected { get; private set; }
     private void OnAllConnected()
     {
-        if (AlreadyInvokeAllConnected || !lineControllers.All(l => l.IsConnecting))
+        if (!isActiveAndEnabled || AlreadyInvokeAllConnected || lineControllers.Any(l => !l.IsConnecting))
             return;
         AllConnected?.Invoke();
         AlreadyInvokeAllConnected = true;
@@ -41,7 +45,7 @@ public class LineGroup : MonoBehaviour
     public bool AlreadyInvokeAllDisconnected { get; private set; } 
     private void OnAllDisconnected()
     {
-        if (AlreadyInvokeAllDisconnected || !lineControllers.All(l => !l.IsConnecting))
+        if (!isActiveAndEnabled || AlreadyInvokeAllDisconnected || lineControllers.Any(l => l.IsConnecting))
             return;
         AllDisconnected?.Invoke();
         AlreadyInvokeAllDisconnected = true;

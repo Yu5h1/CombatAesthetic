@@ -105,6 +105,8 @@ public class Scanner2D : BaseMonoBehaviour
     public bool Scan(out RaycastHit2D hit)
     {
         hit = default(RaycastHit2D);
+        if (!IsAvailable())
+            return false;
         var dir = _direction.IsZero() ? Vector2.zero : (Vector2)transform.TransformDirection(_direction);
 
         for (int i = 0; i < Cast(dir); i++)
@@ -143,7 +145,7 @@ public class Scanner2D : BaseMonoBehaviour
     public bool ObstacleHitTest(Vector2 start,Vector2 end,out RaycastHit2D obstacleHit)
     {
         obstacleHit = default;
-        if (_ObstacleMask.value == 0)
+        if (!IsAvailable() || _ObstacleMask.value == 0 )
             return false;
         var hit = Physics2D.Linecast(start, end, _ObstacleMask);
         if (hit && !hit.collider.excludeLayers.Contains(2)) //obstacle "Ignore Raycast"

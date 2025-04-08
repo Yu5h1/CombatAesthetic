@@ -179,10 +179,10 @@ public class SceneController : SingletonBehaviour<SceneController>
 
         yield return new WaitUntil(IsSceneUnLoaded);
         AfterLoadSceneAsync();
-        LoadSceneAsyncHandler?.Invoke(1.0f);   
-
+        LoadSceneAsyncHandler?.Invoke(1.0f);
         yield return GameManager.ui_Manager.Loading.EndLoad();
         Isloading = false;
+
     }
     private static void BeginLoadSceneAsync()
     {
@@ -203,7 +203,7 @@ public class SceneController : SingletonBehaviour<SceneController>
         GameManager.instance.afterLoadScene?.Invoke();
         GameManager.instance.Start();
         GameManager.ui_Manager.Start();
-        SoundManager.instance.Start();
+        AudioManager.instance.Start();
         instance.OnAfterLoadSceneAsync();
         AfterLoadSceneAsyncHandler?.Invoke();
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 using Yu5h1Lib;
 
 [DisallowMultipleComponent]
-public class SoundManager : SingletonBehaviour<SoundManager>
+public class AudioManager : SingletonBehaviour<AudioManager>
 {
     public static  float bgmVolume
     {
@@ -107,49 +107,57 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         audio.maxDistance = 15f;
     }
 
-    public void play(AudioClip clip, Vector3 position, Quaternion rotation)
+    public AudioSource PlayAudioClip(AudioClip clip, Vector3 position, Quaternion rotation,bool loop)
     {
         if ($"Try to play Null AudioClip".printWarningIf(!clip))
             throw new NullReferenceException("Play SFX failed.");
         if (!PoolManager.Exists(typeof(AudioSource)))
             PrepareAudioSource();
+        
         var audioSource = PoolManager.Spawn<AudioSource>(position, rotation);
+        audioSource.loop = loop;
         audioSource.volume = sfxVolume;
         audioSource.clip = clip;
         //audioSource.enabled = true;
         audioSource.Play();
-        StartCoroutine(WaitForSoundToEnd(audioSource));
+        StartCoroutine(WaitForAudioStop(audioSource));
+        return audioSource;
     }
-    public static void Play(AudioClip clip, Vector3 position, Quaternion rotation = default(Quaternion))
-        => instance.play(clip, position, rotation);
+
+    public static AudioSource Play(AudioClip clip, Vector3 position, Quaternion rotation, bool loop)
+        => instance.PlayAudioClip(clip, position, rotation, loop);
+    public static AudioSource Play(AudioClip clip, Vector3 position, Quaternion rotation)
+        => Play(clip, position, rotation, false);
+    public static AudioSource Play(AudioClip clip, Vector3 position)
+        => Play(clip, position, Quaternion.identity);
     /// <summary>
     /// From Resources/Sound/...
     /// </summary>
     /// <param name="name"></param>
     /// <param name="position"></param>
     /// <param name="rotation"></param>
-    public void play(string name, Vector3 position , Quaternion rotation )
+    public void PlayFromResource(string name, Vector3 position , Quaternion rotation )
     {
         if ($"AudioClip name:{name} does not exist.".printWarningIf(!ResourcesUtility.TryLoad($"Sound/{name}", out AudioClip clip)))
             return;
         if (!PoolManager.Exists(typeof(AudioSource)))
             PrepareAudioSource();
-        play(clip, position, rotation);
+        Play(clip, position, rotation,false);
     }
-    public static void Play(string name, Vector3 position, Quaternion rotation = default(Quaternion))
-        => instance.play(name, position, rotation);
+    public static void Play(string name, Vector3 position, Quaternion rotation)
+        => instance.PlayFromResource(name, position, rotation);
+    public static void Play(string name, Vector3 position)
+        => instance.PlayFromResource(name, position, Quaternion.identity);
     #endregion
     #region private
-    private IEnumerator WaitForSoundToEnd(AudioSource audioSource)
+    private IEnumerator WaitForAudioStop(AudioSource audioSource)
     {
+        if ("Trying to wait null audio source".printWarningIf(audioSource == null))
+            yield break;
         while (audioSource && audioSource.isPlaying)
             yield return null;
         if (audioSource)
-        {
-            audioSource.Stop();
-            //audioSource.enabled = false;
             PoolManager.Despawn(audioSource);
-        }
     }
     private void OnDestroy()
     {

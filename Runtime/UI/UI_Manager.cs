@@ -1,13 +1,12 @@
+using BoolFn = System.Func<bool>;
+using Type = System.Type;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using Yu5h1Lib;
 using UnityEngine.UI;
+using Yu5h1Lib;
 using Yu5h1Lib.UI;
 using Yu5h1Lib.Game;
-using System.Collections.Generic;
-
-using BoolFn = System.Func<bool>;
-using System.Linq;
-using UnityEditor;
 
 [DisallowMultipleComponent]
 public class UI_Manager : MonoBehaviour
@@ -58,14 +57,24 @@ public class UI_Manager : MonoBehaviour
     private UI_TextPerformance _textPerformance;
     public UI_TextPerformance textPerformance => _textPerformance;
 
-    private static List<BoolFn> _CancelConditions = new List<BoolFn>();
+    private static List<KeyValuePair<Type,BoolFn>> cancelActions = new List<KeyValuePair<Type, BoolFn>>();
 
-    public static event BoolFn cancelConditions
-    { 
-        add => _CancelConditions.Add(value);
-        remove => _CancelConditions.Remove(value);
+    public static void AddCancelAction(Type type,BoolFn action)
+    {
+        int order = GetCancelActionOrder(type);
+        if ($"The cancel action of {type} already exists.".printWarningIf(order >= 0))
+            return;
+        cancelActions.Add(new KeyValuePair<Type, BoolFn>(type, action));
+        $"The cancel action of {type} was added".print();
     }
-
+    public static int GetCancelActionOrder(Type type) => cancelActions.IndexOf(d => d.Key == type);
+    public static void RemoveCancelAction(Type type) {
+        int order = GetCancelActionOrder(type);
+        if (order < 0)
+            return;
+        cancelActions.RemoveAt(order);    
+    }
+    public static void ClearCancelActions() => cancelActions.Clear();
 
     public static bool visible
     {
@@ -90,6 +99,17 @@ public class UI_Manager : MonoBehaviour
         SceneController.BeginLoadSceneAsyncHandler += BeginLoadSceneAsync;
 
         this.GetComponent(ref _canvas_overlay);
+
+        //cancelActions.Clear();
+        AddCancelAction(typeof(UI_DialogBase), () =>
+        {
+            if (IsSpeaking())
+            {
+                Dialog_UI.Skip();
+                return true;
+            }
+            return false;
+        });
     }
 
     private void BeginLoadSceneAsync()
@@ -172,14 +192,8 @@ public class UI_Manager : MonoBehaviour
     }
     public void OnCancelPressed()
     {
-        if (_CancelConditions.Any(c => c?.Invoke() == true))
-            return;
-        if (IsSpeaking())
-        {
-            Dialog_UI.Skip();
-            return;
-        }
-        if (CameraController.IsPerforming)
+       
+        if (cancelActions.Any(c => c.Value?.Invoke() == true))
             return;
         //if (StoryPerformance.current && !StoryPerformance.current.IsCompleted)
         //{

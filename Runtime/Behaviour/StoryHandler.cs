@@ -20,6 +20,7 @@ public class StoryHandler : BaseMonoBehaviour
     [SerializeField]
     private UnityEvent onEnable;
 
+    
     private void Reset()
     {
         Init();
@@ -29,38 +30,31 @@ public class StoryHandler : BaseMonoBehaviour
     {
         
         this.GetComponent(ref _animator);
+        UI_Manager.AddCancelAction(typeof(StoryHandler), () =>
+        {
+            if (!IsAvailable())
+                return false;
+            gameObject.SetActive(false);
+            return true;
+        });
     }
 
     private void OnEnable()
     {
         onEnable?.Invoke();
-        UI_Manager.cancelConditions -= Instance_cancelConditions;
-        UI_Manager.cancelConditions += Instance_cancelConditions;
-
-        UI_Manager.visible = SceneController.Isloading;
-        if (SceneController.Isloading)
-        {
-            UI_Manager.instance.LoadingBackGround.enabled = !SceneController.Isloading;
-            UI_Manager.instance.RemoveMenu();
-        }
-        
+        UI_Manager.visible = SceneController.IsUnloading;
+        GameManager.SetPlayerControllable(false);
     }
 
-    private bool Instance_cancelConditions()
-    {
-        if (!IsAvailable())
-            return false;
-        gameObject.SetActive(false);
-        return true;
-    }
+
 
     private void OnDisable()
     {
-        UI_Manager.cancelConditions -= Instance_cancelConditions;
         if (GameManager.IsQuit)
             return;
         UI_Manager.instance.LoadingBackGround.enabled = true;
         UI_Manager.visible = true;
+        GameManager.SetPlayerControllable(true);
     }
     [ContextMenu("Test")]
     public void Test()

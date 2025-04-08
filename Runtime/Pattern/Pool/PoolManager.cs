@@ -112,8 +112,8 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     }
     public static void Despawn(Component element)
     {
-        if (element == null)
-            throw new System.NullReferenceException("PoolManager Despawn Failed ! ");
+        if ("Failed Despawn PoolManager trying to despawn null object ! ".printWarningIf(element == null))
+            return;
         if ($"No Pool found for \"{element}\".Despawn Failed !".printErrorIf(!ExistsSource(element)))
             return;
         Despawn(element,element_source_Maps[element]);

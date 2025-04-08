@@ -24,10 +24,10 @@ public class GameManagementAgent : MonoBehaviour,IGameManager
     }
     public void SetGamePause(bool pasue) => GameManager.IsGamePaused = pasue;
 
-    public void ChangeBGMvolume(float val) => SoundManager.bgmVolume = val;
-    public void ChangeSFXvolume(float val) => SoundManager.sfxVolume = val;
-    public void LoadBGMvolume(Slider s) => s.value = SoundManager.bgmVolume;
-    public void LoadSFXvolume(Slider s) => s.value = SoundManager.sfxVolume;
+    public void ChangeBGMvolume(float val) => AudioManager.bgmVolume = val;
+    public void ChangeSFXvolume(float val) => AudioManager.sfxVolume = val;
+    public void LoadBGMvolume(Slider s) => s.value = AudioManager.bgmVolume;
+    public void LoadSFXvolume(Slider s) => s.value = AudioManager.sfxVolume;
     public void ToggleUseWorldInputAxis(bool toggle) => PlayerHost.UseWorldInputAxis = toggle;
     public void LoadUseWorldInputAxis(Toggle toggle) => toggle.isOn = PlayerHost.UseWorldInputAxis;
     public void SetLoadingStory(string name)

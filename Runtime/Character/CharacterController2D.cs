@@ -410,7 +410,7 @@ namespace Yu5h1Lib.Game.Character
             
             hurtBox.enabled = false;
             var renderer = GetComponent<SpriteRenderer>();
-
+            detector.collider.excludeLayers = LayerMask.GetMask("Character");
             var interval = 0.15f;
             var flickCount = (int)(InvincibleDuration / interval);
             var flashColor = new Color(.8f, .8f, .8f, 1);
@@ -422,6 +422,7 @@ namespace Yu5h1Lib.Game.Character
             renderer.color = Color.white;
             //attribute.enabled = false;
             //yield return new WaitForSeconds(duration);
+            detector.collider.excludeLayers = 0;
             hurtBox.enabled = true;
             InvincibleCoroutine = null;
         }
