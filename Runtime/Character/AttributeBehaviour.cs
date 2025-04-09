@@ -167,7 +167,13 @@ public class AttributeBehaviour : MonoBehaviour
             DepletedTypes |= Affect(info.attributeType, affectType, info.amount);
         return DepletedTypes;
     }
-
+    public void Refresh(AttributeType flag)
+    {
+        var index = Keys.IndexOf(flag.ToString());
+        if (index < 0)
+            return;
+        ui?.uI_stats[index]?.Refresh(stats[index]);
+    }
     private void OnAffected(AttributeType flag)
     {
         _onAffect?.Invoke(flag);

@@ -30,6 +30,7 @@ public class EmojiController : MonoBehaviour
             spriteRenderer.transform.SetParent(transform);
             spriteRenderer.transform.localRotation = Quaternion.identity;
             spriteRenderer.transform.localPosition = offset;
+            spriteRenderer.transform.localScale = Vector3.one;
         }
         spriteRenderer.enabled = false;
     }

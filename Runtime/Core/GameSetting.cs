@@ -12,21 +12,23 @@ namespace Yu5h1Lib
         public static GameSetting instance => _instance = Resources.Load<GameSetting>(nameof(GameSetting));
 
 
-        public static void Load() 
+        public static void Load()
         {
-            if ($"No saved data found at {filePath}".printWarningIf(!File.Exists(filePath)))
-                return;
-            if ("GameSetting does not exist in resources folder".printWarningIf(!instance))
-                return;
-            JsonUtility.FromJsonOverwrite(File.ReadAllText(filePath), instance);
-            _instance.OnLoadFromJson();
-            $"GameSetting loaded from: {filePath}".print();
+            //if ($"No saved data found at {filePath}".printWarningIf(!File.Exists(filePath)))
+            //    return;
+            //if ("GameSetting does not exist in resources folder".printWarningIf(!instance))
+            //    return;
+            //JsonUtility.FromJsonOverwrite(File.ReadAllText(filePath), instance);
+            //_instance.OnLoadFromJson();
+            //$"GameSetting loaded from: {filePath}".print();
+
+            instance.OnLoad();
         }
-        protected virtual void OnLoadFromJson() {}
-        public void Save()
+        protected virtual void OnLoad() {}
+        public virtual void Save()
         {
-            File.WriteAllText(filePath,
-                JsonConvert.SerializeObject(this));
+            //File.WriteAllText(filePath,
+            //    JsonConvert.SerializeObject(this));
         }
     }
     public class GameSetting<T> : GameSetting where T : GameSetting

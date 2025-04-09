@@ -395,7 +395,7 @@ namespace Yu5h1Lib.Game.Character
         public void ApplyInvincibilityFrames(Vector2 force) => ApplyInvincibilityFrames(force,InvincibleDuration);
 
         public void ApplyInvincibilityFrames(Vector2 force,float duration){
-            if (duration == 0)
+            if (duration == 0 || IsInvincible)
                 return;
             var stateNullable = attribute[AttributeType.Health];
             if (stateNullable == null)
