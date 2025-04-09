@@ -20,7 +20,7 @@ public class UI_StatAnimation : UI_Stat
     }
     public override void Refresh(AttributeStat status)
     {
-        if (!image || sprites.IsEmpty())
+        if (!isActiveAndEnabled || !image || sprites.IsEmpty())
             return;
         if (status.normal <= 0)
         {

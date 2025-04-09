@@ -31,6 +31,8 @@ public class UI_StatCounter : UI_Stat
     }
     public override void Refresh(AttributeStat status)
     {
+        if (!isActiveAndEnabled)
+            return;
         var current = Mathf.CeilToInt(status.normal * elementCount);
         for (int i = 0; i < elements.Length; i++)
             elements[i].color = i >= current ? Color.gray : Color.white;
