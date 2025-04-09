@@ -31,7 +31,7 @@ public class UI_StatCounter : UI_Stat
     }
     public override void Refresh(AttributeStat status)
     {
-        if (!isActiveAndEnabled)
+        if (!IsAvailable())
             return;
         var current = Mathf.CeilToInt(status.normal * elementCount);
         for (int i = 0; i < elements.Length; i++)

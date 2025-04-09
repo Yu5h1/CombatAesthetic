@@ -36,7 +36,7 @@ public class UI_Statbar : UI_Stat
     }
     public override void Refresh(AttributeStat status) {
 
-        if (!isActiveAndEnabled || fills.IsEmpty())
+        if (!IsAvailable()|| fills.IsEmpty())
             return;
         if (fills.Length == 1)
         {
