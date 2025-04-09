@@ -156,7 +156,7 @@ namespace Yu5h1Lib
         public void Start()
         {
             IsReady = false;
-            
+            GameSetting.Load();
             Input.imeCompositionMode = IMECompositionMode.Off;
             IsGamePaused = false;
             Time.timeScale = 1;
