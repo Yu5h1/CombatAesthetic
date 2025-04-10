@@ -87,8 +87,6 @@ namespace Yu5h1Lib.Game.Character
             for (int i = 0; i < skillBehaviours.Length; i++)
                 skillBehaviours[i] = _Skills[i].CreateBehaviour(this);
 
-            if (CompareTag("Player"))
-                attribute.ui = UI_Manager.instance.PlayerAttribute_UI;
             if (!optionalSkills.IsEmpty())
                 currentSkillBehaviour.Select();
             #endregion

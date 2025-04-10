@@ -179,8 +179,14 @@ namespace Yu5h1Lib
                 if (player.TryGetComponent(out playerController))
                 {
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
+                    playerController.attribute.ui = UI_Manager.instance.PlayerAttribute_UI;
+
                     playerController.attribute.StatDepleted -= PlayerHealthDepleted;
                     playerController.attribute.StatDepleted += PlayerHealthDepleted;
+            
+                    if (playerController is AnimatorCharacterController2D ac && ac.currentSkillBehaviour != null)
+                        ac.currentSkillBehaviour.Select();
+
                 }
                 PoolManager.instance.PrepareFromResourece("Fx");
                 _foundPlayer?.Invoke(player.GetComponent<CharacterController2D>());

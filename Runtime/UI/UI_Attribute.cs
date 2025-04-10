@@ -25,8 +25,6 @@ public class UI_Attribute : UIControl
                 {
                     uI_stats[i] = ui_Stat;
                     uI_stats[i].Refresh(attribute.stats[i]);
-                    if (uI_stats[i] is UI_StatAnimation uI_StatAnimation)
-                        $"{attribute.Keys[i]} prepared {attribute.stats[i]}".print();
                 }
     }
     public void UpdateAttribute(AttributeBehaviour attribute)
