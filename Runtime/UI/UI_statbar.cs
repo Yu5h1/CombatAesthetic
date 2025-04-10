@@ -35,8 +35,11 @@ public class UI_Statbar : UI_Stat
         //rectTransform.SetSize(height: rectTransform.sizeDelta.x * 0.1f);
     }
     public override void Refresh(AttributeStat status) {
-
-        if (!IsAvailable()|| fills.IsEmpty())
+        //if ($"State UI({name}) is disabled.".printWarningIf(!isActiveAndEnabled))
+        //    return;
+        //if ("fills is empty".printWarningIf(fills.IsEmpty()))
+        //    return;
+        if (fills.IsEmpty())
             return;
         if (fills.Length == 1)
         {

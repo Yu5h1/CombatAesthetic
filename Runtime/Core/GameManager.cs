@@ -180,10 +180,8 @@ namespace Yu5h1Lib
                 {
                     playerController.host = Resources.Load<PlayerHost>(nameof(PlayerHost));
                     playerController.attribute.ui = UI_Manager.instance.PlayerAttribute_UI;
-
                     playerController.attribute.StatDepleted -= PlayerHealthDepleted;
                     playerController.attribute.StatDepleted += PlayerHealthDepleted;
-            
                     if (playerController is AnimatorCharacterController2D ac && ac.currentSkillBehaviour != null)
                         ac.currentSkillBehaviour.Select();
 
