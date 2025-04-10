@@ -132,10 +132,10 @@ public class AttributeBehaviour : MonoBehaviour
 
         for (int i = 0; i < stats.Length; i++)
         {
-            ui?.uI_stats[i]?.Refresh(stats[i]);
             if (stats[i].recovery == 0 || stats[i].IsFull)
                 continue;
             stats[i].current += stats[i].recovery * Time.deltaTime;
+            ui?.uI_stats[i]?.Refresh(stats[i]);
         }
     }
     /// <summary>
