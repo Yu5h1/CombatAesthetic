@@ -2,6 +2,8 @@
     "name": "Yu5h1Lib.CombatAesthetic",
     "rootNamespace": "",
     "references": [
+        "GUID:41524c21c95e5fe4dbc5b48bd21995a4",
+        "GUID:88f14d179e7c91c4eac28302d69f32e1",
         "GUID:75469ad4d38634e559750d17036d5f7c",
         "GUID:6055be8ebefd69e48b49212b09b47b2f",
         "GUID:15bc4668ef1785848a9c85a0b340b9da"

@@ -8,8 +8,7 @@ namespace Yu5h1Lib.Game.Character
     public class Autopilot : HostData2D
     {
         public float waitDuration = 1;
-        public float frequency = 1;
-        //public AudioClip 
+        public float frequency = 1;        
         public MinMax PatrolWaitTimeOnNode;
 
         public bool StopActing = false;
@@ -26,10 +25,15 @@ namespace Yu5h1Lib.Game.Character
         [AutoFill(typeof(AutoFillResources), "Texture","*png|*.jpg|*.bmp")]
         public string exclamationMark = "exclamation mark";
 
+        public string aimsolverName;
+
         public override System.Type GetBehaviourType() => typeof(Behaviour);
 
         public class Behaviour : Behaviour2D<Autopilot>
         {
+            public AnimatorCharacterController2D animBody { get; private set; }
+            private AimSolver aimSolver;
+
             public Scanner2D scanner => Body.scanner;
             public enum NodeState { Success, Failure, Running, Waiting }
             public bool IsNotReady => GameManager.IsBusy() || "body does not exist !".printWarningIf(!Body) || !Body.underControl;
@@ -49,7 +53,6 @@ namespace Yu5h1Lib.Game.Character
                         return;
                     _target = value;
                     OnTargetChanged();
-                    
                 }
             }
             public bool KeepChasing { get; set; }
@@ -61,9 +64,14 @@ namespace Yu5h1Lib.Game.Character
             public override void Init(CharacterController2D controller)
             {
                 base.Init(controller);
+                animBody = controller as AnimatorCharacterController2D;
                 patrol = controller.GetComponent<Patrol>();
                 emojiControl = controller.GetComponent<EmojiController>();
                 KeepChasing = data.keepChasing;
+
+                if (!data.aimsolverName.IsEmpty())
+                    if (Body.transform.TryFind(data.aimsolverName, out Transform t))
+                        t.TryGetComponent(out aimSolver);
             }
 
             #region input
@@ -89,12 +97,17 @@ namespace Yu5h1Lib.Game.Character
                         return Vector2.zero;
                     }
 
+                    //(aimSolver == null ? true : aimSolver.IsWithInRange(target.transform.position, animBody.currentSkill.angle))
                     ///change mode to Action
                     if (IsWithinSkillRange(distanceBetweenTarget))
                     {
                         if (Vector2.Dot(DirectionToTarget, Body.right) > 0)
                         {
                             IsTargetInSkillRange = true;
+                            if (aimSolver != null)
+                            {
+                                IsTargetInSkillRange = aimSolver.Aim(targetPoint, animBody.currentSkill.angle);
+                            }
                             movement = Vector2.zero;
                             Debug.DrawLine(selfPoint, targetPoint, Color.red);
                         }
@@ -127,10 +140,9 @@ namespace Yu5h1Lib.Game.Character
                         return false;
                     }
                     Wait(Random.Range(0,data.frequency));
-                    if (data.randomSkill && Body is AnimatorCharacterController2D animBody)
-                    {
+                    if (data.randomSkill && animBody)
                         animBody.RandomCurrentSkill(data.primarySkill);
-                    }
+
                     return updateInput(true, false, false);
                 }else
                     return false;
@@ -155,6 +167,7 @@ namespace Yu5h1Lib.Game.Character
             #region Events
             protected virtual void OnTargetChanged()
             {
+
                 if (target)
                 {
                     patrol.target = target.transform;
@@ -164,11 +177,14 @@ namespace Yu5h1Lib.Game.Character
                 }
                 else
                 {
+                    if (aimSolver)
+                        aimSolver.StopAim();
                     patrol.target = null;
                     emojiControl?.HideEmoji();
                     Wait(data.targetLostWaitTime);
                 }
-                
+
+
             }
             #endregion
             #region Process
@@ -196,13 +212,12 @@ namespace Yu5h1Lib.Game.Character
                 targetPoint  = target.detector.ClosestPoint(Body.position);
                 return Vector2.Distance(selfPoint, targetPoint);
             }
-            public bool IsWithinSkillRange(float distanceBetweenTarget)
+            public bool IsWithinSkillRange(float distanceToTarget)
             {
-                if (!target || !(Body is AnimatorCharacterController2D animBody) || !animBody.currentSkill)
+                if (!target || !animBody || !animBody.currentSkill)
                     return false;
-                return distanceBetweenTarget < animBody.currentSkill.distance * ((Vector2)Body.transform.localScale).magnitude;
+                return distanceToTarget < animBody.currentSkill.distance * ((Vector2)Body.transform.localScale).magnitude;
             }
-
             public virtual void DetectEnemy()
             {
                 if (!KeepChasing && target != null && Vector2.Distance(Body.position, patrol.Destination) > scanner.distance )

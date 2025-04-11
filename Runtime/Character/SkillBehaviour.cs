@@ -5,8 +5,9 @@ using UnityEngine;
 namespace Yu5h1Lib.Game.Character
 {
     public abstract class SkillBehaviour {
-        public AnimatorCharacterController2D owner { get; protected set; }
         public SkillData data { get; protected set; }
+        public AnimatorCharacterController2D owner { get; protected set; }
+
         public bool enable = true;
         public abstract bool IsReady { get; }
         
