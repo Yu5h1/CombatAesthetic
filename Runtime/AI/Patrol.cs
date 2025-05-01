@@ -42,8 +42,9 @@ public class Patrol : MonoBehaviour
     public bool UseLocalCoordinate = true;
 
     public Vector2 Destination => offset + route.points[current].Rotate(offsetQ);
+    public Vector2 StartPoint => offset + route.points[route.points.Repeat(current - 1)].Rotate(offsetQ);
 
- 
+
     private void Reset()
     {
         
@@ -73,6 +74,7 @@ public class Patrol : MonoBehaviour
         if (route.points.IsValid(current))
             route.points[current] = Quaternion.Inverse(offsetQ) * (position - offset);
     }
+    public bool WithinPatrolRange() => ((Vector2)transform.position).DistanceToLine(StartPoint,Destination,out _) < RangeDistance;
 
 #if UNITY_EDITOR
 

@@ -8,55 +8,55 @@ namespace Yu5h1Lib.Graphic2D
     public struct Line
     {
         [SerializeField]
-        private Vector2 _Start;
+        private Vector2 BEGIN;
         [SerializeField]
-        private Vector2 _End;
-        public Vector2 Start
+        private Vector2 END;
+        public Vector2 begin
         {
-            get => _Start;
+            get => BEGIN;
             set
             {
-                if (_Start == value)
+                if (BEGIN == value)
                     return;
-                _Start = value;
+                BEGIN = value;
                 OnValueChanged();
             }
         }
 
-        public Vector2 End
+        public Vector2 end
         {
-            get => _End;
+            get => END;
             set
             {
-                if (_End == value)
+                if (END == value)
                     return;
-                _End = value;
+                END = value;
                 OnValueChanged();
             }
         }
-        private Vector2 _Center;
-        public Vector2 Center => _Center;
+        private Vector2 CENTER;
+        public Vector2 center => CENTER;
 
-        private Vector2 _direction;
-        public Vector2 direction => _direction;
+        private Vector2 DIRECTION;
+        public Vector2 direction => DIRECTION;
 
         public Vector2 right => new Vector2(direction.y, -direction.x).normalized;
-        private float _angle;
-        public float angle => _angle;
-        private float _Length;
-        public float Length => _Length;
+        private float ANGLE;
+        public float angle => ANGLE;
+        private float LENGTH;
+        public float Length => LENGTH;
 
 
         public Line(Vector2 start, Vector2 end)
         {
-            _Start = start;
-            _End = end;
-            CalculateInfo(start, end, out _Center, out _direction, out _Length, out _angle);
+            BEGIN = start;
+            END = end;
+            CalculateInfo(start, end, out CENTER, out DIRECTION, out LENGTH, out ANGLE);
         }
 
         private void OnValueChanged() => CalculateInfo();
 
-        private void CalculateInfo() => CalculateInfo(Start, End, out _Center, out _direction, out _Length, out _angle);
+        private void CalculateInfo() => CalculateInfo(begin, end, out CENTER, out DIRECTION, out LENGTH, out ANGLE);
         public static void CalculateInfo(Vector2 start, Vector2 end, out Vector2 center, out Vector2 direction, out float length, out float angle)
         {
             center = (start + end) / 2;
@@ -67,10 +67,10 @@ namespace Yu5h1Lib.Graphic2D
 
         private Rect GetBounds()
         {
-            float minX = Mathf.Min(Start.x, End.x);
-            float minY = Mathf.Min(Start.y, End.y);
-            float maxX = Mathf.Max(Start.x, End.x);
-            float maxY = Mathf.Max(Start.y, End.y);
+            float minX = Mathf.Min(begin.x, end.x);
+            float minY = Mathf.Min(begin.y, end.y);
+            float maxX = Mathf.Max(begin.x, end.x);
+            float maxY = Mathf.Max(begin.y, end.y);
             return new Rect(minX, minY, maxX - minX, maxY - minY);
         }
 
@@ -83,7 +83,7 @@ namespace Yu5h1Lib.Graphic2D
 
 
         public bool IsPointWithinBounds(Vector2 offset, Vector2 point)
-            => Vector2.Dot(point - (Start + offset), direction) > 0 && Vector2.Dot(point - (End + offset), direction) < 0;
+            => Vector2.Dot(point - (begin + offset), direction) > 0 && Vector2.Dot(point - (end + offset), direction) < 0;
 
         public bool TryGetIntersection(Line other, out Vector2 intersection)
         {
@@ -97,13 +97,13 @@ namespace Yu5h1Lib.Graphic2D
             if (Mathf.Abs(determinant) < Mathf.Epsilon)
                 return false;
 
-            var s = other.Start - Start;
+            var s = other.begin - begin;
             float t = (s.x * d2.y - s.y * d2.x) / determinant;
             float u = (s.x * d1.y - s.y * d1.x) / determinant;
 
             if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
             {
-                intersection = Start + t * d1;
+                intersection = begin + t * d1;
                 return true;
             }
             return false;
@@ -118,6 +118,6 @@ namespace Yu5h1Lib.Graphic2D
             }
             return false;
         }
-        public override string ToString() => $"start:{Start}\nend:{End}\ncenter:{Center}\nDirection:{direction}\nLength:{Length}";
+        public override string ToString() => $"start:{begin}\nend:{end}\ncenter:{center}\nDirection:{direction}\nLength:{Length}";
     }
 }

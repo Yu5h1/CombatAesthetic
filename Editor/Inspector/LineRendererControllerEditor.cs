@@ -18,7 +18,11 @@ public class LineRendererControllerEditor : Editor<LineRendererController> {
     {
 
         //DrawDefaultInspector();
-        this.Iterate(DrawProperty);
+        this.Iterate(DrawProperty, BeginDrawProperty);
+    }
+    private void BeginDrawProperty()
+    {
+
     }
     private void DrawProperty( SerializedProperty property)
     {

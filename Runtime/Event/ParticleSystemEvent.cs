@@ -69,6 +69,8 @@ public class ParticleSystemEvent : BaseParticleSystemBehaviour
     
     protected void OnParticleSystemStopped()
     {
+        if (!IsAvailable())
+            return;
         OnParticleSystemStoppedEvent?.Invoke();
     }
     private void OnParticleCollision(GameObject other) {

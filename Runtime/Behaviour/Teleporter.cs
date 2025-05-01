@@ -111,8 +111,9 @@ public class Teleporter : PlayerEvent2D
             character.transform.rotation = rot.Value;
         character.rigidbody.simulated = true;
         teleportingCharacters.Remove(character);
+        
         return true;
-    }
+    }    
     public static bool IsTeleporting(CharacterController2D character) => teleportingCharacters.Contains(character);
     public static bool IsTeleporting(Transform t) => teleportingCharacters.Any(c => c.transform == t);
 

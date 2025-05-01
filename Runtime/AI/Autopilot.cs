@@ -152,7 +152,7 @@ namespace Yu5h1Lib.Game.Character
                 //throw new System.NotImplementedException();
             }
 
-            public override bool ShiftIndexOfSkill(out bool next)
+            public override bool ShiftIndexOfAction(out bool next)
                 => next = false;
 
             public void Wait(float duration)
@@ -249,6 +249,9 @@ namespace Yu5h1Lib.Game.Character
             //}
             protected virtual void PatrolAreaAndScanning()
             {
+                //if (!patrol.WithinPatrolRange())
+                //    Teleporter.MoveCharacter(Body, patrol.offset);
+
                 if (patrol.IsAvailable())
                     movement = GetMovementFromGlobalDirection(patrol.GetDirection(Body.detector.CheckCliff(), OnNodeArrived)).normalized;
                 else
@@ -278,8 +281,7 @@ namespace Yu5h1Lib.Game.Character
             }
             public bool Arrived() => Mathf.Approximately(Vector2.Distance(Body.position, destination), 0);
 
-            protected bool WithinPatrolRange() => Vector2.Distance(patrolPoint, Body.position) < patrol.RangeDistance;
-            protected bool OutOfPatrolRange() => !WithinPatrolRange();
+            protected bool OutOfPatrolRange() => !patrol.WithinPatrolRange();
             protected bool DoesTargetExit() => target;
             protected bool DoesTargetNotExit() => !DoesTargetExit();
 

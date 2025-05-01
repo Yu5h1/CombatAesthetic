@@ -69,4 +69,52 @@ public class CameraAssist : MonoBehaviour
         => controller.allowStopPerformance = true;
     public void DisableStopPerformance()
         => controller.allowStopPerformance = false;
+
+#if UNITY_EDITOR
+    private static Camera _sourceCamera;
+    public static Camera sourceCamera
+    { 
+        get
+        { 
+            if (_sourceCamera == null)
+            {
+                if (ResourcesUtility.TryLoad(nameof(CameraController), out CameraController cameraController))
+                    _sourceCamera = cameraController.camera;
+            }
+            return _sourceCamera;
+        }
+    }
+    private void OnDrawGizmosSelected()
+    {
+        var target = targets.IsEmpty() ? transform : targets.First();
+        if (Application.isPlaying || sourceCamera == null || Mathf.Abs(target.forward.z) != 1f) return;
+
+        using (new Scopes.GizmosScope(Color.yellow))
+        {
+            var pos = target.position + offset;
+            var zDistance = -pos.z ;
+
+            float fov = sourceCamera.fieldOfView;
+            float aspect = sourceCamera.aspect;
+
+            float height = 2f * Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) * zDistance;
+            float width = height * aspect;
+
+            Vector3 center = pos + target.forward * zDistance;
+            Vector3 up = target.up * (height / 2f);
+            Vector3 right = target.right * (width / 2f);
+
+            Vector3 topLeft = center + up - right;
+            Vector3 topRight = center + up + right;
+            Vector3 bottomLeft = center - up - right;
+            Vector3 bottomRight = center - up + right;
+
+            Gizmos.DrawLine(topLeft, topRight);
+            Gizmos.DrawLine(topRight, bottomRight);
+            Gizmos.DrawLine(bottomRight, bottomLeft);
+            Gizmos.DrawLine(bottomLeft, topLeft);
+        }
+
+    } 
+#endif
 }

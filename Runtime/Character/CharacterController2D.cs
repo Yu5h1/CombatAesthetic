@@ -8,7 +8,7 @@ namespace Yu5h1Lib.Game.Character
     public class CharacterController2D : Rigidbody2DBehaviour
     {
         #region Setting
-        public static string GetKey(string parameterName) => $"{typeof(CharacterController2D).FullName}_{parameterName}";
+        public static string GetPrefsKey(string parameterName) => $"{typeof(CharacterController2D).FullName}_{parameterName}";
 
         [SerializeField]
         private float _gravityScale = 0.03333f;
@@ -25,7 +25,7 @@ namespace Yu5h1Lib.Game.Character
         public Vector2 scaledGravity => Physics2D.gravity * gravityScale;
         //{ get; protected set; } = new Vector2(0, -0.32699673f);
 
-        public static string FallingDamageHeightKey => GetKey($"{nameof(FallingDamageHeight)}");
+        public static string FallingDamageHeightKey => GetPrefsKey($"{nameof(FallingDamageHeight)}");
         public static float FallingDamageHeight
         {
             get => PlayerPrefs.GetFloat(FallingDamageHeightKey, 5);
@@ -36,7 +36,7 @@ namespace Yu5h1Lib.Game.Character
                 PlayerPrefs.SetFloat(FallingDamageHeightKey, value);
             }
         }
-        public static string FallingDamageMultiplierKey => GetKey($"{nameof(FallingDamageMultiplier)}");
+        public static string FallingDamageMultiplierKey => GetPrefsKey($"{nameof(FallingDamageMultiplier)}");
         public static float FallingDamageMultiplier
         {
             get => PlayerPrefs.GetFloat(FallingDamageMultiplierKey, 0.5f);
@@ -181,6 +181,8 @@ namespace Yu5h1Lib.Game.Character
         public Vector2 gravityDirection => overrideGravityDirection.magnitude == 0 ? defaultGravityDirection : overrideGravityDirection;
         public bool UseTransformUpAsGravitationOnStart;
         #endregion
+        
+        
         public bool IsInvincible => !attribute || !attribute.isActiveAndEnabled || InvincibleCoroutine != null;
 
         private float lastfallingHeight;

@@ -1,7 +1,6 @@
+using System.Collections;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UIElements;
 using NullReferenceException = System.NullReferenceException;
 
 namespace Yu5h1Lib.Game.Character
@@ -36,26 +35,23 @@ namespace Yu5h1Lib.Game.Character
         #region  Skill
         [SerializeField]
         private SkillData[] _Skills;
-        public SkillBehaviour[] skillBehaviours { get; private set; }
+        public SkillData[] skills { get => _Skills; private set => _Skills = value; }
 
-        private SkillData[] bindingskills;
-        private SkillData[] _optionalSkills;
-        public SkillData[] optionalSkills 
-        { 
-            get 
-            {
-                if (_optionalSkills.IsEmpty() && !_Skills.IsEmpty())
-                    _optionalSkills = _Skills.Where(s => s != null && s.incantation.IsEmpty()).ToArray();
-                return _optionalSkills;
-            }
-        }
-        
+        [SerializeReference,HideInInspector]
+        private SkillBehaviour[] _skillBehaviours;
+        public SkillBehaviour[] skillBehaviours { get => _skillBehaviours; private set => _skillBehaviours = value; }
+        public SkillBehaviour[] optionalSkillBehaviours { get; private set; }
+        public SkillBehaviour[] ValidOptionalSkills { get; private set; }
+
+        //private SkillData[] bindingskills;
+
         public int indexOfSkill;
 
-        public SkillData currentSkill => optionalSkills.IsValid(indexOfSkill) ? optionalSkills[indexOfSkill] : null;
+        public SkillData currentSkill => optionalSkillBehaviours.IsValid(indexOfSkill) ? optionalSkillBehaviours[indexOfSkill].data : null;
 
-        public SkillBehaviour currentSkillBehaviour => currentSkill == null ? null :
-            skillBehaviours[_Skills.IndexOf(optionalSkills[indexOfSkill])];
+        public SkillBehaviour currentSkillBehaviour => 
+            optionalSkillBehaviours.IsValid(indexOfSkill) && optionalSkillBehaviours[indexOfSkill] != null ?
+            (optionalSkillBehaviours[indexOfSkill].enable ? optionalSkillBehaviours[indexOfSkill] : null) : null;
 
         #endregion
 
@@ -82,13 +78,15 @@ namespace Yu5h1Lib.Game.Character
             #endregion
 
             #region initialize skill
-            
-            skillBehaviours = new SkillBehaviour[_Skills.Length];
-            for (int i = 0; i < skillBehaviours.Length; i++)
-                skillBehaviours[i] = _Skills[i].CreateBehaviour(this);
 
-            if (!optionalSkills.IsEmpty())
-                currentSkillBehaviour.Select();
+            PrepareBehaviours();
+
+            if (!optionalSkillBehaviours.IsEmpty())
+            {
+                //if (currentSkillBehaviour == null)
+
+                currentSkillBehaviour?.Select();
+            }
             #endregion
         }
         
@@ -141,23 +139,24 @@ namespace Yu5h1Lib.Game.Character
                 stateInfo.VelocityWeight.y = 1;
 
             #region momentum is based on animation velocity
-
             var animVelocity = localAnimVelocity * stateInfo.rootMotionWeight;
 
             if (stateInfo.affectByMultiplier)
                animVelocity *= Floatable ? FloatingMultiplier : IsGrounded ? GroundMultiplier : AirborneMultiplier;
 
-            var momentum = (localVelocity * stateInfo.VelocityWeight) + animVelocity; 
+            var momentum = (localVelocity * stateInfo.VelocityWeight) + animVelocity;
 
             #endregion
 
+            Vector2 gforce = Vector2.zero;
             if (IsGrounded)
             {
                 if (underControl)
                 {
-                    if (JumpPower > 0 && TriggerJump )
+                    if ( JumpPower > 0 && TriggerJump )
                     {
-                        momentum.y = JumpPower;
+                        //momentum.y = JumpPower;
+                        gforce += gravityDirection * JumpPower;
                         detector.LeaveGround();
                     }
                     if (InputMovement.x == 0)
@@ -169,7 +168,12 @@ namespace Yu5h1Lib.Game.Character
                 }
                 if (momentum.y < JumpPower)
                 {
-                    RotateToGravitationSmooth(overrideGravityDirection.IsZero() ? gravitation : detector.groundHit.normal, 1);
+                    if (!IsActing)
+                        RotateToDirection(gravitation , 1);
+
+
+                    
+
                     if (localAnimVelocity.x != 0)
                     {
                         //always stick on ground
@@ -191,8 +195,13 @@ namespace Yu5h1Lib.Game.Character
             }
             else
             {
-                RotateToGravitationSmooth(gravitation, stateInfo.fixAngleWeight);
-                ProcessingGravitation(gravitation, stateInfo.VelocityWeight, ref momentum);
+
+
+                RotateToDirection(gravitation, stateInfo.fixAngleWeight);
+                ProcessingGravitation(gravitation, stateInfo.VelocityWeight, ref momentum,ref gforce);
+
+                if (underControl && !IsInteracting && Mathf.Abs(momentum.x) < MaxAirborneSpeed)
+                    gforce += new Vector2(InputMovement.x, InputMovement.y) * AirborneMultiplier;
             }
 
 
@@ -215,26 +224,41 @@ namespace Yu5h1Lib.Game.Character
             if (UseCustomVelocity)
                 rigidbody.MovePosition(rigidbody.position + (velocity = transform.TransformDirection(momentum) * Time.fixedDeltaTime));
             else /// deprecated using velocity control movement . this method will causing flick movement
-                velocity = transform.TransformDirection(momentum);
+            {
+                //velocity = (Vector2)transform.TransformDirection(momentum) + gforce;
+                if (IsGrounded || Floatable)
+                    velocity = (Vector2)transform.TransformDirection(momentum) + gforce;
+                else
+                    velocity += gforce;
+            }
+            
 
             TriggerJump = false;
         }
-        private void ProcessingGravitation(Vector2 gravitation, Vector2 VelocityWeight, ref Vector2 momentum)
+        private void ProcessingGravitation(Vector2 gravitation, Vector2 VelocityWeight, ref Vector2 momentum,
+            ref Vector2 gforce)
         {           
             if (VelocityWeight.IsZero())
                 return;
-            var localGdir = transform.InverseTransformDirection(gravitation);
-            var localGQ = Quaternion.LookRotation(Vector3.forward, localGdir);
+            //var localGdir = transform.InverseTransformDirection(gravitation);
+            //var localGQ = Quaternion.LookRotation(Vector3.forward, localGdir);
+            //var gMomentum = Quaternion.Inverse(localGQ) * momentum;
+
+            //if (gMomentum.y > Physics2D.gravity.y)
+            //    momentum += (Vector2)(localGQ * scaledGravity);
+
+
+            //var localGdir = transform.InverseTransformDirection(gravitation);
+            var localGQ = Quaternion.LookRotation(Vector3.forward, gravitation);
             var gMomentum = Quaternion.Inverse(localGQ) * momentum;
 
             if (gMomentum.y > Physics2D.gravity.y)
-                momentum += (Vector2)(localGQ * scaledGravity);
+                gforce = (Vector2)(localGQ * scaledGravity);
 
-            if (underControl && !IsInteracting && Mathf.Abs(momentum.x) < MaxAirborneSpeed)
-                momentum += new Vector2(Mathf.Abs(InputMovement.x), InputMovement.y) * AirborneMultiplier;
+
         }
 
-        protected void RotateToGravitationSmooth(Vector2 gravitation,float fixAngleWeight,bool fade = true)
+        protected void RotateToDirection(Vector2 gravitation,float fixAngleWeight,bool fade = true)
         {
             if (fixAngleWeight == 0)
                 return;
@@ -270,23 +294,80 @@ namespace Yu5h1Lib.Game.Character
             foreach (var behaviour in skillBehaviours)
                 behaviour.Update(hostBehaviour);
 
-            if (hostBehaviour.ShiftIndexOfSkill(out bool next))
+            if (ValidOptionalSkills.Length > 1 && hostBehaviour.ShiftIndexOfAction(out bool next))
             {
-                indexOfSkill = optionalSkills.ShiftIndex(indexOfSkill, next);
-                currentSkillBehaviour.Select();
+                var validIndex = ValidOptionalSkills.ShiftIndex(ValidOptionalSkills.IndexOf(currentSkillBehaviour), next);
+                indexOfSkill = optionalSkillBehaviours.IndexOf(ValidOptionalSkills[validIndex]);
+                currentSkillBehaviour?.Select();
             }
             return true;
         }
-        public void RandomCurrentSkill(int primaryIndex = -1)
+        public void ValidateSkillBehaviours()
         {
-            var enabledSkills = skillBehaviours.Where(b => b.enable && b.data.incantation.IsEmpty()).ToArray();
-            if (enabledSkills.Length == 1)
+            if (optionalSkillBehaviours.IsEmpty())
+                return;
+            ValidOptionalSkills = optionalSkillBehaviours.Where(b => b.enable).ToArray();
+            if (!ValidOptionalSkills.Contains(currentSkillBehaviour))
+            { 
+                if (ValidOptionalSkills.Length > 0)
+                    indexOfSkill = optionalSkillBehaviours.IndexOf(ValidOptionalSkills.First());
+            }
+            currentSkillBehaviour?.Select();
+        }
+        #region Skill
+
+        public void RandomCurrentSkill(int primaryIndex)
+        {
+            if (ValidOptionalSkills.Length == 1)
                 return;
             if (primaryIndex < 0)
-                indexOfSkill = optionalSkills.IndexOf(enabledSkills.RandomElement().data);
+                indexOfSkill = optionalSkillBehaviours.IndexOf(ValidOptionalSkills.RandomElement());
             else
-                indexOfSkill = Random.value < 0.5f ? optionalSkills.IndexOf(enabledSkills.RandomElement().data) : primaryIndex;
+                indexOfSkill = Random.value < 0.5f ? optionalSkillBehaviours.IndexOf(ValidOptionalSkills.RandomElement()) : primaryIndex;
+            currentSkillBehaviour?.Select();
         }
+        [ContextMenu(nameof(RandomCurrentSkill))]
+        public void RandomCurrentSkill() => RandomCurrentSkill(-1);
+
+        public void EnableSkill(int index) => SetSkillActive(index, true);
+        public void DisableSkill(int index) => SetSkillActive(index, false);
+        public void EnableSkillExclusive(int index) => SetSkillActive(index, true,true);
+
+        public void SetAllSkillActivate(bool enable)
+        {
+            for (int i = 0; i < optionalSkillBehaviours.Length; i++)
+                optionalSkillBehaviours[i].enable = enable;
+            ValidateSkillBehaviours();
+
+            if (!enable)
+            {
+                if (CompareTag("Player"))
+                {
+                    if (attribute.ui)
+                    {
+                        attribute.ui.Hide((AttributeType.Red | AttributeType.Yellow | AttributeType.Blue).SeparateFlags().ToArray());
+                        GameManager.instance.cursors[0].Use();
+                    }
+                }
+            }
+        }
+        public void SetSkillActive(int index,bool enable,bool exclusive = false)
+        {
+            if (!optionalSkillBehaviours.IsValid(index))
+                return;
+            if (exclusive)
+            {
+                for (int i = 0; i < optionalSkillBehaviours.Length; i++)
+                    optionalSkillBehaviours[i].enable = (i == index);
+            }else
+            {                
+                optionalSkillBehaviours[index].enable = enable;
+            }
+            indexOfSkill = index;
+            ValidateSkillBehaviours();
+        }
+        #endregion
+
         public override bool HitFrom(Vector2 v, bool push, bool faceToFrom)
         {
             if (!base.HitFrom(v, push, faceToFrom))
@@ -421,7 +502,6 @@ namespace Yu5h1Lib.Game.Character
             }
 
         }
-    
 
 
         public void MoveLayer(int offset)
@@ -445,10 +525,24 @@ namespace Yu5h1Lib.Game.Character
         }
         #endregion
 
+        [ContextMenu(nameof(PrepareBehaviours))]
+        private void PrepareBehaviours()
+        {
+            System.Array.Resize(ref _skillBehaviours, skills.Length);
+            for (int i = 0; i < skillBehaviours.Length; i++)
+                skills[i].CreateBehaviour(this,ref skillBehaviours[i]);
 
+            optionalSkillBehaviours = skillBehaviours.Where(s => s != null && s.data.incantation.IsEmpty()).ToArray();
+            ValidateSkillBehaviours();
+        }
+        [ContextMenu(nameof(ClearBehaviours))]
+        private void ClearBehaviours()
+        {
+            skillBehaviours = null;
+        }
 
         [ContextMenu("Set as Player")]
-        public void SetAsPlayer()
+        private void SetAsPlayer()
         {
             foreach (var obj in GameObject.FindGameObjectsWithTag("Player"))
                 obj.tag = "Enemy";
@@ -472,6 +566,13 @@ namespace Yu5h1Lib.Game.Character
         }
 
 #endif
+
+        public void Entrance()
+        {
+
+        }
+
+
     }
     public struct StateInfo
     {

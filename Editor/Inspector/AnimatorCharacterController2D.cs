@@ -32,12 +32,21 @@ public class AnimatorCharacterController2DEditor : Editor<AnimatorCharacterContr
 
     private void SkillsList_drawElement(Rect rect, int index, bool isActive, bool isFocused)
     {
-        if (EditorApplication.isPlaying && targetObject.skillBehaviours.IsValid(index))
+        SkillBehaviour b = null;
+        if (targetObject.skillBehaviours.IsValid(index) && targetObject.skillBehaviours[index] != null)
+            b = targetObject.skillBehaviours[index];
+
+        bool enableSkill = b == null ? true : b.enable;
+        rect.x = rect.x + EditorGUIUtility.labelWidth - 20;
+        using (new EditorGUI.DisabledScope(b == null))
+            enableSkill = EditorGUI.Toggle(rect, enableSkill);
+        if (b != null && b.enable != enableSkill)
         {
-            rect.x = rect.x + EditorGUIUtility.labelWidth - 20;
-            targetObject.skillBehaviours[index].enable = EditorGUI.Toggle(rect, targetObject.skillBehaviours[index].enable);
+            Undo.RegisterCompleteObjectUndo(targetObject, $"{targetObject.GetType().FullName} : Set skill eabled");
+            b.enable = enableSkill;
+            targetObject.ValidateSkillBehaviours();
         }
-    
+
     }
 
     public override void OnInspectorGUI()
@@ -48,6 +57,7 @@ public class AnimatorCharacterController2DEditor : Editor<AnimatorCharacterContr
             return;
         }
         serializedObject.Update();
+
         if (EditorApplication.isPlaying && targetObject.isActiveAndEnabled)
         {
             EditorGUILayout.HelpBox($@"
@@ -62,9 +72,15 @@ forward:{contoller.transform.forward}
 forward.z:{contoller.transform.forward.z}
 ", MessageType.Info); //FallingTimeElapsed: { contoller.FallingTimeElapsed}
         }
-        this.Iterate(OnDrawProperty);
+        this.Iterate(OnDrawProperty, BeginDrawProperty);
     }
-
+    void BeginDrawProperty()
+    {
+        using (new EditorGUI.DisabledGroupScope(true))
+        {
+            EditorGUILayout.Vector2Field("Velocity", targetObject.velocity);
+        }
+    }
     private void OnDrawProperty(SerializedProperty property)
     {
         if (propertyDrawers.ContainsKey(property.name))

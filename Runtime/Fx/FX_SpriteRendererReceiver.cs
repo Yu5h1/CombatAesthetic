@@ -42,13 +42,14 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
             return;
         SetAmount(curve.Evaluate(timer.normalized));
     }
-    public void SetColor(Color color)
+    public void SetMaterialColor(Color color)
     {
         for (int i = 0; i < materials.Length; i++)
         {
             materials[i].SetColor("_Color", color);
         }
     }
+ 
     public void SetAmount(float amount)
     {
         for (int i = 0; i < materials.Length; i++)
@@ -76,7 +77,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
     }
     IEnumerator PerformFx(UnityAction onComplete)
     {
-        SetColor(sender.color);
+        SetMaterialColor(sender.color);
         timer.duration = curve.keys.Last().time;
         timer.Start();
         yield return waiter;
@@ -96,5 +97,7 @@ public class FX_SpriteRendererReceiver : Fx_Receiver<Fx_SpriteRendererSender>
         gameObject.SetActive(false);
         Finish?.Invoke();
     }
-    
+
+
+
 }

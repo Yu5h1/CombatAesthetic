@@ -7,8 +7,12 @@ public class PoolElementEditor : Editor<PoolElementHandler>
 {
     public override void OnInspectorGUI()
     {
-        this.Iterate(OnProperty);
+        this.Iterate(OnProperty, BeginDrawProperty);
 
+    }
+    private void BeginDrawProperty()
+    {
+        
     }
     public void OnProperty(SerializedProperty property)
     {

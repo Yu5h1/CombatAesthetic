@@ -1,9 +1,8 @@
 using System;
-using Unity.VisualScripting;
-using UnityEngine;
 
 namespace Yu5h1Lib.Game.Character
 {
+    [Serializable]
     public abstract class SkillBehaviour {
         public SkillData data { get; protected set; }
         public AnimatorCharacterController2D owner { get; protected set; }
@@ -42,14 +41,15 @@ namespace Yu5h1Lib.Game.Character
         /// <param name="up"></param>
         protected abstract bool UpdateInput(bool down, bool hold, bool up);
 
-        public static SkillBehaviour Constructor(SkillData skill, AnimatorCharacterController2D character)
+        public static void Constructor(SkillData data, AnimatorCharacterController2D character,ref SkillBehaviour behaviour)
         {
-            var result = (SkillBehaviour)Activator.CreateInstance(skill.GetBehaviourType());
-            result.owner = character;
-            result.data = skill;
-            result.Init();
-            return result;
+            if (behaviour == null || behaviour.GetType() != data.GetBehaviourType() )
+                behaviour = (SkillBehaviour)Activator.CreateInstance(data.GetBehaviourType());
+            behaviour.owner = character;
+            behaviour.data = data;
+            behaviour.Init();
         }
+
         protected static bool Validate(SkillData data) => false;
     }
     public abstract class SkillBehaviour<Data> : SkillBehaviour where Data : SkillData

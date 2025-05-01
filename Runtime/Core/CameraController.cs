@@ -233,44 +233,65 @@ public class CameraController : SingletonBehaviour<CameraController>
         foreach (var renderer in SortingLayerSprites.Values)
             SetSpriteSizeByProjection(renderer, bg_depth, width, height);
     }
-    public void FitSpriteWithProjection(SpriteRenderer renderer,float depth)
+    public void FitSpriteWithProjection(SpriteRenderer renderer,float depth,float scaleMultiplier = 1)
     {
         float width = 0, height = 0;
         if (camera.orthographic)
         {
             camera.GetOrthographicSize(out width, out height);
-            SetSpriteSizeByProjection(renderer,depth, width, height);
+            SetSpriteSizeByProjection(renderer,depth, width, height, scaleMultiplier);
         }
         else
         {
             camera.GetPerspectiveSize(depth, out width, out height);
-            SetSpriteSizeByProjection(renderer,depth,width,height);
+            SetSpriteSizeByProjection(renderer,depth,width,height, scaleMultiplier);
         }
     }
-    public void SetSpriteSizeByProjection(SpriteRenderer renderer, float depth,float width,float height)
+    public void SetSpriteSizeByProjection(SpriteRenderer renderer, float depth, float width, float height,
+        float scaleMultiplier = 1)
     {
+        if (renderer == null || renderer.sprite == null)
+            return;
+
+        var spriteSize = renderer.sprite.bounds.size;
+        if (spriteSize.x == 0 || spriteSize.y == 0)
+            return; // 防止除以零
+
+        Vector3 newScale = renderer.transform.localScale;
+
         if (camera.orthographic)
-            renderer.transform.localScale = new Vector3(width + 1, height + 1, 1);
+        {
+            // 正交模式：直接以目標寬度或高度為準縮放
+            float scaleFactor = Mathf.Min(width / spriteSize.x, height / spriteSize.y);
+            newScale = Vector3.one + (Vector3.one * scaleFactor * scaleMultiplier);
+        }
         else
         {
-            var sSize = renderer.sprite.bounds.size;
-            Vector3 newScale = renderer.transform.localScale;
-            newScale.x = width / sSize.x;
-            newScale.y = height / sSize.y;
-            renderer.transform.localScale = newScale;
+            // 透視模式：同理
+            float scaleFactor = Mathf.Min(width / spriteSize.x, height / spriteSize.y);
+            newScale = Vector3.one + (Vector3.one * scaleFactor * scaleMultiplier);
         }
+
+        renderer.transform.localScale = newScale;
+
+        // 設定位置
         if (renderer.transform.parent == transform)
         {
-            var p = renderer.transform.localPosition;
-            p.z = depth;
-            renderer.transform.localPosition = p;
+            var pos = renderer.transform.localPosition;
+            pos.z = depth;
+            renderer.transform.localPosition = pos;
         }
         else
         {
             renderer.transform.rotation = transform.rotation;
-            renderer.transform.position = transform.TransformPoint(0, 0, depth);
+            var pos = renderer.transform.position;
+            pos.z = depth;
+            renderer.transform.position = pos;
         }
     }
+
+
+
     [ContextMenu(nameof(FoldUp))]
     public void FoldUp()
        => FoldUp("Default", Color.black, 0.5f);
@@ -522,17 +543,48 @@ public class CameraController : SingletonBehaviour<CameraController>
     }
     #endregion
 
-    //#if UNITY_EDITOR
-    //    [SerializeField]
-    //    private float guiScaleFactor = 3.14f;
-    //    private void OnGUI()
-    //    {
-    //        var originalmatrix = GUI.matrix;
-    //        float matrixScale = Mathf.Min(Screen.width / 1920f, Screen.height / 1080f) * guiScaleFactor;
-    //        GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(matrixScale, matrixScale, 1));
-    //        GUILayout.Label($"Timer:{timer}");
+#if UNITY_EDITOR
+    //[SerializeField]
+    //private float guiScaleFactor = 3.14f;
+    //private void OnGUI()
+    //{
+    //    var originalmatrix = GUI.matrix;
+    //    float matrixScale = Mathf.Min(Screen.width / 1920f, Screen.height / 1080f) * guiScaleFactor;
+    //    GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(matrixScale, matrixScale, 1));
+    //    GUILayout.Label($"Timer:{timer}");
 
-    //        GUI.matrix = originalmatrix;
-    //    }
-    //#endif
+    //    GUI.matrix = originalmatrix;
+    //}
+
+    private void OnDrawGizmos()
+    {
+        if (camera == null || Mathf.Abs(camera.transform.forward.z) != 1f) return;
+
+        using (new Scopes.GizmosScope(Color.yellow))
+        {
+            var zDistance = -camera.transform.position.z;
+
+            float fov = camera.fieldOfView;
+            float aspect = camera.aspect;
+
+            float height = 2f * Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) * zDistance;
+            float width = height * aspect;
+
+            Vector3 center = camera.transform.position + camera.transform.forward * zDistance;
+            Vector3 up = camera.transform.up * (height / 2f);
+            Vector3 right = camera.transform.right * (width / 2f);
+
+            Vector3 topLeft = center + up - right;
+            Vector3 topRight = center + up + right;
+            Vector3 bottomLeft = center - up - right;
+            Vector3 bottomRight = center - up + right;
+
+            Gizmos.DrawLine(topLeft, topRight);
+            Gizmos.DrawLine(topRight, bottomRight);
+            Gizmos.DrawLine(bottomRight, bottomLeft);
+            Gizmos.DrawLine(bottomLeft, topLeft);
+        }
+
+    }
+#endif
 }

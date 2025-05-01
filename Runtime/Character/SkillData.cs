@@ -29,8 +29,8 @@ namespace Yu5h1Lib.Game.Character
             }
         }
         public virtual System.Type GetBehaviourType() => typeof(SkillBehaviour);
-        public virtual SkillBehaviour CreateBehaviour(AnimatorCharacterController2D controller)
-            => SkillBehaviour.Constructor(this, controller);
+        public virtual void CreateBehaviour(AnimatorCharacterController2D controller,ref SkillBehaviour behaviour)
+            => SkillBehaviour.Constructor(this, controller,ref behaviour);
         public override string ToString() => $"{GetType()}";
     }
     public abstract class SkillData<T> : SkillData where T : SkillBehaviour

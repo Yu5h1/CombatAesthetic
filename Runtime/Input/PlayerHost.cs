@@ -84,7 +84,7 @@ namespace Yu5h1Lib.Game.Character {
             }
 
             #region right click change skill
-            public override bool ShiftIndexOfSkill(out bool next) => next = input.GetMouseButtonDown(1);
+            public override bool ShiftIndexOfAction(out bool next) => next = input.GetMouseButtonDown(1);
             #endregion
 
             #region Mouse Wheel change skill

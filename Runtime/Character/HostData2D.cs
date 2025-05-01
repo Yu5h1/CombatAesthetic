@@ -13,7 +13,7 @@ namespace Yu5h1Lib.Game.Character
             public abstract Vector2 GetMovement();
             public abstract bool GetInputState(UpdateInput updateInput);
             public abstract void GetInputState(string bindingName, UpdateInput updateInput);
-            public abstract bool ShiftIndexOfSkill(out bool next);
+            public abstract bool ShiftIndexOfAction(out bool next);
         }
         public abstract class Behaviour2D<T> : HostBehaviour2D where T : HostData2D
         {

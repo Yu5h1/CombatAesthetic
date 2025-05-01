@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering;
+using UnityEngine.Video;
 using Yu5h1Lib;
 
 public class StoryHandler : BaseMonoBehaviour
@@ -10,12 +12,14 @@ public class StoryHandler : BaseMonoBehaviour
     private Animator _animator;
     public Animator animator => _animator;
 
+
     [SerializeField]
     private Camera _camera;
 #pragma warning disable 0109
     public new Camera camera => _camera;
 #pragma warning restore 0109
-
+    [SerializeField]
+    private VideoPlayer _player;
 
     [SerializeField]
     private UnityEvent onEnable;
@@ -24,8 +28,8 @@ public class StoryHandler : BaseMonoBehaviour
     private void Reset()
     {
         Init();
+        
     }
-
     protected override void OnInitializing()
     {
         
@@ -44,9 +48,18 @@ public class StoryHandler : BaseMonoBehaviour
         onEnable?.Invoke();
         UI_Manager.visible = SceneController.IsUnloading;
         GameManager.SetPlayerControllable(false);
+        animator.speed = 1;
     }
 
-
+    private void Update()
+    {
+        var speed = Input.GetMouseButton(0) ? 2 : 1; ;
+        
+        if (_animator)
+            animator.speed = speed;
+        if (_player)
+            _player.playbackSpeed = speed;
+    }
 
     private void OnDisable()
     {
@@ -55,6 +68,11 @@ public class StoryHandler : BaseMonoBehaviour
         UI_Manager.instance.LoadingBackGround.enabled = true;
         UI_Manager.visible = true;
         GameManager.SetPlayerControllable(true);
+    }
+    public void PlayVideo(VideoClip clip)
+    {
+        _player.clip = clip;
+        _player.Play();
     }
     [ContextMenu("Test")]
     public void Test()

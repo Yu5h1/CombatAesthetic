@@ -57,11 +57,6 @@ public static class RouteEditorUtility
         {
             IsDragging = false;
         }
-        else if (e.type == EventType.MouseMove)
-        {
-            SceneView.RepaintAll();
-            return;
-        }
 
         if (e.type == EventType.MouseMove)
         {

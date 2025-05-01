@@ -5,6 +5,7 @@ using Yu5h1Lib;
 
 public class Audible : MonoBehaviour
 {
+    public float delay;
     void Start() {}
     public void PlayAudioClip(AudioClip clip)
     {
