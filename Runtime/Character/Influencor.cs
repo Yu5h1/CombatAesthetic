@@ -8,6 +8,8 @@ public class Influencor : BaseMonoBehaviour
     [SerializeField]
     public AffectType affectType;
     [SerializeField]
+    public AttributePropertyType propertyType = AttributePropertyType.Current;
+    [SerializeField]
     private EnergyInfo info;
 
 
@@ -29,7 +31,7 @@ public class Influencor : BaseMonoBehaviour
         if (!IsAvailable())
             return;
         if (other.TryGetComponentInParent(out AttributeBehaviour stat,true))
-            stat.Affect(affectType, info);
+            stat.Affect(affectType, propertyType, info);
     }
     public void Hit(Collider2D other)
     {
@@ -47,7 +49,7 @@ public class Influencor : BaseMonoBehaviour
     {
         if (!IsAvailable() || !other.IsAvailable() || other.IsInvincible)
             return;
-        other.attribute.Affect(affectType, info);
+        other.attribute.Affect(affectType, propertyType, info);
     }
 
     public void RecoilHit() => RecoilHit(1);

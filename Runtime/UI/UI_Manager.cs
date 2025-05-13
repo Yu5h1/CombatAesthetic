@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using Yu5h1Lib;
 using Yu5h1Lib.UI;
 using Yu5h1Lib.Game;
+using System.Xml.Schema;
 
 [DisallowMultipleComponent]
 public class UI_Manager : MonoBehaviour
@@ -26,7 +27,20 @@ public class UI_Manager : MonoBehaviour
 
     [ReadOnly,SerializeField]
     private UI_Menu _currentMenu;
-    public static UI_Menu currentMenu { get => instance._currentMenu; private set => instance._currentMenu = value; }
+    public static UI_Menu currentMenu 
+    {
+        get => instance._currentMenu; 
+        private set
+        {
+            if (instance._currentMenu == value)
+                return;
+            if (instance._currentMenu)
+                instance._currentMenu.FocusedChangedCheck(false);
+            instance._currentMenu = value;
+            if (value)
+                value.FocusedChangedCheck(true);
+        }
+    }
 
     [SerializeField,ReadOnly]
     public LoadAsyncAgent _Loading;

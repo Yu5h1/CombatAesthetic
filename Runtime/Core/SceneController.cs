@@ -50,12 +50,15 @@ public class SceneController : SingletonBehaviour<SceneController>
     private void OnTriggerExit2D(Collider2D other)
     {
         // Avoiding OnTriggerExit2D triggered on EditorApplication.Exit
-        if (GameManager.IsQuit || IsUnloading || Teleporter.IsTeleporting(other.transform))
+        if (GameManager.IsQuit || IsUnloading )//|| Teleporter.IsTeleporting(other.transform))
             return;
-        if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
-            attributeBeahaviour.Affect(AttributeType.Health, AffectType.NEGATIVE, 100000000);
-    }
+        if (other.TryGetComponent(out Teleportable teleportable) && teleportable.IsTeleporting)
+            return;
 
+        if (other.TryGetComponent(out AttributeBehaviour attributeBeahaviour))
+            attributeBeahaviour.Affect(AttributeType.Health, AttributePropertyType.Current, AffectType.NEGATIVE, 100000000);
+    }
+    
 
     #region Methods
 
@@ -116,11 +119,15 @@ public class SceneController : SingletonBehaviour<SceneController>
     private static bool IsSceneUnLoaded() => !IsUnloading;
     public static void ReloadCurrentScene() => LoadScene(ActiveScene.buildIndex);
     public static void LoadScene(string SceneName) => LoadScene(SceneManager.GetSceneByName(SceneName).buildIndex);
-    public static void LoadScene(int SceneIndex) {
+    public static bool LoadScene(int SceneIndex) {
+
+        if ($"Scene index [{SceneIndex}] is invalid. Build contains {SceneManager.sceneCountInBuildSettings} scenes.".
+            printWarningIf(SceneIndex < 0 || SceneIndex >= SceneManager.sceneCountInBuildSettings))
+            return false;
+
         IsUnloading = true;
-        if (LoadSceneAsyncCoroutine != null)
-            GameManager.instance.StopCoroutine(LoadSceneAsyncCoroutine);
-        LoadSceneAsyncCoroutine = GameManager.instance.StartCoroutine(LoadSceneAsynchronously(SceneIndex));
+        GameManager.instance.StartCoroutine(ref LoadSceneAsyncCoroutine, LoadSceneAsynchronously(SceneIndex));
+        return true;
     }
     private static Coroutine LoadSceneAsyncCoroutine;
     private static IEnumerator LoadSceneAsynchronously(int SceneIndex)
@@ -196,7 +203,7 @@ public class SceneController : SingletonBehaviour<SceneController>
         CameraController.RemoveInstanceCache();
         PoolManager.RemoveInstanceCache();
         RemoveInstanceCache();
-        IsUnloading = false;
+        Isloading = IsUnloading = false;
     }
     private static void AfterLoadSceneAsync()
     {

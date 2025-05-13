@@ -16,7 +16,7 @@ namespace Yu5h1Lib.Game.Character
         {
             get => _gravityScale;
             set
-            {
+            {                
                 if (gravityScale == value)
                     return;
                 _gravityScale = value;                
@@ -65,6 +65,33 @@ namespace Yu5h1Lib.Game.Character
         [SerializeField, ReadOnly]
         private Scanner2D _scanner;
         public Scanner2D scanner => _scanner;
+
+        [SerializeField, ReadOnly]
+        private Teleportable _teleportable;
+        public Teleportable teleportable
+        { 
+            get
+            { 
+                if (_teleportable == null)
+                {
+                    _teleportable = gameObject.AddComponent<Teleportable>();
+                    _teleportable.begin += _teleportable_begin;
+                    _teleportable.end += _teleportable_end;
+                }
+                return _teleportable;
+            }
+        }
+
+        private void _teleportable_end()
+        {
+            rigidbody.simulated = true;
+        }
+
+        private void _teleportable_begin()
+        {
+            rigidbody.simulated = false;
+        }
+
         public bool IsGrounded => detector.IsGrounded;
         public bool IsInteracting => !detector.enabled;
         #endregion
@@ -231,7 +258,7 @@ namespace Yu5h1Lib.Game.Character
 #if  UNITY_EDITOR
                     $"velocity.y: {localVelocity.y} || fallingDistance:{fallingDistance} || Damage:{damage}".print();
 #endif
-                    attribute.Affect(AttributeType.Health, AffectType.NEGATIVE, damage );
+                    attribute.Affect(AttributeType.Health,AttributePropertyType.Current, AffectType.NEGATIVE, damage );
                 }
 
                 localVelocity *= Vector2.right;
@@ -397,24 +424,29 @@ namespace Yu5h1Lib.Game.Character
         public void ApplyInvincibilityFrames(Vector2 force) => ApplyInvincibilityFrames(force,InvincibleDuration);
 
         public void ApplyInvincibilityFrames(Vector2 force,float duration){
-            if (duration == 0 || IsInvincible)
+            if (duration <= 0)
                 return;
             var stateNullable = attribute[AttributeType.Health];
-            if (stateNullable == null)
+            if (stateNullable == null || stateNullable.Value.IsDepleted)
                 return;
-            var state = stateNullable.Value;
-            if (state.IsDepleted)
-                return;
-            this.StartCoroutine(ref InvincibleCoroutine, InvincibilityFramesProcess(duration));
+
+            if (InvincibleCoroutine != null)
+            {
+                StopCoroutine(InvincibleCoroutine);
+                EndInvincibility();
+            }
+            InvincibleCoroutine = StartCoroutine(InvincibilityFramesProcess(duration));
+
+            //if (IsInvincible)
+            //    return;
+            //this.StartCoroutine(ref InvincibleCoroutine, InvincibilityFramesProcess(duration));
         }
         private IEnumerator InvincibilityFramesProcess(float duration)
         {
-            
-            hurtBox.enabled = false;
+            BeginInvincibility();
             var renderer = GetComponent<SpriteRenderer>();
-            detector.collider.excludeLayers = LayerMask.GetMask("Character");
             var interval = 0.15f;
-            var flickCount = (int)(InvincibleDuration / interval);
+            var flickCount = Mathf.Max(1, Mathf.FloorToInt(duration / interval));
             var flashColor = new Color(.8f, .8f, .8f, 1);
             for (int i = 0; i < flickCount; i++)
             {
@@ -422,12 +454,22 @@ namespace Yu5h1Lib.Game.Character
                 yield return new WaitForSeconds(interval);
             }
             renderer.color = Color.white;
-            //attribute.enabled = false;
-            //yield return new WaitForSeconds(duration);
-            detector.collider.excludeLayers = 0;
-            hurtBox.enabled = true;
+            EndInvincibility();
             InvincibleCoroutine = null;
         }
+        private void BeginInvincibility()
+        {
+            hurtBox.enabled = false;
+            detector.collider.excludeLayers = LayerMask.GetMask("Character");
+        }
+
+        private void EndInvincibility()
+        {
+            detector.collider.excludeLayers = 0;
+            hurtBox.enabled = true;
+        }
+
+
         Coroutine performanceCoroutine;
         public bool IsScriptedActing => performanceCoroutine != null;
         public void MoveTo(Transform target)

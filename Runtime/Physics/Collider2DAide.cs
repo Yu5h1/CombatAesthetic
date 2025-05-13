@@ -4,7 +4,7 @@ using UnityEngine;
 using Yu5h1Lib;
 
 
-public class Collider2DAgent : MonoBehaviour
+public class Collider2DAide : MonoBehaviour
 {
     [SerializeField]
     private Collider2D _collider;

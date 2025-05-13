@@ -8,6 +8,7 @@ using Yu5h1Lib;
 using Yu5h1Lib.UI;
 using Yu5h1Lib.Game;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 public class UI_Menu : UIControl
 {
@@ -27,7 +28,14 @@ public class UI_Menu : UIControl
 
     public bool activeSelf => gameObject.activeSelf;
 
-    public UnityEvent shown;
+    [SerializeField]
+    private UnityEvent shown;
+    [SerializeField]
+    private UnityEvent hide;
+
+    public bool focused => UI_Manager.currentMenu == this;
+    [SerializeField]
+    private UnityEvent<bool> focusedChanged;
 
     private void OnEnable()
     {
@@ -43,6 +51,12 @@ public class UI_Menu : UIControl
         if (DisallowDismiss && !force)
             return;
         UI_Manager.Dismiss(this);
+        hide?.Invoke();
+    }
+
+    public void FocusedChangedCheck(bool focused)
+    {
+        focusedChanged?.Invoke(focused);
     }
 
     public void ChangeMenu(UI_Menu next, bool dismiss) => UI_Manager.ChangeMenu(this, next, dismiss);
@@ -119,4 +133,6 @@ public class UI_Menu : UIControl
         textAdapter.text = $"{record}";
         Records.Save();
     }
+    public void ClearSelection()
+        => EventSystem.current.SetSelectedGameObject(null);
 }

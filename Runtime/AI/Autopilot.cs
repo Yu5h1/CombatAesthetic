@@ -19,6 +19,8 @@ namespace Yu5h1Lib.Game.Character
 
         public bool keepChasing;
 
+        public bool backToPatrolPoint;
+
         public float targetfoundWaitTime = 0.5f;
         public float targetLostWaitTime = 0.1f;
 
@@ -28,6 +30,8 @@ namespace Yu5h1Lib.Game.Character
         public string aimsolverName;
 
         public override System.Type GetBehaviourType() => typeof(Behaviour);
+
+        
 
         public class Behaviour : Behaviour2D<Autopilot>
         {
@@ -249,8 +253,8 @@ namespace Yu5h1Lib.Game.Character
             //}
             protected virtual void PatrolAreaAndScanning()
             {
-                //if (!patrol.WithinPatrolRange())
-                //    Teleporter.MoveCharacter(Body, patrol.offset);
+                if (data.backToPatrolPoint && !patrol.WithinPatrolRange() && !Body.teleportable.IsTeleporting)//&& !Teleporter.IsTeleporting(Body))
+                    Body.teleportable.TeleportTo(patrol.offset,0.5f);
 
                 if (patrol.IsAvailable())
                     movement = GetMovementFromGlobalDirection(patrol.GetDirection(Body.detector.CheckCliff(), OnNodeArrived)).normalized;

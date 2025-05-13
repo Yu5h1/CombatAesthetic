@@ -101,7 +101,7 @@ public class AttributeBehaviour : MonoBehaviour
     {
         attributes = AttributeType.Health;
     }
-    internal void Init()
+    public void Init()
     {
         Keys = attributes.SeparateFlags().Select(flag => $"{flag}").ToArray();
         if (stats.Length != Keys.Length)
@@ -113,10 +113,14 @@ public class AttributeBehaviour : MonoBehaviour
                     stats[i] = AttributeStat.Default;
         }
     }
-    private void OnEnable()
+    private void Start()
     {
         for (int i = 0; i < stats.Length; i++)
-            stats[i].Init();        
+            stats[i].Init();
+    }
+    private void OnEnable()
+    {
+       
     }
     void Update()
     {
@@ -141,7 +145,7 @@ public class AttributeBehaviour : MonoBehaviour
     /// <summary>
     /// Returns depleted attributeType. 
     /// </summary>
-    public AttributeType Affect(AttributeType attributeType, AffectType affectType, float amount)
+    public AttributeType Affect(AttributeType attributeType,AttributePropertyType propertyType, AffectType affectType, float amount)
     {
         affected = true;
         var DepletedTypes = AttributeType.None;
@@ -150,7 +154,7 @@ public class AttributeBehaviour : MonoBehaviour
             var index = Keys.IndexOf(flag.ToString());
             if (index < 0)
                 continue;
-            stats[index].Affect(affectType, amount);
+            stats[index].Affect(affectType, propertyType, amount);
             OnAffected(flag);
             if (stats[index].IsDepleted)
             {
@@ -160,11 +164,11 @@ public class AttributeBehaviour : MonoBehaviour
         }
         return DepletedTypes;
     }
-    public AttributeType Affect(AffectType affectType, params EnergyInfo[] infos)
+    public AttributeType Affect(AffectType affectType, AttributePropertyType propertyType, params EnergyInfo[] infos)
     {
         var DepletedTypes = AttributeType.None;
         foreach (var info in infos)
-            DepletedTypes |= Affect(info.attributeType, affectType, info.amount);
+            DepletedTypes |= Affect(info.attributeType, propertyType, affectType, info.amount);
         return DepletedTypes;
     }
     public void Refresh(AttributeType flag)

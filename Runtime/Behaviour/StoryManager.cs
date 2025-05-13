@@ -35,19 +35,20 @@ public class StoryManager : MonoBehaviour
             return false;
         var storyName = loadingStory;
         loadingStory = string.Empty;
-
-        if (Play(storyName))
+        if (Play(storyName,true))
         {
+            
             UI_Manager.instance.LoadingBackGround.enabled = !SceneController.Isloading;
             UI_Manager.instance.RemoveMenu();
             return true;
         }
         return false;
     }
-    public bool Play(string name)
+    public bool Play(string name,bool isLoading)
     {
         if ($"Story \"{name}\" does not exist.".printWarningIf(!story.animator.HasState(name)))
             return false;
+        story.camera.cullingMask = isLoading ? story.LoadingCullingMask : story.cullingMask;
         story.gameObject.SetActive(true);
         story.animator.Play(name,0,0);
         return true;

@@ -74,6 +74,15 @@ namespace Yu5h1Lib.Graphic2D
             return new Rect(minX, minY, maxX - minX, maxY - minY);
         }
 
+        public float DistanceToPoint(Vector2 p, out Vector2 projection)
+        {
+            Vector2 ab = end - begin;
+            Vector2 ap = p - begin;
+            float t = Mathf.Clamp01(Vector2.Dot(ap, ab) / ab.sqrMagnitude);
+            projection = begin + t * ab;
+            return Vector2.Distance(p, projection);
+        }
+
         /// <summary>
         /// Are bounding boxes intersecting
         /// </summary>

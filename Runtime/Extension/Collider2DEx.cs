@@ -110,9 +110,29 @@ namespace Yu5h1Lib
                 }
             }
         }
+        public static bool TryGetPath(this Collider2D collider,out Vector2[][] paths,bool worldSpace = false)
+        {
+            paths = new Vector2[0][];
+            if (collider == null) return false;
 
-        #region MyRegion
-
-        #endregion
+            switch (collider)
+            {
+                case CompositeCollider2D composite:
+                    paths = new Vector2[composite.pathCount][]; 
+                    for (int i = 0; i < paths.Length; i++)
+                    {
+                        paths[i] = new Vector2[composite.GetPathPointCount(i)];
+                        composite.GetPath(i, paths[i]);
+                    }
+                    break;
+            }
+            if (worldSpace)
+            {
+                for (int i = 0; i < paths.Length; i++)
+                    for (int j = 0; j < paths[i].Length; j++)
+                        paths[i][j] = collider.transform.TransformPoint(paths[i][j]);
+            }
+            return paths.Length > 0;
+        }
     } 
 }

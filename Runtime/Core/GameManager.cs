@@ -280,10 +280,13 @@ namespace Yu5h1Lib
         #endregion
         #region Static
 
-        public static void MovePlayer(Vector2 pos,Quaternion? rot = null)
+        public static void MovePlayer(Vector2 pos,Quaternion? rot = null,float fadeDuration = 0)
         {
-            if (Teleporter.MoveCharacter(instance.playerController, pos, rot) && CameraController.instance.follow)
+            if (instance.playerController.teleportable.TeleportTo(pos, fadeDuration, rot) && CameraController.instance.follow)
                 CameraController.instance.Focus(instance.playerController.transform);
+
+            //if (Teleporter.MoveCharacter(instance.playerController, pos, rot) && CameraController.instance.follow)
+            //    CameraController.instance.Focus(instance.playerController.transform);
         }
 
         #endregion
@@ -302,7 +305,10 @@ namespace Yu5h1Lib
         private void PlayerHealthDepleted(AttributeType flag)
         {
             if (flag.HasFlag(AttributeType.Health))
+            {
+                playerController.hurtBox.enabled = false;
                 (overridePlayerFailed ?? OnPlayerFailed).Invoke(playerController);
+            }
             //playerController.attribute.StatDepleted -= PlayerHealthDepleted;
         }
         private static void OnPlayerFailed(CharacterController2D player)

@@ -22,13 +22,16 @@ public class StoryHandler : BaseMonoBehaviour
     private VideoPlayer _player;
 
     [SerializeField]
+    public LayerMask cullingMask;
+    [SerializeField]
+    public LayerMask LoadingCullingMask;
+
+    [SerializeField]
     private UnityEvent onEnable;
 
-    
     private void Reset()
     {
         Init();
-        
     }
     protected override void OnInitializing()
     {
@@ -42,7 +45,6 @@ public class StoryHandler : BaseMonoBehaviour
             return true;
         });
     }
-
     private void OnEnable()
     {
         onEnable?.Invoke();

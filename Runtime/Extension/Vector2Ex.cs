@@ -17,44 +17,6 @@ namespace Yu5h1Lib
 
             return Vector2.Distance(point, projection);
         }
-
-        public static bool GetClosetLine(this Vector2 p, ref float minDistance, Vector2[] path,out Line result,out Vector2 proj)
-        {
-            proj = Vector2.zero;
-            result = default;
-            for (int i = 0; i < path.Length; i++)
-            {
-                Vector2 a = path[i];
-                Vector2 b = path[(i + 1) % path.Length]; 
-                Debug.DrawLine(a, b, Color.yellow);
-
-                float distance = ((Vector2)p).DistanceToLine(a, b, out proj);
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    result.begin = a;
-                    result.end = b;
-                    return true;
-                }
-            }
-            return false;
-        }
-        public static Line GetClosetLine(this Vector2 p, Vector2[][] paths,out Vector2 proj)
-        {
-            proj = Vector2.zero;
-            float minDistance = float.MaxValue;
-            Line result = default;
-            for (int i = 0; i < paths.Length; i++)
-            {
-                if (p.GetClosetLine(ref minDistance, paths[i], out Line found,out Vector2 projvalue))
-                {
-                    result = found;
-                    proj = projvalue;
-                }
-            }
-            return result;
-        }
-
         public static bool IsSameDirectionAs(this Vector2 vector, Vector2 other)
         {
             float dotProduct = vector.x * other.x + vector.y * other.y;
@@ -93,5 +55,73 @@ namespace Yu5h1Lib
             }
             return Quaternion.Euler(0, 0, degree);
         }
+
+        #region Line
+
+
+        //public static bool GetClosetLine(this Vector2 p, ref float minDistance, Vector2[] path, out Line result, out Vector2 proj)
+        //{
+        //    proj = Vector2.zero;
+        //    result = default;
+        //    for (int i = 0; i < path.Length; i++)
+        //    {
+        //        Vector2 a = path[i];
+        //        Vector2 b = path[(i + 1) % path.Length];
+        //        Debug.DrawLine(a, b, Color.yellow);
+
+        //        float distance = ((Vector2)p).DistanceToLine(a, b, out proj);
+        //        if (distance < minDistance)
+        //        {
+        //            minDistance = distance;
+        //            result.begin = a;
+        //            result.end = b;
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
+        //public static Line GetClosetLine(this Vector2[][] paths,Vector2 p, out Vector2 proj, float minDistance = float.MaxValue)
+        //{
+        //    proj = Vector2.zero;
+        //    Line result = default;
+        //    for (int i = 0; i < paths.Length; i++)
+        //    {
+        //        if (p.GetClosetLine(ref minDistance, paths[i], out Line found, out Vector2 projvalue))
+        //        {
+        //            result = found;
+        //            proj = projvalue;
+        //        }
+        //    }
+        //    return result;
+        //}
+
+        public static bool TryGetClosetLine(this Vector2[][] paths,Vector2 p,out Line result,out Vector2 proj, float minDistance = float.MaxValue)
+        {
+            result = default;
+            proj = default;
+            var closestDistanceFound = minDistance;
+            for (int i = 0; i < paths.Length; i++)
+            {
+                var path = paths[i];
+
+                if (path.IsEmpty() || path.Length <= 1) continue;
+
+                for (int j = 0; j < path.Length; j++)
+                {
+                    var line = new Line(path[j], path[(j + 1) % path.Length]);
+                    Debug.DrawLine(line.begin, line.end, Color.yellow);                    
+                    float distance = line.DistanceToPoint(p, out Vector2 currentproj);
+                    if (distance < closestDistanceFound)
+                    {
+                        closestDistanceFound = distance;
+                        result = line;
+                        proj = currentproj;
+                    }
+                }
+            }
+            return closestDistanceFound < minDistance;
+        }
+
+        #endregion
     } 
 }

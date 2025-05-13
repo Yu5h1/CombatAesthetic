@@ -68,8 +68,9 @@ IsGrounded: {contoller.IsGrounded}
 Floatable:{contoller.Floatable}
 GravityDirection:{contoller.gravityDirection},
 eulerAngles:{contoller.transform.eulerAngles},
-forward:{contoller.transform.forward}
-forward.z:{contoller.transform.forward.z}
+forward:{contoller.transform.forward},
+forward.z:{contoller.transform.forward.z},
+IsTeleporting:{contoller.teleportable.IsTeleporting}
 ", MessageType.Info); //FallingTimeElapsed: { contoller.FallingTimeElapsed}
         }
         this.Iterate(OnDrawProperty, BeginDrawProperty);

@@ -17,7 +17,7 @@ namespace Yu5h1Lib.Game.Character
         {
             if (!enable || !IsReady || !owner.underControl)
                 return OnActivated(false);
-            owner.attribute.Affect(AffectType.NEGATIVE, data.costs);
+            owner.attribute.Affect(AffectType.NEGATIVE, AttributePropertyType.Current, data.costs);
             return OnActivated(true);
         }
         protected virtual bool OnActivated(bool successed) => successed;

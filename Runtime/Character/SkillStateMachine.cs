@@ -20,7 +20,7 @@ namespace Yu5h1Lib.Game.Character
             protected bool keepholding;
 
             protected virtual AttributeType Activating()
-                => owner.attribute.Affect(AffectType.NEGATIVE, data.ExcutingCosts);
+                => owner.attribute.Affect(AffectType.NEGATIVE,AttributePropertyType.Current, data.ExcutingCosts);
 
             protected override bool UpdateInput(bool down, bool hold, bool release)
             {

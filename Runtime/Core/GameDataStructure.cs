@@ -23,7 +23,23 @@ public struct AttributeStat
         this.max = max;
         Init();
     }
-    public void Affect(AffectType affectType, float amount) => current += amount * (int)affectType;
+    public void Affect(AffectType affectType, AttributePropertyType propertyType, float amount)
+    {
+        switch (propertyType)
+        {
+            case AttributePropertyType.Max:
+                max += amount * (int)affectType;
+                break;
+            case AttributePropertyType.Current:
+                current += amount * (int)affectType;
+                break;
+            case AttributePropertyType.RegenRate:
+                recovery += amount * (int)affectType;
+                break;
+            default:
+                break;
+        }
+    } 
     public override string ToString() => $"{current}";
 }
 //[System.Serializable]
@@ -51,6 +67,12 @@ public enum AttributeType
     Yellow     = 1 << 4,
     Blue       = 1 << 5,
     //All        = Health | Mana | Stamina
+}
+public enum AttributePropertyType
+{
+    Max,
+    Current,
+    RegenRate
 }
 public enum AffectType
 {

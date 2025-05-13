@@ -29,6 +29,7 @@ public class Teleporter : PlayerEvent2D
     [ReadOnly]
     public List<Collider2D> ignores = new List<Collider2D>();
 
+    public float fadeDuration;
     private void Reset()
     {
         destination = transform.position + new Vector3(1,1,0);
@@ -69,14 +70,14 @@ public class Teleporter : PlayerEvent2D
             {
                 TeleporterExit.ignores.Add(other);
                 if (other.CompareTag("Player"))
-                    GameManager.MovePlayer(TeleporterExit.destination);
+                    GameManager.MovePlayer(TeleporterExit.destination, fadeDuration: fadeDuration);
                 else
                     other.transform.position = TeleporterExit.transform.position;
             }
             else
             {
                 if (other.CompareTag("Player"))
-                    GameManager.MovePlayer(destination);
+                    GameManager.MovePlayer(destination,fadeDuration: fadeDuration);
                 else
                     other.transform.position = destination;
             }
@@ -99,22 +100,24 @@ public class Teleporter : PlayerEvent2D
     private void ResetDestination() => destination = transform.position;
     #endregion
 
-    private static HashSet<CharacterController2D> teleportingCharacters = new HashSet<CharacterController2D>();
-    public static bool MoveCharacter(CharacterController2D character, Vector2 pos, Quaternion? rot = null)
-    {
-        if (!character || !character.gameObject.IsBelongToActiveScene())
-            return false;
-        teleportingCharacters.Add(character);
-        character.rigidbody.simulated = false;
-        character.transform.position = pos;
-        if (rot != null)
-            character.transform.rotation = rot.Value;
-        character.rigidbody.simulated = true;
-        teleportingCharacters.Remove(character);
+    //private static HashSet<CharacterController2D> teleportingCharacters = new HashSet<CharacterController2D>();
+    //public static bool MoveCharacter(CharacterController2D character, Vector2 pos, Quaternion? rot = null)
+    //{
+    //    if (!character || !character.gameObject.IsBelongToActiveScene())
+    //        return false;
+    //    teleportingCharacters.Add(character);
+    //    character.rigidbody.simulated = false;
+    //    character.transform.position = pos;
+    //    if (rot != null)
+    //        character.transform.rotation = rot.Value;
+    //    character.rigidbody.simulated = true;
+    //    teleportingCharacters.Remove(character);
         
-        return true;
-    }    
-    public static bool IsTeleporting(CharacterController2D character) => teleportingCharacters.Contains(character);
-    public static bool IsTeleporting(Transform t) => teleportingCharacters.Any(c => c.transform == t);
+    //    return true;
+    //}    
+
+    
+    //public static bool IsTeleporting(CharacterController2D character) => teleportingCharacters.Contains(character);
+    //public static bool IsTeleporting(Transform t) => teleportingCharacters.Any(c => c.transform == t);
 
 }

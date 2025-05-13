@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 
 namespace Yu5h1Lib.Game.Character {
     [CreateAssetMenu(menuName = "Scriptable Objects/PlayerInput")]
@@ -42,7 +41,7 @@ namespace Yu5h1Lib.Game.Character {
                     y = input.GetAxisRaw("Jump");
 
                 #region Jump
-                if (input.GetButtonDown("Vertical") || input.GetButtonDown("Jump"))
+                if (y > 0)
                     Body.TriggerJump = true;
                 #endregion
 

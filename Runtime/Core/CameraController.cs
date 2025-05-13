@@ -233,22 +233,61 @@ public class CameraController : SingletonBehaviour<CameraController>
         foreach (var renderer in SortingLayerSprites.Values)
             SetSpriteSizeByProjection(renderer, bg_depth, width, height);
     }
-    public void FitSpriteWithProjection(SpriteRenderer renderer,float depth,float scaleMultiplier = 1)
+     public void FitSpriteWithProjection(SpriteRenderer renderer,float depth)
     {
         float width = 0, height = 0;
         if (camera.orthographic)
         {
             camera.GetOrthographicSize(out width, out height);
-            SetSpriteSizeByProjection(renderer,depth, width, height, scaleMultiplier);
+            SetSpriteSizeByProjection(renderer,depth, width, height);
         }
         else
         {
             camera.GetPerspectiveSize(depth, out width, out height);
-            SetSpriteSizeByProjection(renderer,depth,width,height, scaleMultiplier);
+            SetSpriteSizeByProjection(renderer,depth,width,height);
+        }
+    }
+    public void SetSpriteSizeByProjection(SpriteRenderer renderer, float depth,float width,float height)
+    {
+        if (camera.orthographic)
+            renderer.transform.localScale = new Vector3(width + 1, height + 1, 1);
+        else
+        {
+            var sSize = renderer.sprite.bounds.size;
+            Vector3 newScale = renderer.transform.localScale;
+            newScale.x = width / sSize.x;
+            newScale.y = height / sSize.y;
+            renderer.transform.localScale = newScale;
+        }
+        if (renderer.transform.parent == transform)
+        {
+            var p = renderer.transform.localPosition;
+            p.z = depth;
+            renderer.transform.localPosition = p;
+        }
+        else
+        {
+            renderer.transform.rotation = transform.rotation;
+            renderer.transform.position = transform.TransformPoint(0, 0, depth);
+        }
+    }
+
+    public void FitSpriteWithProjection(SpriteRenderer renderer, float depth, float scaleMultiplier)
+    {
+        float width = 0, height = 0;
+        if (camera.orthographic)
+        {
+            camera.GetOrthographicSize(out width, out height);
+            SetSpriteSizeByProjection(renderer, depth, width, height, scaleMultiplier);
+        }
+        else
+        {
+            camera.GetPerspectiveSize(depth, out width, out height);
+            SetSpriteSizeByProjection(renderer, depth, width, height, scaleMultiplier);
         }
     }
     public void SetSpriteSizeByProjection(SpriteRenderer renderer, float depth, float width, float height,
-        float scaleMultiplier = 1)
+        float scaleMultiplier )
     {
         if (renderer == null || renderer.sprite == null)
             return;
@@ -289,6 +328,7 @@ public class CameraController : SingletonBehaviour<CameraController>
             renderer.transform.position = pos;
         }
     }
+
 
 
 

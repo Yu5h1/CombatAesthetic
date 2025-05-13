@@ -26,7 +26,7 @@ public abstract class BaseEvent2D : BaseMonoBehaviour
      => GameManager.storyManager.loadingStory = name;
 
     public void PlayStory(string name)
-        => GameManager.storyManager.Play(name);
+        => GameManager.storyManager.Play(name,false);
 
     #region GameManager
 
