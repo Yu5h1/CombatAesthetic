@@ -12,7 +12,7 @@ namespace Yu5h1Lib.Game.Character
         #endregion
         public const string MovingPlatformTag = "MovingPlatform";
 
-        public bool IsValid() => collider && enabled;
+        public bool IsValid() => collider && IsAvailable();
         #region Ground detection parameters
         public RaycastHit2D groundHit { get; private set; }
         private bool _IsGrounded;
@@ -47,14 +47,20 @@ namespace Yu5h1Lib.Game.Character
 
         public Vector3 startupScale  { get; private set; }
 
-        protected override void OnInitializing()
+
+        protected override void Reset()
         {
-            base.OnInitializing();
+            base.Reset();
             filter = new ContactFilter2D()
             {
                 useLayerMask = true,
                 layerMask = PhysicsObject | GravitationalObject
             };
+        }
+        protected override void OnInitializing()
+        {
+            base.OnInitializing();
+   
             if (!collider && TryGetComponent(out CapsuleCollider2D c))
                 collider = c;
             ignoreSiblingColliders = true;
@@ -113,19 +119,35 @@ namespace Yu5h1Lib.Game.Character
             groundHit = default(RaycastHit2D);
             IsGrounded = false;
         }
-        #region WIP
-        public void CheckForward()
-        {
-            if (!collider)
-                return;
 
-        }
-        public void CheckMomentum()
+        RaycastHit2D[] obstacleResults = new RaycastHit2D[5];
+
+        [SerializeField]
+        private bool detectExcludedObstacle = true;
+        public bool CheckAndSlideAgainstObstacle(ref Vector2 velocity)
         {
-            
+            if (!detectExcludedObstacle || velocity.sqrMagnitude <= 0.0001f)
+                return false;
+
+            Vector2 direction = velocity.normalized;
+
+            int hitCount = rigidbody.Cast(direction, filter,obstacleResults, (velocity.magnitude * Time.fixedDeltaTime) + distance);
+            for (int i = 0; i < hitCount; i++)
+            {
+                RaycastHit2D hit = obstacleResults[i];
+                if (!hit.collider.excludeLayers.Contains(rigidbody.gameObject.layer))
+                    continue;
+                var dot = Vector2.Dot(velocity.normalized, hit.normal);
+                if (dot < 0)
+                {
+                    Vector2 slideDir = velocity - Vector2.Dot(velocity, hit.normal) * hit.normal;
+                    velocity = slideDir;
+                    return true;
+            }
         }
 
-        #endregion
+            return false;
+        }
         public void CheckGround(Vector2 direction)
         {
             // floating

@@ -278,20 +278,13 @@ namespace Yu5h1Lib.Game.Character
             PerformDetection();
             ProcessMovement();
         }
-        private void OnCollisionStay2D(Collision2D collision)
-        {
-            
-        }
-        //public virtual void PauseStateChange(bool paused) {
-
-            
-        //}
         protected void PerformDetection()
         {
             if (!detector.IsValid())
                 return;
             if (!Floatable)
                 detector.CheckGround(down);
+            
         }
         [ContextMenu("AddForce Test")]
         public void AddForceTest()

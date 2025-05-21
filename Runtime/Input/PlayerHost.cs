@@ -41,7 +41,7 @@ namespace Yu5h1Lib.Game.Character {
                     y = input.GetAxisRaw("Jump");
 
                 #region Jump
-                if (y > 0)
+                if (y > 0 && Body.InputMovement.y == 0)
                     Body.TriggerJump = true;
                 #endregion
 

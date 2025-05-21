@@ -230,6 +230,11 @@ namespace Yu5h1Lib.Game.Character
                     velocity = (Vector2)transform.TransformDirection(momentum) + gforce;
                 else
                     velocity += gforce;
+
+                var v = velocity;
+                if (detector.CheckAndSlideAgainstObstacle(ref v))
+                    velocity = v;
+
             }
             
 
