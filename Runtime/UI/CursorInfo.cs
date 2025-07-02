@@ -36,10 +36,10 @@ public class CursorInfo
             case Alignment.Bottom: return new Vector2(cursorTexture.width / 2, cursorTexture.height);
             case Alignment.Left: return new Vector2(0, cursorTexture.height/2);
             case Alignment.Right: return new Vector2(cursorTexture.width, cursorTexture.height / 2);
-            case Alignment.Top_Left: return new Vector2(0, 0);
-            case Alignment.Top_Right: return new Vector2(cursorTexture.width, 0);
-            case Alignment.Bottom_Left: return new Vector2(0, cursorTexture.height);
-            case Alignment.Bottom_Right: return new Vector2(cursorTexture.width, cursorTexture.height);
+            case Alignment.TopLeft: return new Vector2(0, 0);
+            case Alignment.TopRight: return new Vector2(cursorTexture.width, 0);
+            case Alignment.BottomLeft: return new Vector2(0, cursorTexture.height);
+            case Alignment.BottomRight: return new Vector2(cursorTexture.width, cursorTexture.height);
             case Alignment.Center: return new Vector2(cursorTexture.width / 2, cursorTexture.height / 2);
             default: return new Vector2(0, 0);
         }
