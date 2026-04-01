@@ -26,7 +26,7 @@ public class Dialog : MonoBehaviour
         GameManager.SetPlayerControllable(false);
         if (delay > 0)
             yield return new WaitForSeconds(delay);
-        GameManager.ui_Manager.Dialog_UI.Perform(content,0,speed);
+        GameManager.ui_Manager.Dialog_UI.Perform(content,false,0,speed);
         yield return new WaitUntil(GameManager.NotSpeaking);
         ConversationOver?.Invoke();
         GameManager.SetPlayerControllable(true);

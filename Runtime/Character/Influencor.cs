@@ -42,7 +42,7 @@ public class Influencor : BaseMonoBehaviour
             if (TryGetComponent(out ImpactForce2D impactor)){
                 controller.HitFrom(impactor.force, true, false);
             }else
-                controller.HitFrom(TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.velocity : -controller.velocity,false , true);
+                controller.HitFrom(TryGetComponent(out Rigidbody2D rigidbody) ? rigidbody.linearVelocity : -controller.velocity,false , true);
         }
     }
     public void Affect(CharacterController2D other)

@@ -31,7 +31,7 @@ public class ColliderDetector2DEditor : Editor<ColliderDetector2D>
             return;
         if (!collider || !rigidbody)
             return;
-        Handles.Label(infoOffset+targetObject.top,$"velocity:{rigidbody.velocity}");
+        Handles.Label(infoOffset+targetObject.top,$"velocity:{targetObject.velocity}");
 
         //Handles.DotHandleCap(0, targetObject.front, Quaternion.identity, 0.05f, EventType.Repaint);
         

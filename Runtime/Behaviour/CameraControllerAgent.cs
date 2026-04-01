@@ -40,7 +40,7 @@ public class CameraControllerAgent : MonoBehaviour
     }
     private static void InvokeAllPerformanceEndEvents()
     {
-        foreach (var agent in GameObject.FindObjectsOfType<CameraControllerAgent>(true))
+        foreach (var agent in GameObject.FindObjectsByType<CameraControllerAgent>(FindObjectsInactive.Include,FindObjectsSortMode.None))
             agent._performanceEnd?.Invoke();
     }
 

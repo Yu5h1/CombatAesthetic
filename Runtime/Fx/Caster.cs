@@ -22,7 +22,7 @@ public class Caster : BaseMonoBehaviour
     [Serializable]
     public class Info
     {
-        [AutoFill(typeof(AutoFillResources), "Fx")]
+        [AutoFill("Resources/Fx")]
         public string source;
         public TargetingMode targetingMode;
         public Direction2D direction = Direction2D.right;

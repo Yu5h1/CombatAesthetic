@@ -284,7 +284,7 @@ public class UI_Manager : MonoBehaviour
     /// <summary>
     /// TryFindGetInstantiateFromResourecsIfNull_UI
     /// </summary>
-    private T Build<T>(string n, ref T result) where T : Object
+    private T Build<T>(string n, ref T result) where T : Component
     {
         if (result)
             return result;
@@ -297,7 +297,7 @@ public class UI_Manager : MonoBehaviour
             var gobj = result switch
             {
                 Component component => component.gameObject,
-                GameObject obj => obj,
+                //GameObject obj => obj,
                 _ => null
             };           
             gobj.SetActive(false);

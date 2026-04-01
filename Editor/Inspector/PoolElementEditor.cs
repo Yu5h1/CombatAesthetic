@@ -7,13 +7,10 @@ public class PoolElementEditor : Editor<PoolElementHandler>
 {
     public override void OnInspectorGUI()
     {
-        this.Iterate(OnProperty, BeginDrawProperty);
+        this.Iterate(OnProperty, null);
 
     }
-    private void BeginDrawProperty()
-    {
-        
-    }
+ 
     public void OnProperty(SerializedProperty property)
     {
         if (property.name == "element")

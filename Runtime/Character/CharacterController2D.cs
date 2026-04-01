@@ -177,13 +177,13 @@ namespace Yu5h1Lib.Game.Character
         private Vector2 _velocity;
         public override Vector2 velocity
         {
-            get => UseCustomVelocity ? _velocity : rigidbody.velocity;
+            get => UseCustomVelocity ? _velocity : base.velocity;
             protected set
             {
                 if (UseCustomVelocity)
                     _velocity = value;
                 else
-                    rigidbody.velocity = value;
+                    base.velocity = value;
 
                 if (velocity.y > 0 || Mathf.Approximately(velocity.y, 0))
                 {

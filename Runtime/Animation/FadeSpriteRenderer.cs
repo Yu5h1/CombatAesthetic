@@ -23,7 +23,7 @@ public class FadeSpriteRenderer : BaseMonoBehaviour
     public void SetSpriteRenderersAlpha(float alpha)
     {
         for (int i = 0; i < spriteRenderers.Length; i++)
-            spriteRenderers[i].color = spriteRenderers[i].color.ChangeAlpha(alpha);
+            spriteRenderers[i].color = spriteRenderers[i].color.SetAlpha(alpha);
     }
 
     public void FadeIn()

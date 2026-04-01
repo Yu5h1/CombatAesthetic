@@ -7,7 +7,7 @@ namespace Yu5h1Lib
     {
         public static void Reset(this Rigidbody2D rb, Vector2? pos = null, float? rot = null)
         {
-            rb.velocity = Vector2.zero;          
+            rb.linearVelocity = Vector2.zero;          
             rb.angularVelocity = 0f;             
             rb.simulated = false;                
             rb.simulated = true;                 

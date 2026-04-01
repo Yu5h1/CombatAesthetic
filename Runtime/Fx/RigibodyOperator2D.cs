@@ -8,28 +8,28 @@ public class RigibodyOperator2D : Rigidbody2DBehaviour
 {
     public void Stop()
     {
-        rigidbody.velocity = Vector3.zero;
+        velocity = Vector3.zero;
         rigidbody.angularVelocity = 0;
     }
     public void SetVelocity(Vector2 v)
     {
-        rigidbody.velocity = transform.TransformDirection(v);
+        velocity = transform.TransformDirection(v);
     }
     public void AddVelocityX(float X)
     {
-        rigidbody.velocity += (Vector2)transform.TransformDirection(new Vector3(X,0,0));
+        velocity += (Vector2)transform.TransformDirection(new Vector3(X,0,0));
     }
     public void AddVelocityY(float Y)
     {
-        rigidbody.velocity += (Vector2)transform.TransformDirection(new Vector3(0, Y, 0));
+        velocity += (Vector2)transform.TransformDirection(new Vector3(0, Y, 0));
     }
     public void SetVelocityX(float X)
     {
-        rigidbody.velocity = (Vector2)transform.TransformDirection(new Vector3(X, 0, 0));
+        velocity = (Vector2)transform.TransformDirection(new Vector3(X, 0, 0));
     }
     public void SetVelocityY(float Y)
     {
-        rigidbody.velocity = (Vector2)transform.TransformDirection(new Vector3(0, Y, 0));
+        velocity = (Vector2)transform.TransformDirection(new Vector3(0, Y, 0));
     }
     public void AddForceToContacts()
     {
@@ -40,12 +40,12 @@ public class RigibodyOperator2D : Rigidbody2DBehaviour
         {
             if (colliders[i].TryGetComponent(out AnimatorCharacterController2D controller))
             {
-                controller.AddForce(rigidbody.velocity);
+                controller.AddForce(velocity);
                 Debug.Log($"{controller.name} add force by rigibodyOperator");
             }
             else if (colliders[i].TryGetComponent(out Rigidbody2D otherRigidbody) && otherRigidbody.transform.root != transform.root)
             {
-                otherRigidbody.AddForce(rigidbody.velocity);
+                otherRigidbody.AddForce(velocity);
             }
         }
     }

@@ -24,7 +24,7 @@ namespace Yu5h1Lib.Game.Character
         public float targetfoundWaitTime = 0.5f;
         public float targetLostWaitTime = 0.1f;
 
-        [AutoFill(typeof(AutoFillResources), "Texture","*png|*.jpg|*.bmp")]
+        [AutoFill("Resources/Texutre/*png|*.jpg|*.bmp")]
         public string exclamationMark = "exclamation mark";
 
         public string aimsolverName;

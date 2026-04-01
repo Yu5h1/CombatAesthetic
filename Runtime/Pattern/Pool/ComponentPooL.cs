@@ -17,7 +17,7 @@ namespace Yu5h1Lib
         {
             public int PrepareCount;
             public int Capacity;
-            public static Config Default => new Config() { PrepareCount = 2, Capacity = 5 };
+            public static Config Default => new Config() { PrepareCount = 1, Capacity = 3 };
         }
         public string Name;
 

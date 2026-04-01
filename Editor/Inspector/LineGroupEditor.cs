@@ -26,8 +26,4 @@ public class LineGroupEditor : Editor<LineGroup>
                 if (l.IsAvailable())
                     l.Refresh();
     }
-    private void OnDisable()
-    {
-
-    }
 }

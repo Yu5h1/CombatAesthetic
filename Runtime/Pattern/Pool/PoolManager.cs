@@ -2,7 +2,7 @@ using Type = System.Type;
 using System.Collections.Generic;
 using UnityEngine;
 using Yu5h1Lib;
-using Source = UnityEngine.Component;
+using uComponent = UnityEngine.Component;
 using System.IO;
 using System;
 
@@ -54,20 +54,20 @@ public class PoolManager : SingletonBehaviour<PoolManager>
         }
     }
 
-    private Dictionary<Source, ComponentPool> _pools;
-    public static Dictionary<Source, ComponentPool> pools
+    private Dictionary<uComponent, ComponentPool> _pools;
+    public static Dictionary<uComponent, ComponentPool> pools
     {
         get
         {
             if (instance._pools == null)
-                instance._pools = new Dictionary<Source, ComponentPool>();
+                instance._pools = new Dictionary<uComponent, ComponentPool>();
             return instance._pools;
         }
     }
 
-    public static Dictionary<Type, Source> TypeMaps { get; private set; } = new Dictionary<Type, Source>();
-    public static Dictionary<string, Source> NameMaps { get; private set; } = new Dictionary<string, Source>();
-    public static Dictionary<Component, Source> element_source_Maps { get; private set; } = new Dictionary<Source, Source>();
+    public static Dictionary<Type, uComponent> TypeMaps { get; private set; } = new Dictionary<Type, uComponent>();
+    public static Dictionary<string, uComponent> NameMaps { get; private set; } = new Dictionary<string, uComponent>();
+    public static Dictionary<Component, uComponent> element_source_Maps { get; private set; } = new Dictionary<uComponent, uComponent>();
 
     public void PrepareFromResourece(string folderName)
     {
@@ -77,13 +77,13 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     public bool TryPrepareFromResourece(string folderName,string item,Action<ComponentPool> onCreated)
         => Add(Resources.Load<Transform>(PathInfo.Combine(folderName, item)), ComponentPool.Config.Default, onCreated) != null;
 
-    public static bool ExistsKey(Source source) => pools.ContainsKey(source);
+    public static bool ExistsKey(uComponent source) => pools.ContainsKey(source);
     public static bool Exists(Type type) => TypeMaps.ContainsKey(type);
     public static bool Exists<T>() => Exists(typeof(T));
     public static bool Exists(string name) => NameMaps.ContainsKey(name);
     public static bool ExistsSource(Component element) => element_source_Maps.ContainsKey(element);
 
-    public static T Spawn<T>(Source key, Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion), Transform parent = null) where T : Component
+    public static T Spawn<T>(uComponent key, Vector3 position = default(Vector3), Quaternion rotation = default(Quaternion), Transform parent = null) where T : Component
     {
         if (!ExistsKey(key))
             throw new System.InvalidOperationException($"No Pool with source:{key} can be found.");
@@ -102,7 +102,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
             throw new System.InvalidOperationException($"TypePool({typeof(T).Name}) does not exist.");
         return Spawn<T>(TypeMaps[typeof(T)], position, rotation, parent);
     }
-    public static void Despawn(Component element,Source source)
+    public static void Despawn(Component element,uComponent source)
     {
         if (source == null)
             throw new System.NullReferenceException("PoolManager Despawn Failed ! source was undefined. ");
@@ -120,7 +120,7 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     }
     public static ComponentPool Add<T>(T source, ComponentPool.Config config,Action<ComponentPool> onCreated = null) where T : Component
     {
-        if ($"Creating Zero Capacity Pool({source})".printWarningIf(config.Capacity == 0))
+        if ($"Creating Zero Capacity Pool({source})".printErrorIf(config.Capacity == 0))
             return null;
         if ("It doesn't make sense to create a pool for null source".printWarningIf(source == null))
             return null;
@@ -135,9 +135,17 @@ public class PoolManager : SingletonBehaviour<PoolManager>
     }
     public static ComponentPool Add<T>(ComponentPool.Config config) where T : Component
     {
-        var typeName = typeof(T).Name;
+        var t = typeof(T);
+        var typeName = t.Name;
         if ($"{typeName} already exists.".printWarningIf(Exists(typeof(T))))
-            return pools[TypeMaps[typeof(T)]];
+        {
+            var c = TypeMaps[t];
+            if (pools.ContainsKey(c))
+                return pools[c];
+            else
+                $"Maps[{t}] Component not found!".printWarning();
+        }
+            
         var source = GameObjectUtility.Create<T>();
         var pool = Add(source, config);
         TypeMaps.Add(typeof(T), source);

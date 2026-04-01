@@ -57,9 +57,9 @@ public class RouteTracerEditor : Editor<RouteTracer>
             targetObject.ResetOffset();
         targetObject.route.Handle(target, ref selectedIndex, ref IsDragging, targetObject.next,targetObject.offset);
     }
- 
-    protected void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         if (!EditorApplication.isPlaying && OriginalPosition != null)
             targetObject.transform.localPosition = (Vector3)OriginalPosition;
     }

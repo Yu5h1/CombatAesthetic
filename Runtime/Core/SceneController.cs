@@ -168,7 +168,7 @@ public class SceneController : SingletonBehaviour<SceneController>
         }
         System.GC.Collect();
 
-        var preloadables = Object.FindObjectsOfType<MonoBehaviour>().Where( b=>b is IPreloadable).Cast<IPreloadable>().ToArray();
+        var preloadables = Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include,FindObjectsSortMode.None).Where( b=>b is IPreloadable).Cast<IPreloadable>().ToArray();
         
         for (int i = 0; i < preloadables.Length; i++)
         {

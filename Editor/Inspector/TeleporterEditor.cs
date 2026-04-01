@@ -43,7 +43,7 @@ public class TeleportEditor : Editor<Teleporter> {
 
     private static void FindTeleporters() {
         Teleporters.Clear();
-        Teleporters.AddRange(GameObject.FindObjectsOfType<Teleporter>());
+        Teleporters.AddRange(GameObject.FindObjectsByType<Teleporter>(FindObjectsInactive.Exclude,FindObjectsSortMode.None));
     }
 
     private static void OnSceneGUI(SceneView view)
@@ -56,7 +56,7 @@ public class TeleportEditor : Editor<Teleporter> {
                 Teleporters.RemoveAt(i);
             else if (current != Teleporters[i])
                 foreach (var collider2D in Teleporters[i].GetComponents<Collider2D>())
-                    collider2D.DrawHandles(Color.cyan.ChangeAlpha(0.5f), HandleStyle.Button);
+                    collider2D.DrawHandles(Color.cyan.SetAlpha(0.5f), HandleStyle.Button);
         }
     }
     [MenuItem("CONTEXT/Teleporter/Show all handles")]
@@ -104,8 +104,9 @@ public class TeleportEditor : Editor<Teleporter> {
         }
             
     }
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
       current = null;
     }
 };

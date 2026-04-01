@@ -39,7 +39,7 @@ public class MiniMap : MonoBehaviour
     public TagInfo[] Tags;
 
     public ComponentPool imgPool { get; private set; }
-    public ComponentPool.Config polConfig;
+    public ComponentPool.Config polConfig = ComponentPool.Config.Default;
 
     [SerializeField]
     private float _SizeMultiplier = 1;

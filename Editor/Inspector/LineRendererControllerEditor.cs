@@ -18,20 +18,21 @@ public class LineRendererControllerEditor : Editor<LineRendererController> {
     {
 
         //DrawDefaultInspector();
-        this.Iterate(DrawProperty, BeginDrawProperty);
+        this.Iterate(DrawProperty,null);
     }
     private void BeginDrawProperty()
     {
 
     }
-    private void DrawProperty( SerializedProperty property)
+    public override void DrawProperty(SerializedProperty property)
     {
+
         if (property.name == $"_{IsConnectingName}")
         {
             targetObject.IsConnecting = EditorGUILayout.Toggle(IsConnectingName, targetObject.IsConnecting);
         }
         else
-            EditorGUILayout.PropertyField(property,true);
+            base.DrawProperty(property);
     }
     private void OnSceneGUI()
     {

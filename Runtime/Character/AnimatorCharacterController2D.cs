@@ -64,7 +64,7 @@ namespace Yu5h1Lib.Game.Character
                 attribute.StatDepleted += OnStatDepleted;
 
             this.GetComponent(ref _animator);
-            animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
+            animator.updateMode = AnimatorUpdateMode.Fixed;
 
             #region initialize State machine behaviour
             foreach (var item in animator.GetBehaviours<BaseCharacterSMB>())

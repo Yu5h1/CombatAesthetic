@@ -75,7 +75,7 @@ IsTeleporting:{contoller.teleportable.IsTeleporting}
         }
         this.Iterate(OnDrawProperty, BeginDrawProperty);
     }
-    void BeginDrawProperty()
+    void BeginDrawProperty(SerializedProperty firstProp)
     {
         using (new EditorGUI.DisabledGroupScope(true))
         {
