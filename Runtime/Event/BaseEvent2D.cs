@@ -38,16 +38,16 @@ public abstract class BaseEvent2D : BaseMonoBehaviour
     #region animated
     Coroutine SetActiveCoroutine;
     public void Deactivate(float delay)
-        => this.StartCoroutine(ref SetActiveCoroutine, DelaySetActive(delay, false));
+        => this.DelayInvoke(ref SetActiveCoroutine, Deactivate, delay);
+
     public void Activate(float delay)
-        => this.StartCoroutine(ref SetActiveCoroutine, DelaySetActive(delay, true));
-    private IEnumerator DelaySetActive(float delay, bool active)
-    {
-        if (delay > 0)
-            yield return new WaitForSeconds(delay);
-        gameObject.SetActive(active);
-    } 
+        => this.DelayInvoke(ref SetActiveCoroutine, Activate, delay);
+
+    private void Activate() => gameObject.SetActive(true);
+    private void Deactivate() => gameObject.SetActive(false);
+
+
     #endregion
 
-    
+
 }

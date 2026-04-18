@@ -16,10 +16,8 @@ public class Collider2DAide : MonoBehaviour
     private Tags ignoreCollisionByTags;
     private void Start()
     {
-        if (_collider)
-            foreach (var obj in ignoreCollisionByTags.FindMatchedGameObjects())
-                foreach (var col in obj.GetComponents<Collider2D>())
-                    Physics2D.IgnoreCollision(collider,col);
+        //ignoreCollisionByTags.
+        ignoreCollisionByTags.IgnoreCollisionWith(collider);
     }
 
  

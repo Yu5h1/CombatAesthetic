@@ -8,7 +8,9 @@
     "com.unity.feature.2d": "1.0.0",
     "com.unity.inputsystem": "1.7.0",
     "com.unity.textmeshpro": "3.0.6",
-    "com.yu5h1.library": "1.0.1"
+    "com.yu5h1.library": "1.0.1",
+    "com.yu5h1.common": "1.0.0",
+    "com.yu5h1.2d": "0.1.0"
   },
   "keywords": [
     "GameSystem",
@@ -16,7 +18,7 @@
   ],
   "author": {
     "name": "Yu5h1",
-    "email": "jenyu5h10415@gmail.com",
-    "url": "https://github.com/Yu5h1"
+    "url": "https://github.com/Yu5h1",
+    "email": "jenyu5h10415@gmail.com"
   }
 }
