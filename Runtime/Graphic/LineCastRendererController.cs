@@ -8,7 +8,7 @@ using Yu5h1Lib.Runtime;
 
 namespace Yu5h1Lib
 {
-    public class LineCastRendererController : LineRendererController
+    public class LineCastRendererController : LineRendererController2D
     {
         [SerializeField, Range(0, 10)]
         private int segmentsPerSegment = 5;

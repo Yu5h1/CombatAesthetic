@@ -199,7 +199,6 @@ public class SceneController : SingletonBehaviour<SceneController>
     private static void OnSceneUnloaded(Scene scene) => UnloadSingleton();
     public static void UnloadSingleton()
     {
-        KeyCodeEventManager.RemoveInstanceCache();
         CameraController.RemoveInstanceCache();
         PoolManager.RemoveInstanceCache();
         RemoveInstanceCache();
