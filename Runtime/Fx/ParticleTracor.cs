@@ -1,8 +1,7 @@
-using System;
-using Unity.Collections;
+using Yu5h1Lib;
 using UnityEngine;
 
-public class ParticleTracor : BaseParticleSystemBehaviour
+public class ParticleTracor : ParticleSystemControllerBase
 {
     public Transform target;
     [Range(0.1f, 1f)]

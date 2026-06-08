@@ -134,9 +134,9 @@ public class Caster : BaseMonoBehaviour
             Where( c => c.IsAvailable() && c.transform != transform && c.detector.IsAvailable() && c.detector.collider != null ).
             Select(d => d.detector.collider);
         
-        foreach (var p in fx.GetComponents<ParticleSystemEvent>())
+        foreach (var p in fx.GetComponents<ParticleSystemEvent2D>())
             p.SetTriggerList2D(availableColliders);
-        foreach (var p in fx.GetComponentsInChildren<ParticleSystemEvent>())
+        foreach (var p in fx.GetComponentsInChildren<ParticleSystemEvent2D>())
             p.SetTriggerList2D(availableColliders);
 
         return fx;

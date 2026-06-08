@@ -5,7 +5,7 @@ using Yu5h1Lib;
 using static UnityEngine.ParticleSystem;
 
 [DisallowMultipleComponent]
-public class ParticleSystemEvent : BaseParticleSystemBehaviour
+public class ParticleSystemEvent2D : ParticleSystemControllerBase
 {
     [SerializeField]
     private TagLayerMask filter;
@@ -47,7 +47,7 @@ public class ParticleSystemEvent : BaseParticleSystemBehaviour
     {
         if (filter.layers.value == 0)
             return;
-        particleSystem.SetTriggerList2D(filter.Filter(targets));
+        particleSystem.SetTriggerList(filter.Filter(targets));
     }
 
     //private void FixedUpdate()
