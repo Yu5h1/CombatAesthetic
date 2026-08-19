@@ -6,8 +6,8 @@ using Yu5h1Lib.EditorExtension;
 using Yu5h1Lib;
 using Yu5h1Lib.Graphic2D;
 
-[CustomEditor(typeof(Collider2DAide))]
-public class Collider2DAgentEditor : Editor<Collider2DAide>
+[CustomEditor(typeof(Collider2DAddon))]
+public class Collider2DAddonEditor : Editor<Collider2DAddon>
 {
     Transform transform => targetObject.transform;
     Collider2D collider => targetObject.collider;
