@@ -1,0 +1,172 @@
+{
+  "schema_version": "1.0",
+  "report_id": "combataesthetic-progress",
+  "scope_id": "combataesthetic",
+  "title": "CombatAesthetic priority task progress",
+  "summary": "CombatAesthetic is being used as the action-combat validation project while reusable UI, gameplay, 2D, input, animation, and network concerns are separated into Yu5h1Lib / UnityExtension decisions. A new core design question is whether the game should enforce physical aesthetics: no perfect cloning and no process-free teleportation.",
+  "updated_at": "2026-08-26T00:00:00+08:00",
+  "tasks": [
+    {
+      "id": "viewer-view-decision",
+      "title": "Settle shared Viewer/View scope",
+      "status": "in_progress",
+      "priority": 0,
+      "summary": "A decision report now defines the first success target: CombatAesthetic UI_Manager/UI_Menu and Virtual-Chat-Partner MainMenu/Page should both be replaceable by one shared Viewer/View source without behavior regression.",
+      "completed_items": [
+        {
+          "id": "source-analysis",
+          "title": "Compared UI_Manager/UI_Menu with MainMenu/Page and identified the shared Viewer/View responsibility split."
+        },
+        {
+          "id": "decision-report",
+          "title": "Created Documentation/plans/Priority-Decision-Report.md with the initial scope, success standard, suspected legacy fields, and decision list."
+        }
+      ],
+      "pending_items": [
+        {
+          "id": "answer-decision-list",
+          "title": "User answers the Viewer/View decision list, starting with return target naming and Back handler behavior.",
+          "priority": 0
+        },
+        {
+          "id": "confirm-initial-validation",
+          "title": "Choose whether Virtual-Chat-Partner Page flow or CombatAesthetic UI_Menu flow is the first migration validation target.",
+          "priority": 1
+        },
+        {
+          "id": "defer-implementation",
+          "title": "Do not implement Viewer/View migration until the decision list is validated.",
+          "priority": 0
+        }
+      ],
+      "progress": {
+        "completed": 2,
+        "total": 5
+      }
+    },
+    {
+      "id": "physical-aesthetic-core",
+      "title": "Define the physical-aesthetic game core",
+      "status": "in_progress",
+      "priority": 0,
+      "summary": "The game core should preserve physical aesthetics: objects may move extremely fast, but should not relocate without process; entities should not be treated as perfect clones because even similar-looking things have different material sources and states.",
+      "completed_items": [
+        {
+          "id": "principle-captured",
+          "title": "Recorded the principle that CombatAesthetic should avoid process-free teleportation and perfect cloning as core rule assumptions."
+        }
+      ],
+      "pending_items": [
+        {
+          "id": "spawn-model",
+          "title": "Decide how players are born or enter the world.",
+          "priority": 0
+        },
+        {
+          "id": "movement-boundary",
+          "title": "Define the boundary between very fast movement and disallowed instant relocation.",
+          "priority": 0
+        },
+        {
+          "id": "clone-boundary",
+          "title": "Define whether any copy, summon, duplicate, or projection is allowed, and what material/source cost it must preserve.",
+          "priority": 1
+        },
+        {
+          "id": "sync-authority",
+          "title": "Decide which layer owns spawn and relocation authority for online play.",
+          "priority": 1
+        }
+      ],
+      "progress": {
+        "completed": 1,
+        "total": 5
+      }
+    },
+    {
+      "id": "package-boundary-map",
+      "title": "Map reusable systems to Yu5h1Lib packages",
+      "status": "planned",
+      "priority": 1,
+      "summary": "CombatAesthetic should remain the action-combat aesthetics integration layer. Generic gameplay, 2D, UI, input, AI, animation, and network foundations need package ownership decisions before file moves.",
+      "completed_items": [
+        {
+          "id": "split-plan",
+          "title": "Existing package split plan records the recommended broad package boundaries."
+        }
+      ],
+      "pending_items": [
+        {
+          "id": "class-package-map",
+          "title": "Produce a class-to-package mapping table before moving files.",
+          "priority": 0
+        },
+        {
+          "id": "generic-candidates",
+          "title": "Mark generic classes that should be promoted to Yu5h1Lib package candidates.",
+          "priority": 1
+        },
+        {
+          "id": "avoid-file-moves",
+          "title": "Keep package moves deferred until dependency direction is clear.",
+          "priority": 0
+        }
+      ]
+    },
+    {
+      "id": "combat-refactor-boundaries",
+      "title": "Clarify combat refactor boundaries",
+      "status": "planned",
+      "priority": 2,
+      "summary": "The first combat refactor decisions should clarify AttributeBehaviour, HostData2D command-source responsibilities, CharacterController2D slimming, and AnimatorCharacterController2D as a presentation bridge.",
+      "completed_items": [
+        {
+          "id": "refactor-guide",
+          "title": "Existing refactor guide identifies the first coupling centers and recommended dependency direction."
+        }
+      ],
+      "pending_items": [
+        {
+          "id": "attribute-boundary",
+          "title": "Decide the Attribute model / Unity adapter / UI view split.",
+          "priority": 0
+        },
+        {
+          "id": "command-source-boundary",
+          "title": "Define the command-source interface before touching player, AI, network, or replay input.",
+          "priority": 1
+        },
+        {
+          "id": "presentation-events",
+          "title": "Define presentation events before splitting UI, FX, audio, or animation calls out of combat behaviours.",
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "id": "network-architecture-evaluation",
+      "title": "Keep network architecture as evaluated but deferred",
+      "status": "planned",
+      "priority": 3,
+      "summary": "Network and rollback remain important long-term goals, but the current project priority is to settle command-source, state, snapshot, and presentation boundaries before implementing multiplayer infrastructure.",
+      "completed_items": [
+        {
+          "id": "network-discussion",
+          "title": "Existing network discussion records Cloudflare Tunnel, SignalR/WebSocket, UDP Relay, dedicated server, and rollback trade-offs."
+        }
+      ],
+      "pending_items": [
+        {
+          "id": "defer-network",
+          "title": "Do not begin network implementation until command-source and core state boundaries are stable.",
+          "priority": 0
+        },
+        {
+          "id": "future-transport-boundary",
+          "title": "When resumed, define transport/channel interfaces before choosing Unity Services, AWS, or local loopback infrastructure.",
+          "priority": 2
+        }
+      ]
+    }
+  ]
+}
