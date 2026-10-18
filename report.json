@@ -4,7 +4,7 @@
   "scope_id": "combataesthetic",
   "title": "CombatAesthetic priority task progress",
   "summary": "CombatAesthetic is being used as the action-combat validation project while reusable UI, gameplay, 2D, input, animation, and network concerns are separated into Yu5h1Lib / UnityExtension decisions. A new core design question is whether the game should enforce physical aesthetics: no perfect cloning and no process-free teleportation.",
-  "updated_at": "2026-08-26T00:00:00+08:00",
+  "updated_at": "2026-10-18T15:48:00+08:00",
   "tasks": [
     {
       "id": "viewer-view-decision",
@@ -167,6 +167,44 @@
           "priority": 2
         }
       ]
+    },
+    {
+      "id": "directional-input-ux-design",
+      "title": "Define directional input UX and interaction architecture",
+      "status": "in_progress",
+      "priority": 1,
+      "summary": "Directional control spans Hardware Input, UX Interaction, Command Intent, and Gameplay Physics. Authored the UX interaction design draft for multi-platform directional controls (touch floating joystick, D-pad, gamepad deadzones, coordinate mapping, and combat turn locking).",
+      "completed_items": [
+        {
+          "id": "architectural-classification",
+          "title": "Clarified architectural boundary across Input, UX, Command, and Gameplay."
+        },
+        {
+          "id": "ux-design-draft",
+          "title": "Authored Documentation/plans/Directional-Input-UX-Design.md covering deadzones, virtual controls, coordinate mapping, and combat turn locking."
+        }
+      ],
+      "pending_items": [
+        {
+          "id": "touch-virtual-controller-spec",
+          "title": "Decide default mobile touch control mode: dynamic floating joystick vs. fixed octagonal D-pad.",
+          "priority": 0
+        },
+        {
+          "id": "double-tap-dash-cadence",
+          "title": "Determine whether dash should be mapped to double-tap directional input or dedicated evade button.",
+          "priority": 1
+        },
+        {
+          "id": "command-source-prototype",
+          "title": "Implement IDirectionalInputSource adapter bridging to ICharacterCommandSource.",
+          "priority": 1
+        }
+      ],
+      "progress": {
+        "completed": 2,
+        "total": 5
+      }
     }
   ]
 }

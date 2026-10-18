@@ -80,12 +80,13 @@ Later split adapters:
 - Question: How do players enter or get born into the world?
   - Options: enter from outside the arena; spawn from a field/device; assemble from existing material; be summoned/dropped by another system; defer until the first playable prototype.
   - Recommendation: decide before implementing spawn/respawn/network authority, because it affects rules, animation, synchronization, fairness, and anti-cheat.
+- Directional input UX: [未決策事項](Documentation/plans/Directional-Input-UX-Design.md#31-觸控螢幕操控-mobile-touch-ux). Options include dynamic floating joystick vs. fixed octagonal D-pad, and double-tap dash vs. dedicated evade button.
 
 ## Current Decision Report
 
 - User wants a priority task and decision checklist before implementation.
 - Human-facing report added at `Documentation/plans/Priority-Decision-Report.md`.
-- TaskProgress report added at `report.json` with scope `combataesthetic`.
+- TaskProgress report updated at `report.json` with scope `combataesthetic` (includes new task `directional-input-ux-design`).
 - TaskProgress now includes `physical-aesthetic-core` to track no perfect cloning, no process-free teleportation, and player spawn/birth decisions.
 - TaskProgress CLI opened the local viewer route: `http://127.0.0.1:8001/?scope=combataesthetic`.
 - Next discussion should answer the decision list in that report, starting with the initial Viewer/View success standard and Back/return behavior.
