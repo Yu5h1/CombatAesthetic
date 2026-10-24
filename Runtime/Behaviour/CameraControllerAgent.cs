@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Events;
 using Yu5h1Lib;
@@ -40,7 +41,7 @@ public class CameraControllerAgent : MonoBehaviour
     }
     private static void InvokeAllPerformanceEndEvents()
     {
-        foreach (var agent in GameObject.FindObjectsByType<CameraControllerAgent>(FindObjectsInactive.Include,FindObjectsSortMode.None))
+        foreach (var agent in ObjectUtility.FindObjects<CameraControllerAgent>())
             agent._performanceEnd?.Invoke();
     }
 

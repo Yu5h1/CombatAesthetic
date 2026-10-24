@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static Yu5h1Lib.GameObjectUtility;
+using static Yu5h1Lib.ObjectUtility;
 using static Yu5h1Lib.ResourcesUtility;
 
 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never), System.ComponentModel.Browsable(false)]

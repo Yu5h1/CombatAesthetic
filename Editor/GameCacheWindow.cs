@@ -32,11 +32,6 @@ namespace Yu5h1Lib
             }
         }
 
-        public Dictionary<string, CheckPointData[]> checkPoints;
-
-   
-
-
         [MenuItem("Game Manager/Game Cache Editor")]
         public static void Init()
         {

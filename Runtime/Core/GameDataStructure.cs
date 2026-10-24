@@ -1,4 +1,5 @@
 using UnityEngine;
+using Yu5h1Lib;
 
 [System.Serializable]
 public struct AttributeStat

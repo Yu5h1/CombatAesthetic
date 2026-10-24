@@ -43,7 +43,7 @@ public class TeleportEditor : Editor<Teleporter> {
 
     private static void FindTeleporters() {
         Teleporters.Clear();
-        Teleporters.AddRange(GameObject.FindObjectsByType<Teleporter>(FindObjectsInactive.Exclude,FindObjectsSortMode.None));
+        Teleporters.AddRange(ObjectUtility.FindObjects<Teleporter>(false));
     }
 
     private static void OnSceneGUI(SceneView view)

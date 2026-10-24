@@ -161,12 +161,12 @@ namespace Yu5h1Lib
             IsGamePaused = false;
             Time.timeScale = 1;
             
-            foreach (var item in FindObjectsByType<PlayerInput>(FindObjectsInactive.Include,FindObjectsSortMode.None))
+            foreach (var item in this.FindObjects<PlayerInput>())
             {
                 item.uiInputModule = InputModule;
             }
-            characters = GameObject.FindObjectsByType<CharacterController2D>(FindObjectsInactive.Include,FindObjectsSortMode.InstanceID);
-            var player = GameObject.FindWithTag("Player");
+            characters = this.FindObjects<CharacterController2D>();
+            var player = GameObject.FindGameObjectWithTag("Player");
 
             if (player)
             {

@@ -13,7 +13,7 @@ namespace Yu5h1Lib
     {
         public static void InitializeCheckPoints()
         {
-            checkPoints = FindObjectsByType<CheckPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            checkPoints = ObjectUtility.FindObjects<CheckPoint>();
             foreach (var item in checkPoints)
                 item.PerformIsChecked();
         }

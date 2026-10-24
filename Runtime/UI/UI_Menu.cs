@@ -112,25 +112,25 @@ public class UI_Menu : UIControl
     }
     public void ReadSlotRecord(Selectable selectable)
     {
-        var textAdapter = selectable.GetComponent<TextAdapter>();
-        if ($"{selectable}'s TextAdapter does not exist.".printWarningIf(!textAdapter))
+        var text = selectable.GetComponent<TextAddon>();
+        if ($"{selectable}'s TextAdapter does not exist.".printWarningIf(!text))
             return;
         var index = selectable.transform.GetSiblingIndex();
         if (!Records.Saves.IsValid(index))
             Records.Prepare(index);
 
         var record = Records.Saves[index];
-        textAdapter.text = $"{record}";     
+        text.text = $"{record}";     
     }
     public void ClearSlotRecord(GroupHandler group)
     {
         var selectable = group.GetComponentsInChildren<Selectable>()[Records.CurrentSaveSlot];
-        var textAdapter = selectable.GetComponent<TextAdapter>();
-        if ($"{selectable}'s TextAdapter does not exist.".printWarningIf(!textAdapter))
+        var textComponent = selectable.GetComponent<TextAddon>();
+        if ($"{selectable}'s TextAddon does not exist.".printWarningIf(!textComponent))
             return;
         var record = Records.Saves[selectable.transform.GetSiblingIndex()];
         record.Clear();
-        textAdapter.text = $"{record}";
+        textComponent.text = $"{record}";
         Records.Save();
     }
     public void ClearSelection()
