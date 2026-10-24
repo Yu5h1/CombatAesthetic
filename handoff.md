@@ -1,5 +1,13 @@
 # CombatAesthetic Handoff
 
+## WhiteRoom sample planning
+
+Current user direction: keep WhiteRoom in this existing package's Sample scope. The canonical implementation plan is [Samples/WhiteRoom/Implementation-Plan.md](Samples/WhiteRoom/Implementation-Plan.md). It supersedes the independent product-host proposal from the UX discussion. This request authorizes planning, commit and push only; no demo implementation, Sample registration, dependency change or asset acquisition.
+
+First delivery is a 3D PvE loop: movement/jump, stationary/directional attack, ordinary/precise defense, hit response/recovery, third-person camera and reset. The selected art direction is a realistic-proportion simplified mechanical humanoid in a white test room. Follow the plan for stages and acceptance; do not resume per-reaction interviews before resolving delivery prerequisites. Broader package extraction discussions below are separate work.
+
+Validation for this documentation change is static and scoped; Unity import, gameplay and Windows builds have not been executed.
+
 ## Current User Direction
 
 User clarified that CombatAesthetic is about the aesthetics of action/fighting gameplay: game feel, action combat, duel readability, hit response, animation/FX/audio timing, and presentation quality.
@@ -73,6 +81,7 @@ Later split adapters:
 
 ## Open decisions
 
+- WhiteRoom Sample: [尚未決定](Samples/WhiteRoom/Implementation-Plan.md#尚未決定) owns the validation-host, asset-source, minimal precise-defense and import/assembly questions. Sample ownership, platform and first-delivery scope are already settled.
 - Progression and ascension: [尚未決定](Documentation/plans/Progression-and-Ascension-Design.md#尚未決定). This is a discussion draft, not an approved implementation specification.
 - Question: Should CombatAesthetic's game core adopt physical aesthetics as a base rule?
   - Options: enforce no process-free teleportation and no perfect cloning; allow these only as explicit authored exceptions; leave them unrestricted for convenience.
