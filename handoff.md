@@ -1,12 +1,26 @@
-# CombatAesthetic Handoff
+# Combat Aesthetics Handoff
+
+GitHub repository: [Yu5h1/Combat-Aesthetics](https://github.com/Yu5h1/Combat-Aesthetics). The user requested this repository rename; origin uses the new URL. Local folder, Unity package identifier and code type names retain their existing names. TaskProgress scope remains `combat-aesthetic`.
 
 ## WhiteRoom sample planning
 
 Current user direction: keep WhiteRoom in this existing package's Sample scope. The canonical implementation plan is [Samples/WhiteRoom/Implementation-Plan.md](Samples/WhiteRoom/Implementation-Plan.md). It supersedes the independent product-host proposal from the UX discussion. This request authorizes planning, commit and push only; no demo implementation, Sample registration, dependency change or asset acquisition.
 
-First delivery is a 3D PvE loop: movement/jump, stationary/directional attack, ordinary/precise defense, hit response/recovery, third-person camera and reset. The selected art direction is a realistic-proportion simplified mechanical humanoid in a white test room. Follow the plan for stages and acceptance; do not resume per-reaction interviews before resolving delivery prerequisites. Broader package extraction discussions below are separate work.
+First delivery is a 3D PvE loop: movement/jump, stationary/directional attack, ordinary/precise defense, hit response/recovery, third-person camera and reset. Follow the plan for stages, acceptance and [美術與角色方向](Samples/WhiteRoom/Implementation-Plan.md#美術與角色方向); do not resume per-reaction interviews before resolving delivery prerequisites. Broader package extraction discussions below are separate work.
 
 Validation for this documentation change is static and scoped; Unity import, gameplay and Windows builds have not been executed.
+
+Preparation work is tracked by this package's Report card `white-room-stage0`, scope `combat-aesthetic` (canonical entry: [WhiteRoom plan](Samples/WhiteRoom/Implementation-Plan.md)). The user dispatches other agents. Follow [可先交辦的準備工作](Samples/WhiteRoom/Implementation-Plan.md#可先交辦的準備工作) for the read-only scope and isolated outputs. Individual instructions and progress belong to Report items. The shared-operation flow is now agreed; preparation agents must not decide the remaining tool/platform/data questions.
+
+The validation host remains Unity 6000.3.9f1 / 3D URP using CombatAesthetic and required Yu5h1Lib dependencies. The user agreed both motion-test approaches share pose/timing edit, preview, save and reload operations; see [WhiteRoom 的兩種動作測試](Samples/WhiteRoom/Implementation-Plan.md#whiteroom-的兩種動作測試). Follow [製作介面與驗證宿主](Samples/WhiteRoom/Implementation-Plan.md#製作介面與驗證宿主): do not build an editor in Unity; evaluate Web or the user's existing 3D Viewer before choosing the authoring platform. That Viewer has not been analyzed or conclusively located. Unity is the first validation consumer, not a settled authoring UI. Shared UX does not fix a common schema or rig representation. Next ask whether the character/motion authoring tool should be a separate reusable capability consumed by WhiteRoom/CombatAesthetic, addressing the user's concern that CombatAesthetic is too broad. Do not split repositories/packages or implement yet.
+
+The user requested Chinese Report display text and scope `combat-aesthetic`. Report/task/item IDs, statuses, priorities, ordering and recorded history are preserved; the stable report_id remains unchanged. Text edits use Report operations. Root scope_id is not supported by report.update, so its rename is the scoped direct-edit exception, under revision lock and followed by Report validation; mention this exception if committing the rename. Use the new scope for links and local registration.
+
+The [existing-capability inventory](Samples/WhiteRoom/Existing-Capabilities.md) still supplies reuse evidence, but its Editor/Clip writer is no longer the required pipeline. Reassess relevant pieces against the new source/runtime boundary rather than discarding all Yu5h1Lib capabilities. A read-only installation check on 2026-10-25 found Unity.exe under both 6000.3.9f1 and 6000.6.0f1; the user selected 6000.3.9f1 as the fixed first host baseline. No Editor was launched or compatibility verified. Host directory remains open.
+
+Ruled out: selecting KayKit or another ready-made animation library as the first source. The user instead wants agents to build an accumulating animation library of their own; the earlier ready-made-animation direction is superseded. This does not authorize a new animation framework or the separate limb-generation system.
+
+Superseded: .anim as the required first delivery format and an Editor/Clip-centered production workflow. The user now wants cross-platform character/motion data and runtime creation. Preserve self-authored source data/scripts and physical causality; do not silently retain mandatory Clip generation behind a new format. LimbSystem will be tested in WhiteRoom later, while preserving its independent ownership; no merger or implementation is authorized.
 
 ## Current User Direction
 
@@ -81,7 +95,7 @@ Later split adapters:
 
 ## Open decisions
 
-- WhiteRoom Sample: [尚未決定](Samples/WhiteRoom/Implementation-Plan.md#尚未決定) owns the validation-host, asset-source, minimal precise-defense and import/assembly questions. Sample ownership, platform and first-delivery scope are already settled.
+- WhiteRoom Sample: [尚未決定](Samples/WhiteRoom/Implementation-Plan.md#尚未決定) owns the remaining tool ownership/platform/data, host directory, precise-defense and import/assembly questions; [製作介面與驗證宿主](Samples/WhiteRoom/Implementation-Plan.md#製作介面與驗證宿主) owns the next ownership question and deferred Web/3D Viewer choice; [自有動畫庫](Samples/WhiteRoom/Implementation-Plan.md#自有動畫庫) owns the remaining format/tooling boundary. Both test approaches and shared-operation flow are agreed alongside the Unity 6000.3.9f1 URP validation baseline.
 - Progression and ascension: [尚未決定](Documentation/plans/Progression-and-Ascension-Design.md#尚未決定). This is a discussion draft, not an approved implementation specification.
 - Question: Should CombatAesthetic's game core adopt physical aesthetics as a base rule?
   - Options: enforce no process-free teleportation and no perfect cloning; allow these only as explicit authored exceptions; leave them unrestricted for convenience.
@@ -95,9 +109,9 @@ Later split adapters:
 
 - User wants a priority task and decision checklist before implementation.
 - Human-facing report added at `Documentation/plans/Priority-Decision-Report.md`.
-- TaskProgress report updated at `report.json` with scope `combataesthetic` (includes new task `directional-input-ux-design`).
+- TaskProgress report is `report.json`, scope `combat-aesthetic` (includes task `directional-input-ux-design`).
 - TaskProgress now includes `physical-aesthetic-core` to track no perfect cloning, no process-free teleportation, and player spawn/birth decisions.
-- TaskProgress CLI opened the local viewer route: `http://127.0.0.1:8001/?scope=combataesthetic`.
+- Local Viewer route: `http://127.0.0.1:8001/?scope=combat-aesthetic`.
 - Next discussion should answer the decision list in that report, starting with the initial Viewer/View success standard and Back/return behavior.
 - Do not implement Viewer/View migration until the user validates those decisions.
 

@@ -1,42 +1,87 @@
 {
   "schema_version": "1.0",
   "report_id": "combataesthetic-progress",
-  "scope_id": "combataesthetic",
-  "title": "CombatAesthetic priority task progress",
-  "summary": "CombatAesthetic is being used as the action-combat validation project while reusable UI, gameplay, 2D, input, animation, and network concerns are separated into Yu5h1Lib / UnityExtension decisions. A new core design question is whether the game should enforce physical aesthetics: no perfect cloning and no process-free teleportation.",
-  "updated_at": "2026-10-18T15:48:00+08:00",
+  "scope_id": "combat-aesthetic",
+  "title": "CombatAesthetic 任務進度",
+  "summary": "以戰鬥美學為目標，持續釐清共用介面、遊戲資料、輸入、動畫及網路的責任邊界；白色測試場先準備跨平台動作製作與徒手 PvE 的驗證依據。製作介面評估 Web 或既有 3D Viewer，Unity 先作戰鬥驗證宿主。",
+  "updated_at": "2026-10-25T14:21:23.100605+08:00",
   "tasks": [
     {
       "id": "viewer-view-decision",
-      "title": "Settle shared Viewer/View scope",
+      "title": "釐清共用 Viewer／View 的範圍",
       "status": "in_progress",
       "priority": 0,
-      "summary": "A decision report now defines the first success target: CombatAesthetic UI_Manager/UI_Menu and Virtual-Chat-Partner MainMenu/Page should both be replaceable by one shared Viewer/View source without behavior regression.",
+      "summary": "決策報告已定義首個成功目標：CombatAesthetic 的 UI_Manager／UI_Menu 與 Virtual-Chat-Partner 的 MainMenu／Page，均能由同一份共用 Viewer／View 來源取代，且行為不退化。",
       "completed_items": [
         {
           "id": "source-analysis",
-          "title": "Compared UI_Manager/UI_Menu with MainMenu/Page and identified the shared Viewer/View responsibility split."
+          "title": "已比較 UI_Manager／UI_Menu 與 MainMenu／Page，辨識共用 Viewer／View 的責任分工。",
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "decision-report",
-          "title": "Created Documentation/plans/Priority-Decision-Report.md with the initial scope, success standard, suspected legacy fields, and decision list."
+          "title": "已建立 Documentation/plans/Priority-Decision-Report.md，記錄初始範圍、成功標準、疑似舊欄位與決策清單。",
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ],
       "pending_items": [
         {
           "id": "answer-decision-list",
-          "title": "User answers the Viewer/View decision list, starting with return target naming and Back handler behavior.",
-          "priority": 0
+          "title": "由使用者逐題回答 Viewer／View 決策，先釐清返回目標命名及 Back 處理方式。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "confirm-initial-validation",
-          "title": "Choose whether Virtual-Chat-Partner Page flow or CombatAesthetic UI_Menu flow is the first migration validation target.",
-          "priority": 1
+          "title": "選定第一個遷移驗證對象：Virtual-Chat-Partner 的 Page 流程，或 CombatAesthetic 的 UI_Menu 流程。",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "defer-implementation",
-          "title": "Do not implement Viewer/View migration until the decision list is validated.",
-          "priority": 0
+          "title": "決策清單確認前，先不實作 Viewer／View 遷移。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ],
       "progress": {
@@ -46,36 +91,81 @@
     },
     {
       "id": "physical-aesthetic-core",
-      "title": "Define the physical-aesthetic game core",
+      "title": "定義物理美學的遊戲核心",
       "status": "in_progress",
       "priority": 0,
-      "summary": "The game core should preserve physical aesthetics: objects may move extremely fast, but should not relocate without process; entities should not be treated as perfect clones because even similar-looking things have different material sources and states.",
+      "summary": "遊戲核心應保留物理美學：物件可以高速移動，但移動應有過程；即使外觀相似，實體的材料來源與狀態也各自不同，不能直接視為完美複製。",
       "completed_items": [
         {
           "id": "principle-captured",
-          "title": "Recorded the principle that CombatAesthetic should avoid process-free teleportation and perfect cloning as core rule assumptions."
+          "title": "已記錄核心原則：避免無過程的瞬間位移與完美複製。",
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ],
       "pending_items": [
         {
           "id": "spawn-model",
-          "title": "Decide how players are born or enter the world.",
-          "priority": 0
+          "title": "決定玩家如何誕生或進入世界。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "movement-boundary",
-          "title": "Define the boundary between very fast movement and disallowed instant relocation.",
-          "priority": 0
+          "title": "定義高速移動與無過程瞬間位移的界線。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "clone-boundary",
-          "title": "Define whether any copy, summon, duplicate, or projection is allowed, and what material/source cost it must preserve.",
-          "priority": 1
+          "title": "釐清複製、召喚、分身或投影是否允許，以及須保留哪些材料／來源成本。",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "sync-authority",
-          "title": "Decide which layer owns spawn and relocation authority for online play.",
-          "priority": 1
+          "title": "釐清連線遊戲中，哪一層負責角色生成與位置遷移的權威判定。",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ],
       "progress": {
@@ -85,126 +175,367 @@
     },
     {
       "id": "package-boundary-map",
-      "title": "Map reusable systems to Yu5h1Lib packages",
+      "title": "釐清可重用系統與套件的歸屬",
       "status": "planned",
       "priority": 1,
-      "summary": "CombatAesthetic should remain the action-combat aesthetics integration layer. Generic gameplay, 2D, UI, input, AI, animation, and network foundations need package ownership decisions before file moves.",
+      "summary": "CombatAesthetic 保留戰鬥美學的整合責任。通用遊戲資料、2D、介面、輸入、AI、動畫與網路基礎能力，須先釐清 Yu5h1Lib／UnityExtension 的套件歸屬，再進行檔案移動。",
       "completed_items": [
         {
           "id": "split-plan",
-          "title": "Existing package split plan records the recommended broad package boundaries."
+          "title": "既有套件拆分計畫已記錄建議的主要套件邊界。",
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ],
       "pending_items": [
         {
           "id": "class-package-map",
-          "title": "Produce a class-to-package mapping table before moving files.",
-          "priority": 0
+          "title": "移動檔案前，先產出類別與套件的對照表。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "generic-candidates",
-          "title": "Mark generic classes that should be promoted to Yu5h1Lib package candidates.",
-          "priority": 1
+          "title": "標示適合歸入 Yu5h1Lib 共用套件的通用類別。",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "avoid-file-moves",
-          "title": "Keep package moves deferred until dependency direction is clear.",
-          "priority": 0
+          "title": "依賴方向釐清前，先不進行套件搬移。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ]
     },
     {
       "id": "combat-refactor-boundaries",
-      "title": "Clarify combat refactor boundaries",
+      "title": "釐清戰鬥程式的重構邊界",
       "status": "planned",
       "priority": 2,
-      "summary": "The first combat refactor decisions should clarify AttributeBehaviour, HostData2D command-source responsibilities, CharacterController2D slimming, and AnimatorCharacterController2D as a presentation bridge.",
+      "summary": "首輪重構決策涵蓋 AttributeBehaviour、HostData2D 操作來源、CharacterController2D 的責任收斂，以及 AnimatorCharacterController2D 作為表現接合層的邊界。",
       "completed_items": [
         {
           "id": "refactor-guide",
-          "title": "Existing refactor guide identifies the first coupling centers and recommended dependency direction."
+          "title": "既有重構指南已辨識第一批耦合集中處與建議依賴方向。",
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ],
       "pending_items": [
         {
           "id": "attribute-boundary",
-          "title": "Decide the Attribute model / Unity adapter / UI view split.",
-          "priority": 0
+          "title": "釐清屬性資料模型、Unity 適配與介面顯示的分工。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "command-source-boundary",
-          "title": "Define the command-source interface before touching player, AI, network, or replay input.",
-          "priority": 1
+          "title": "修改玩家、AI、網路或重播輸入前，先定義操作來源介面。",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "presentation-events",
-          "title": "Define presentation events before splitting UI, FX, audio, or animation calls out of combat behaviours.",
-          "priority": 1
+          "title": "拆出介面、特效、音效或動畫呼叫前，先定義表現事件。",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ]
     },
     {
       "id": "network-architecture-evaluation",
-      "title": "Keep network architecture as evaluated but deferred",
+      "title": "保留網路架構評估，實作後續再進行",
       "status": "planned",
       "priority": 3,
-      "summary": "Network and rollback remain important long-term goals, but the current project priority is to settle command-source, state, snapshot, and presentation boundaries before implementing multiplayer infrastructure.",
+      "summary": "連線與回滾仍是長期目標；目前先釐清操作來源、狀態、快照與表現邊界，再實作多人連線基礎設施。",
       "completed_items": [
         {
           "id": "network-discussion",
-          "title": "Existing network discussion records Cloudflare Tunnel, SignalR/WebSocket, UDP Relay, dedicated server, and rollback trade-offs."
+          "title": "既有網路討論已記錄 Cloudflare Tunnel、SignalR／WebSocket、UDP Relay、專用伺服器與回滾的取捨。",
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ],
       "pending_items": [
         {
           "id": "defer-network",
-          "title": "Do not begin network implementation until command-source and core state boundaries are stable.",
-          "priority": 0
+          "title": "操作來源與核心狀態邊界穩定前，先不實作網路連線。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "future-transport-boundary",
-          "title": "When resumed, define transport/channel interfaces before choosing Unity Services, AWS, or local loopback infrastructure.",
-          "priority": 2
+          "title": "恢復連線工作時，先定義傳輸／通道介面，再選 Unity Services、AWS 或本機回送測試方式。",
+          "priority": 2,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ]
     },
     {
       "id": "directional-input-ux-design",
-      "title": "Define directional input UX and interaction architecture",
+      "title": "定義方向輸入體驗與互動架構",
       "status": "in_progress",
       "priority": 1,
-      "summary": "Directional control spans Hardware Input, UX Interaction, Command Intent, and Gameplay Physics. Authored the UX interaction design draft for multi-platform directional controls (touch floating joystick, D-pad, gamepad deadzones, coordinate mapping, and combat turn locking).",
+      "summary": "方向控制涉及硬體輸入、UX 互動、操作意圖與遊戲物理。已有多平台方向控制草案，涵蓋觸控浮動搖桿、方向鍵、手把死區、座標映射及戰鬥轉向鎖定。",
       "completed_items": [
         {
           "id": "architectural-classification",
-          "title": "Clarified architectural boundary across Input, UX, Command, and Gameplay."
+          "title": "已釐清輸入、UX、操作命令與遊戲行為之間的架構邊界。",
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "ux-design-draft",
-          "title": "Authored Documentation/plans/Directional-Input-UX-Design.md covering deadzones, virtual controls, coordinate mapping, and combat turn locking."
+          "title": "已建立 Documentation/plans/Directional-Input-UX-Design.md，涵蓋死區、虛擬控制、座標映射與戰鬥轉向鎖定。",
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ],
       "pending_items": [
         {
           "id": "touch-virtual-controller-spec",
-          "title": "Decide default mobile touch control mode: dynamic floating joystick vs. fixed octagonal D-pad.",
-          "priority": 0
+          "title": "決定行動裝置觸控預設模式：動態浮動搖桿或固定八方向控制。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "double-tap-dash-cadence",
-          "title": "Determine whether dash should be mapped to double-tap directional input or dedicated evade button.",
-          "priority": 1
+          "title": "釐清衝刺採方向輸入雙擊，或獨立閃避按鈕。",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         },
         {
           "id": "command-source-prototype",
-          "title": "Implement IDirectionalInputSource adapter bridging to ICharacterCommandSource.",
-          "priority": 1
+          "title": "實作 IDirectionalInputSource 與 ICharacterCommandSource 的接合。",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
         }
       ],
       "progress": {
         "completed": 2,
         "total": 5
       }
+    },
+    {
+      "id": "white-room-stage0",
+      "title": "白色測試場：階段 0 準備",
+      "status": "planned",
+      "priority": 1,
+      "summary": "依 Samples/WhiteRoom/Implementation-Plan.md〈問題與目標〉，準備跨平台執行階段動作製作與徒手 PvE 所需的既有能力、宿主依賴及重載案例證據。先做唯讀盤點與指定文件；首宿主為 Unity 6000.3.9f1 URP。兩種動作測試共用操作流程已確認；製作介面先評估 Web／既有 3D Viewer，平台與資料設計仍待釐清，不在 Unity 製作編輯器。本卡不授權實作。",
+      "pending_items": [
+        {
+          "id": "host-dependency-inventory",
+          "title": "宿主依賴靜態盤點：唯讀核對 CombatAesthetic 套件資訊／組件定義、Yu5h1Lib 套件及 Core DLL 來源，列 Unity 6000.3.9f1 URP 依賴與缺口；只產出 Samples/WhiteRoom/Preparation/Host-Dependencies.md 與其中繼資料，附實際路徑／版本及未驗證項，不啟動 Unity 或還原依賴。",
+          "status": "planned",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-25T05:58:15.465785+00:00",
+              "session": "CombatAesthetic WhiteRoom 準備項目建置",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
+        },
+        {
+          "id": "input-locomotion-inventory",
+          "title": "輸入與移動重用盤點：唯讀查 InputHandler、輸入後端、ILocomotor、NPCLocomotor 及鏡頭／2D 移動接合，對照八方向、轉向、跳躍與受力；只產出 Samples/WhiteRoom/Preparation/Input-Locomotion.md 與其中繼資料，列來源、可用部分、3D 限制與缺口，不設計新介面或修改程式。",
+          "status": "planned",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-25T05:58:15.465785+00:00",
+              "session": "CombatAesthetic WhiteRoom 準備項目建置",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
+        },
+        {
+          "id": "runtime-motion-inventory",
+          "title": "執行階段動作能力盤點：唯讀查既有姿態、時序、狀態混合、IK、受力及保存能力，區分執行階段／編輯器與 Clip 耦合；只產出 Samples/WhiteRoom/Preparation/Runtime-Motion.md 與其中繼資料，依實際來源對照已確認流程，不把 Clip 或 Unity 編輯器列為必要管線，不定案資料結構／程式介面或實作。",
+          "status": "planned",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-25T05:58:15.465785+00:00",
+              "session": "CombatAesthetic WhiteRoom 準備項目建置",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
+        },
+        {
+          "id": "motion-roundtrip-cases",
+          "title": "跨平台資料與重載案例整理：依已確認 UX，列固定骨架的姿勢／時序修改、預覽、保存、重載重現與保留受力案例，另列後續肢體系統的差異；只產出 Samples/WhiteRoom/Preparation/Motion-Roundtrip-Cases.md 與其中繼資料。兩路共用操作流程已確認，案例須有輸入／操作／可觀察結果；待決平台及格式明列，不自訂資料結構或實作。",
+          "status": "planned",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-25T05:58:15.465785+00:00",
+              "session": "CombatAesthetic WhiteRoom 準備項目建置",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
