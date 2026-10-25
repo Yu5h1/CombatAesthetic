@@ -1,12 +1,12 @@
 # Combat Aesthetics Handoff
 
-GitHub repository: [Yu5h1/Combat-Aesthetics](https://github.com/Yu5h1/Combat-Aesthetics). The user requested this repository rename; origin uses the new URL. Local folder, Unity package identifier and code type names retain their existing names. TaskProgress scope remains `combat-aesthetic`.
+GitHub repository: [Yu5h1/Combat-Aesthetics](https://github.com/Yu5h1/Combat-Aesthetics). Local folder is now `Unity/Combat-Aesthetics`, renamed by the user; origin uses the corresponding GitHub URL. Unity package identifier and code type names retain their existing names. TaskProgress scope remains `combat-aesthetic` and points to this new local folder.
 
 ## Local checkout path migration
 
-The user explicitly paused the local directory rename. Keep `Unity/CombatAesthetic` and the TaskProgress registration at that existing path. No move or compatibility junction was created. The GitHub repository name and origin remain `Yu5h1/Combat-Aesthetics`.
+The user subsequently completed the local rename to `Unity/Combat-Aesthetics`. The old `Unity/CombatAesthetic` path is absent. TaskProgress registration and the workspace overlay's handoff reference are synchronized to the new path; no compatibility junction was created by this chat.
 
-The user also declined changes to KFC's dirty `Packages/manifest.json` and `Packages/packages-lock.json`; preserve both files. They still reference the existing local package path. Yu5h1LibTest was inspected read-only: no CombatAesthetic reference was found in Assets, Packages or asset junction targets; do not add a dependency merely to perform this rename. Resume path migration only when the user explicitly asks; do not keep asking for the declined file edits. No Unity instance was launched or package resolution run.
+The user subsequently asked to finish the reference repair. KFC's `Packages/manifest.json` and `Packages/packages-lock.json` now point to `file:C:/Users/Yu5h1/Dev/VSProjects/Yu5h1Lib/Unity/Combat-Aesthetics`; each changed one path only, with all other bytes preserved and package identifier unchanged. KFC files have not been committed by this chat. Yu5h1LibTest was inspected read-only: no CombatAesthetic reference was found in Assets, Packages or asset junction targets; do not add a dependency merely to perform this rename. No Unity instance was launched or package resolution run.
 
 ## WhiteRoom sample planning
 
@@ -18,7 +18,7 @@ Validation for this documentation change is static and scoped; Unity import, gam
 
 Preparation work is tracked by this package's Report card `white-room-stage0`, scope `combat-aesthetic` (canonical entry: [WhiteRoom plan](Samples/WhiteRoom/Implementation-Plan.md)). The user dispatches other agents. Follow [可先交辦的準備工作](Samples/WhiteRoom/Implementation-Plan.md#可先交辦的準備工作) for the read-only scope and isolated outputs. Individual instructions and progress belong to Report items. The shared-operation flow is now agreed; preparation agents must not decide the remaining tool/platform/data questions.
 
-The reusable animation system now has its own local repo at `Yu5h1Lib/Character-Animation`. Continue system discovery through its [handoff](../../Character-Animation/handoff.md) and [plan](../../Character-Animation/plan.md); those files own the system goal and open questions. This repo owns Combat Aesthetics integration and WhiteRoom consumer tests. The shared system direction was moved to its plan; preserve the consumer requirements in [WhiteRoom plan](Samples/WhiteRoom/Implementation-Plan.md). No implementation or source move is authorized. The next system question is agent/human continuation on the same animation data; record that answer in the new repo rather than copying the system spec here.
+The reusable animation system now has its own local repo at `Yu5h1Lib/Character-Animation`. Continue system discovery through its [handoff](../../Character-Animation/handoff.md) and [plan](../../Character-Animation/plan.md); those files own the system goal, current question and confirmed answers. This repo owns Combat Aesthetics integration and WhiteRoom consumer tests. Preserve the consumer requirements in [WhiteRoom plan](Samples/WhiteRoom/Implementation-Plan.md), and follow the new repo's continuation route rather than maintaining a second question list here. No animation-system implementation or source move is authorized.
 
 The user requested Chinese Report display text and scope `combat-aesthetic`. Report/task/item IDs, statuses, priorities, ordering and recorded history are preserved; the stable report_id remains unchanged. Text edits use Report operations. Root scope_id is not supported by report.update, so its rename is the scoped direct-edit exception, under revision lock and followed by Report validation; mention this exception if committing the rename. Use the new scope for links and local registration.
 

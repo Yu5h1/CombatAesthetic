@@ -4,8 +4,162 @@
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
   "summary": "以戰鬥美學為目標，持續釐清共用介面、遊戲資料、輸入、動畫及網路的責任邊界；白色測試場先準備跨平台動作製作與徒手 PvE 的驗證依據。製作介面評估 Web 或既有 3D Viewer，Unity 先作戰鬥驗證宿主。",
-  "updated_at": "2026-10-25T14:26:53.184396+00:00",
+  "updated_at": "2026-10-25T15:09:12.693653+00:00",
   "tasks": [
+    {
+      "id": "white-room-stage0",
+      "title": "白色測試場：階段 0 準備",
+      "status": "done",
+      "priority": 1,
+      "summary": "準備 WhiteRoom 宿主依賴、重用能力與跨平台資料重載案例。四項準備工作（宿主依賴靜態盤點、輸入與移動重用盤點、執行階段動作能力盤點、跨平台資料與重載案例整理）已全數完成，產出集中於 Samples/WhiteRoom/Preparation/。",
+      "pending_items": [],
+      "completed_items": [
+        {
+          "id": "motion-roundtrip-cases",
+          "title": "跨平台資料與重載案例整理：依已確認 UX，列固定骨架的姿勢／時序修改、預覽、保存、重載重現與保留受力案例，另列後續肢體系統的差異；只產出 Samples/WhiteRoom/Preparation/Motion-Roundtrip-Cases.md 與其中繼資料。兩路共用操作流程已確認，案例須有輸入／操作／可觀察結果；待決平台及格式明列，不自訂資料結構或實作。",
+          "status": "done",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-25T05:58:15.465785+00:00",
+              "session": "CombatAesthetic WhiteRoom 準備項目建置",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "started",
+              "actor": "antigravity",
+              "at": "2026-10-25T15:07:51.826023+00:00",
+              "session": "WhiteRoom 跨平台資料與重載案例整理",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "done",
+              "actor": "antigravity",
+              "at": "2026-10-25T15:09:12.693653+00:00",
+              "session": "WhiteRoom 跨平台資料與重載案例整理",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            }
+          ]
+        },
+        {
+          "id": "runtime-motion-inventory",
+          "title": "執行階段動作能力盤點：唯讀查既有姿態、時序、狀態混合、IK、受力及保存能力，區分執行階段／編輯器與 Clip 耦合；只產出 Samples/WhiteRoom/Preparation/Runtime-Motion.md 與其中繼資料，依實際來源對照已確認流程，不把 Clip 或 Unity 編輯器列為必要管線，不定案資料結構／程式介面或實作。",
+          "status": "done",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-25T05:58:15.465785+00:00",
+              "session": "CombatAesthetic WhiteRoom 準備項目建置",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "started",
+              "actor": "antigravity",
+              "at": "2026-10-25T15:01:21.568928+00:00",
+              "session": "WhiteRoom 執行階段動作能力盤點",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "done",
+              "actor": "antigravity",
+              "at": "2026-10-25T15:07:43.097767+00:00",
+              "session": "WhiteRoom 執行階段動作能力盤點",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            }
+          ]
+        },
+        {
+          "id": "input-locomotion-inventory",
+          "title": "輸入與移動重用盤點：唯讀查 InputHandler、輸入後端、ILocomotor、NPCLocomotor 及鏡頭／2D 移動接合，對照八方向、轉向、跳躍與受力；只產出 Samples/WhiteRoom/Preparation/Input-Locomotion.md 與其中繼資料，列來源、可用部分、3D 限制與缺口，不設計新介面或修改程式。",
+          "status": "done",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-25T05:58:15.465785+00:00",
+              "session": "CombatAesthetic WhiteRoom 準備項目建置",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "started",
+              "actor": "antigravity",
+              "at": "2026-10-25T14:58:08.551440+00:00",
+              "session": "WhiteRoom 輸入與移動重用盤點",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "done",
+              "actor": "antigravity",
+              "at": "2026-10-25T15:01:08.557932+00:00",
+              "session": "WhiteRoom 輸入與移動重用盤點",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            }
+          ]
+        },
+        {
+          "id": "host-dependency-inventory",
+          "title": "宿主依賴靜態盤點：唯讀核對 CombatAesthetic 套件資訊／組件定義、Yu5h1Lib 套件及 Core DLL 來源，列 Unity 6000.3.9f1 URP 依賴與缺口；只產出 Samples/WhiteRoom/Preparation/Host-Dependencies.md 與其中繼資料，附實際路徑／版本及未驗證項，不啟動 Unity 或還原依賴。",
+          "status": "done",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-25T05:58:15.465785+00:00",
+              "session": "CombatAesthetic WhiteRoom 準備項目建置",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "started",
+              "actor": "antigravity",
+              "at": "2026-10-25T14:16:47.825575+00:00",
+              "session": "WhiteRoom 宿主依賴靜態盤點",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "done",
+              "actor": "antigravity",
+              "at": "2026-10-25T14:26:53.184396+00:00",
+              "session": "WhiteRoom 宿主依賴靜態盤點",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            }
+          ]
+        }
+      ]
+    },
     {
       "id": "viewer-view-decision",
       "title": "釐清共用 Viewer／View 的範圍",
@@ -439,119 +593,6 @@
         "completed": 2,
         "total": 5
       }
-    },
-    {
-      "id": "white-room-stage0",
-      "title": "白色測試場：階段 0 準備",
-      "status": "in_progress",
-      "priority": 1,
-      "summary": "準備 WhiteRoom 宿主依賴、重用能力與跨平台資料重載案例。共用動畫系統已在 Yu5h1Lib/Character-Animation 建立獨立本地 repo 與規劃文件，目標為 agent 與人類都友善；系統問題改由其計畫續談。Combat Aesthetics 專注戰鬥整合，WhiteRoom 負責測試，Unity 6000.3.9f1 URP 為驗證宿主。四項準備工作仍依各自指令進行；本輪未實作。",
-      "pending_items": [
-        {
-          "id": "input-locomotion-inventory",
-          "title": "輸入與移動重用盤點：唯讀查 InputHandler、輸入後端、ILocomotor、NPCLocomotor 及鏡頭／2D 移動接合，對照八方向、轉向、跳躍與受力；只產出 Samples/WhiteRoom/Preparation/Input-Locomotion.md 與其中繼資料，列來源、可用部分、3D 限制與缺口，不設計新介面或修改程式。",
-          "status": "planned",
-          "priority": 1,
-          "activity": [
-            {
-              "event": "created",
-              "actor": "codex",
-              "at": "2026-10-25T05:58:15.465785+00:00",
-              "session": "CombatAesthetic WhiteRoom 準備項目建置",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            },
-            {
-              "event": "updated",
-              "actor": "codex",
-              "at": "2026-10-25T06:20:58.035121+00:00",
-              "session": "CombatAesthetic Report 中文化與 scope 更名",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            }
-          ]
-        },
-        {
-          "id": "runtime-motion-inventory",
-          "title": "執行階段動作能力盤點：唯讀查既有姿態、時序、狀態混合、IK、受力及保存能力，區分執行階段／編輯器與 Clip 耦合；只產出 Samples/WhiteRoom/Preparation/Runtime-Motion.md 與其中繼資料，依實際來源對照已確認流程，不把 Clip 或 Unity 編輯器列為必要管線，不定案資料結構／程式介面或實作。",
-          "status": "planned",
-          "priority": 1,
-          "activity": [
-            {
-              "event": "created",
-              "actor": "codex",
-              "at": "2026-10-25T05:58:15.465785+00:00",
-              "session": "CombatAesthetic WhiteRoom 準備項目建置",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            },
-            {
-              "event": "updated",
-              "actor": "codex",
-              "at": "2026-10-25T06:20:58.035121+00:00",
-              "session": "CombatAesthetic Report 中文化與 scope 更名",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            }
-          ]
-        },
-        {
-          "id": "motion-roundtrip-cases",
-          "title": "跨平台資料與重載案例整理：依已確認 UX，列固定骨架的姿勢／時序修改、預覽、保存、重載重現與保留受力案例，另列後續肢體系統的差異；只產出 Samples/WhiteRoom/Preparation/Motion-Roundtrip-Cases.md 與其中繼資料。兩路共用操作流程已確認，案例須有輸入／操作／可觀察結果；待決平台及格式明列，不自訂資料結構或實作。",
-          "status": "planned",
-          "priority": 1,
-          "activity": [
-            {
-              "event": "created",
-              "actor": "codex",
-              "at": "2026-10-25T05:58:15.465785+00:00",
-              "session": "CombatAesthetic WhiteRoom 準備項目建置",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            },
-            {
-              "event": "updated",
-              "actor": "codex",
-              "at": "2026-10-25T06:20:58.035121+00:00",
-              "session": "CombatAesthetic Report 中文化與 scope 更名",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            }
-          ]
-        }
-      ],
-      "completed_items": [
-        {
-          "id": "host-dependency-inventory",
-          "title": "宿主依賴靜態盤點：唯讀核對 CombatAesthetic 套件資訊／組件定義、Yu5h1Lib 套件及 Core DLL 來源，列 Unity 6000.3.9f1 URP 依賴與缺口；只產出 Samples/WhiteRoom/Preparation/Host-Dependencies.md 與其中繼資料，附實際路徑／版本及未驗證項，不啟動 Unity 或還原依賴。",
-          "status": "done",
-          "priority": 1,
-          "activity": [
-            {
-              "event": "created",
-              "actor": "codex",
-              "at": "2026-10-25T05:58:15.465785+00:00",
-              "session": "CombatAesthetic WhiteRoom 準備項目建置",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            },
-            {
-              "event": "updated",
-              "actor": "codex",
-              "at": "2026-10-25T06:20:58.035121+00:00",
-              "session": "CombatAesthetic Report 中文化與 scope 更名",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            },
-            {
-              "event": "started",
-              "actor": "antigravity",
-              "at": "2026-10-25T14:16:47.825575+00:00",
-              "session": "WhiteRoom 宿主依賴靜態盤點",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            },
-            {
-              "event": "done",
-              "actor": "antigravity",
-              "at": "2026-10-25T14:26:53.184396+00:00",
-              "session": "WhiteRoom 宿主依賴靜態盤點",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            }
-          ]
-        }
-      ]
     }
   ]
 }
