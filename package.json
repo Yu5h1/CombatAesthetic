@@ -1,33 +1,33 @@
-{
-  "name": "com.yu5h1.combataesthetic",
-  "version": "1.0.0",
-  "displayName": "Combat Aesthetic",
-  "description": "ToolKits for third person combat game",
-  "unity": "2024.1",
-  "dependencies": {
-    "com.unity.feature.2d": "1.0.0",
-    "com.unity.inputsystem": "1.7.0",
-    "com.unity.textmeshpro": "3.0.6",
-    "com.yu5h1.library": "1.0.1",
-    "com.yu5h1.common": "1.0.0",
-    "com.yu5h1.2d": "0.1.0",
-    "com.yu5h1.animation": "1.0.0",
-    "com.yu5h1.ui": "1.0.0"
-  },
-  "samples": [
-    {
-      "displayName": "White Room 3D PvE",
-      "description": "3D PvE White Room testing ground sample demonstrating 8-directional movement, jump, attack, guard, hit reaction, and third-person camera.",
-      "path": "Samples/WhiteRoom"
-    }
-  ],
-  "keywords": [
-    "GameSystem",
-    "Utility"
-  ],
-  "author": {
-    "name": "Yu5h1",
-    "url": "https://github.com/Yu5h1",
-    "email": "jenyu5h10415@gmail.com"
-  }
+﻿{
+    "name":  "com.yu5h1.combataesthetic",
+    "version":  "1.0.0",
+    "displayName":  "Combat Aesthetic",
+    "description":  "ToolKits for third person combat game",
+    "unity":  "2024.1",
+    "dependencies":  {
+                         "com.unity.feature.2d":  "1.0.0",
+                         "com.unity.inputsystem":  "1.7.0",
+                         "com.unity.textmeshpro":  "3.0.6",
+                         "com.yu5h1.library":  "1.0.1",
+                         "com.yu5h1.common":  "1.0.0",
+                         "com.yu5h1.2d":  "0.1.0",
+                         "com.yu5h1.animation":  "1.0.0",
+                         "com.yu5h1.ui":  "1.0.0"
+                     },
+    "samples":  [
+                    {
+                        "displayName":  "White Room 3D PvE",
+                        "description":  "3D PvE White Room testing ground sample demonstrating 8-directional movement, jump, crouch, attack, and guard.",
+                        "path":  "Samples~/WhiteRoom"
+                    }
+                ],
+    "keywords":  [
+                     "GameSystem",
+                     "Utility"
+                 ],
+    "author":  {
+                   "name":  "Yu5h1",
+                   "url":  "https://github.com/Yu5h1",
+                   "email":  "jenyu5h10415@gmail.com"
+               }
 }

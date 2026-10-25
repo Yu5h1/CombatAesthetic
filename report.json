@@ -4,8 +4,135 @@
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
   "summary": "以戰鬥美學為目標，持續釐清共用介面、遊戲資料、輸入、動畫及網路的責任邊界；白色測試場先準備跨平台動作製作與徒手 PvE 的驗證依據。製作介面評估 Web 或既有 3D Viewer，Unity 先作戰鬥驗證宿主。",
-  "updated_at": "2026-10-25T16:52:56.846202+00:00",
+  "updated_at": "2026-10-25T17:29:15.332045+00:00",
   "tasks": [
+    {
+      "id": "white-room-stage1",
+      "title": "白色測試場：階段 1 Sample 基線",
+      "status": "done",
+      "priority": 1,
+      "summary": "已建立 Samples~/WhiteRoom 結構與可執行 Demo，涵蓋移動（WASD 八方向）、跳躍（Space）、蹲下（C/Ctrl）、出招（左鍵）與普通/精準防禦（右鍵），並已成功匯入至 Yu5h1LibTest 專案中。",
+      "pending_items": [],
+      "completed_items": [
+        {
+          "id": "host-scene-import-build",
+          "title": "宿主場景匯入與 Windows Build 驗證：於選定 3D URP 宿主匯入 Sample、開啟場景並完成最小建置",
+          "status": "done",
+          "priority": 2,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:49:52.656465+00:00",
+              "session": "WhiteRoom 階段 1 Sample 基線規劃",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "done",
+              "actor": "antigravity",
+              "at": "2026-10-25T17:29:15.332045+00:00",
+              "session": "WhiteRoom 宿主場景匯入完成",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            }
+          ]
+        },
+        {
+          "id": "package-sample-registration",
+          "title": "Sample 登錄與相依宣告：於 package.json 登錄 WhiteRoom Sample 並補正 com.yu5h1.animation 與 com.yu5h1.ui 依賴",
+          "status": "done",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:49:52.656465+00:00",
+              "session": "WhiteRoom 階段 1 Sample 基線規劃",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "done",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:52:56.846202+00:00",
+              "session": "WhiteRoom Sample 登錄與相依宣告",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            }
+          ]
+        },
+        {
+          "id": "standalone-compile-guards",
+          "title": "套件編譯防護修復：移除 ParticleSystemEx.cs 與 MiniMap.cs 的未防護 using UnityEditor，解除 Standalone 編譯阻礙",
+          "status": "done",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:49:52.656465+00:00",
+              "session": "WhiteRoom 階段 1 Sample 基線規劃",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "done",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:52:29.710314+00:00",
+              "session": "WhiteRoom Standalone 編譯防護修復",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            }
+          ]
+        },
+        {
+          "id": "sample-assembly-setup",
+          "title": "Sample Assembly 邊界定義：建立 Samples/WhiteRoom/Runtime asmdef，隔離宿主 Assembly-CSharp 與既有 Runtime",
+          "status": "done",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:49:52.656465+00:00",
+              "session": "WhiteRoom 階段 1 Sample 基線規劃",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "done",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:51:48.896821+00:00",
+              "session": "WhiteRoom Sample Assembly 邊界定義",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            }
+          ]
+        },
+        {
+          "id": "sample-entry-readme",
+          "title": "Sample 結構與入口文件：建立 Samples/WhiteRoom/README.md 及中繼資料，定義匯入、控制、重設與驗證入口",
+          "status": "done",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "created",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:49:52.656465+00:00",
+              "session": "WhiteRoom 階段 1 Sample 基線規劃",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "started",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:50:11.199466+00:00",
+              "session": "WhiteRoom Sample 入口說明文件",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            },
+            {
+              "event": "done",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:50:54.210648+00:00",
+              "session": "WhiteRoom Sample 入口說明文件",
+              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
+            }
+          ]
+        }
+      ]
+    },
     {
       "id": "white-room-stage0",
       "title": "白色測試場：階段 0 準備",
@@ -598,127 +725,6 @@
         "completed": 2,
         "total": 5
       }
-    },
-    {
-      "id": "white-room-stage1",
-      "title": "白色測試場：階段 1 Sample 基線",
-      "status": "in_progress",
-      "priority": 1,
-      "summary": "建立 Sample 登錄、獨立 assembly 與最小 WhiteRoom 場景；在宿主匯入、開啟及製作最小 Windows build。",
-      "pending_items": [
-        {
-          "id": "host-scene-import-build",
-          "title": "宿主場景匯入與 Windows Build 驗證：於選定 3D URP 宿主匯入 Sample、開啟場景並完成最小建置",
-          "status": "planned",
-          "priority": 2,
-          "activity": [
-            {
-              "event": "created",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:49:52.656465+00:00",
-              "session": "WhiteRoom 階段 1 Sample 基線規劃",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            }
-          ]
-        }
-      ],
-      "completed_items": [
-        {
-          "id": "package-sample-registration",
-          "title": "Sample 登錄與相依宣告：於 package.json 登錄 WhiteRoom Sample 並補正 com.yu5h1.animation 與 com.yu5h1.ui 依賴",
-          "status": "done",
-          "priority": 1,
-          "activity": [
-            {
-              "event": "created",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:49:52.656465+00:00",
-              "session": "WhiteRoom 階段 1 Sample 基線規劃",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            },
-            {
-              "event": "done",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:52:56.846202+00:00",
-              "session": "WhiteRoom Sample 登錄與相依宣告",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            }
-          ]
-        },
-        {
-          "id": "standalone-compile-guards",
-          "title": "套件編譯防護修復：移除 ParticleSystemEx.cs 與 MiniMap.cs 的未防護 using UnityEditor，解除 Standalone 編譯阻礙",
-          "status": "done",
-          "priority": 1,
-          "activity": [
-            {
-              "event": "created",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:49:52.656465+00:00",
-              "session": "WhiteRoom 階段 1 Sample 基線規劃",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            },
-            {
-              "event": "done",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:52:29.710314+00:00",
-              "session": "WhiteRoom Standalone 編譯防護修復",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            }
-          ]
-        },
-        {
-          "id": "sample-assembly-setup",
-          "title": "Sample Assembly 邊界定義：建立 Samples/WhiteRoom/Runtime asmdef，隔離宿主 Assembly-CSharp 與既有 Runtime",
-          "status": "done",
-          "priority": 1,
-          "activity": [
-            {
-              "event": "created",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:49:52.656465+00:00",
-              "session": "WhiteRoom 階段 1 Sample 基線規劃",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            },
-            {
-              "event": "done",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:51:48.896821+00:00",
-              "session": "WhiteRoom Sample Assembly 邊界定義",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            }
-          ]
-        },
-        {
-          "id": "sample-entry-readme",
-          "title": "Sample 結構與入口文件：建立 Samples/WhiteRoom/README.md 及中繼資料，定義匯入、控制、重設與驗證入口",
-          "status": "done",
-          "priority": 1,
-          "activity": [
-            {
-              "event": "created",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:49:52.656465+00:00",
-              "session": "WhiteRoom 階段 1 Sample 基線規劃",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            },
-            {
-              "event": "started",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:50:11.199466+00:00",
-              "session": "WhiteRoom Sample 入口說明文件",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            },
-            {
-              "event": "done",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:50:54.210648+00:00",
-              "session": "WhiteRoom Sample 入口說明文件",
-              "session_id": "727dcd00-926f-4d16-a21e-cdf41ab314a4"
-            }
-          ]
-        }
-      ]
     }
   ],
   "next": {
