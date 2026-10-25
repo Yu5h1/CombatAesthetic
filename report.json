@@ -4,7 +4,7 @@
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
   "summary": "以戰鬥美學為目標，持續釐清共用介面、遊戲資料、輸入、動畫及網路的責任邊界；白色測試場先準備跨平台動作製作與徒手 PvE 的驗證依據。製作介面評估 Web 或既有 3D Viewer，Unity 先作戰鬥驗證宿主。",
-  "updated_at": "2026-10-25T14:21:23.100605+08:00",
+  "updated_at": "2026-10-25T06:49:01.737830+00:00",
   "tasks": [
     {
       "id": "viewer-view-decision",
@@ -445,7 +445,7 @@
       "title": "白色測試場：階段 0 準備",
       "status": "planned",
       "priority": 1,
-      "summary": "依 Samples/WhiteRoom/Implementation-Plan.md〈問題與目標〉，準備跨平台執行階段動作製作與徒手 PvE 所需的既有能力、宿主依賴及重載案例證據。先做唯讀盤點與指定文件；首宿主為 Unity 6000.3.9f1 URP。兩種動作測試共用操作流程已確認；製作介面先評估 Web／既有 3D Viewer，平台與資料設計仍待釐清，不在 Unity 製作編輯器。本卡不授權實作。",
+      "summary": "準備 WhiteRoom 宿主依賴、重用能力與跨平台資料重載案例。共用動畫系統已在 Yu5h1Lib/Character-Animation 建立獨立本地 repo 與規劃文件，目標為 agent 與人類都友善；系統問題改由其計畫續談。Combat Aesthetics 專注戰鬥整合，WhiteRoom 負責測試，Unity 6000.3.9f1 URP 為驗證宿主。四項準備工作仍依各自指令進行；本輪未實作。",
       "pending_items": [
         {
           "id": "host-dependency-inventory",
