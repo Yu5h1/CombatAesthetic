@@ -2,6 +2,12 @@
 
 GitHub repository: [Yu5h1/Combat-Aesthetics](https://github.com/Yu5h1/Combat-Aesthetics). The user requested this repository rename; origin uses the new URL. Local folder, Unity package identifier and code type names retain their existing names. TaskProgress scope remains `combat-aesthetic`.
 
+## Local checkout path migration
+
+The user explicitly paused the local directory rename. Keep `Unity/CombatAesthetic` and the TaskProgress registration at that existing path. No move or compatibility junction was created. The GitHub repository name and origin remain `Yu5h1/Combat-Aesthetics`.
+
+The user also declined changes to KFC's dirty `Packages/manifest.json` and `Packages/packages-lock.json`; preserve both files. They still reference the existing local package path. Yu5h1LibTest was inspected read-only: no CombatAesthetic reference was found in Assets, Packages or asset junction targets; do not add a dependency merely to perform this rename. Resume path migration only when the user explicitly asks; do not keep asking for the declined file edits. No Unity instance was launched or package resolution run.
+
 ## WhiteRoom sample planning
 
 Current user direction: keep WhiteRoom in this existing package's Sample scope. The canonical implementation plan is [Samples/WhiteRoom/Implementation-Plan.md](Samples/WhiteRoom/Implementation-Plan.md). It supersedes the independent product-host proposal from the UX discussion. This request authorizes planning, commit and push only; no demo implementation, Sample registration, dependency change or asset acquisition.
@@ -94,6 +100,7 @@ Later split adapters:
 5. Only then create package branches and move files in small batches.
 
 ## Open decisions
+
 
 - WhiteRoom Sample: [尚未決定](Samples/WhiteRoom/Implementation-Plan.md#尚未決定) owns this consumer's integration, host directory, precise-defense and import/assembly questions. The separate system's [尚未決定](../../Character-Animation/plan.md#尚未決定) is owned by Character-Animation and routed by its handoff; do not decide or duplicate those answers here. Repo name/location, the split, both test approaches and shared-operation flow are agreed alongside the Unity 6000.3.9f1 URP validation baseline.
 - Progression and ascension: [尚未決定](Documentation/plans/Progression-and-Ascension-Design.md#尚未決定). This is a discussion draft, not an approved implementation specification.
