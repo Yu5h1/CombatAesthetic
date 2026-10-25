@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using Yu5h1Lib;
 using static UnityEngine.ParticleSystem;
