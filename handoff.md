@@ -36,6 +36,8 @@ Systems that are generally reusable outside this action-combat aesthetic layer s
 
 ## Coordination Notes
 
+- Follows UnityExtension House Conventions in [Unity/UnityExtension/.agents/introduction.md](../UnityExtension/.agents/introduction.md): never read UnityEngine.Input directly, always use Yu5h1Lib.InputHandler.
+
 - No active `handoff.md` existed before this file.
 - Do not implement package moves yet unless the user explicitly asks.
 - Existing code has not been moved or refactored in this planning pass.
