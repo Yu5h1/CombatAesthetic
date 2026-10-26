@@ -10,6 +10,8 @@ The user subsequently asked to finish the reference repair. KFC's `Packages/mani
 
 ## WhiteRoom sample planning
 
+For the user's return to gameplay acceptance, start with [WhiteRoom 靜態驗收紀錄](Documentation/WhiteRoom-Acceptance.md). It pins the inspected host copy and implementation and separates source findings from unexecuted runtime checks. The user accepted the updated [實作階段](Samples~/WhiteRoom/Implementation-Plan.md#實作階段) and [連線驗證路線](Samples~/WhiteRoom/Implementation-Plan.md#連線驗證路線): design for online synchronization, validate minimal combat on localhost/LAN with simulated adverse network conditions in stage 1, then expand gameplay. This turn updates documentation only; it does not authorize implementation or select a network stack. Older planning-only observations below are historical context.
+
 Current user direction: keep WhiteRoom in this existing package's Sample scope. The canonical implementation plan is [Samples~/WhiteRoom/Implementation-Plan.md](Samples~/WhiteRoom/Implementation-Plan.md). It supersedes the independent product-host proposal from the UX discussion. This request authorizes planning, commit and push only; no demo implementation, Sample registration, dependency change or asset acquisition.
 
 First delivery is a 3D PvE loop: movement/jump, stationary/directional attack, ordinary/precise defense, hit response/recovery, third-person camera and reset. Follow the plan for stages, acceptance and [美術與角色方向](Samples~/WhiteRoom/Implementation-Plan.md#美術與角色方向); do not resume per-reaction interviews before resolving delivery prerequisites. Broader package extraction discussions below are separate work.
