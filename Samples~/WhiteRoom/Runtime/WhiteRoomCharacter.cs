@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-#endif
+using Yu5h1Lib;
 
 namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
 {
@@ -96,15 +94,7 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
 
         private void HandleResetInput()
         {
-            bool resetPressed = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
-                resetPressed = true;
-#endif
-            if (Input.GetKeyDown(KeyCode.R))
-                resetPressed = true;
-
-            if (resetPressed)
+            if (InputHandler.GetKeyDown(KeyCode.R))
             {
                 ResetCharacter();
             }
@@ -132,36 +122,15 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
         {
             if (_state == CharacterActionState.Flinching) return;
 
-            // Attack input (Left Mouse Button)
-            bool attackPressed = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-                attackPressed = true;
-#endif
-            if (Input.GetMouseButtonDown(0))
-                attackPressed = true;
+            // Attack input (Left Mouse Button) via InputHandler
+            bool attackPressed = InputHandler.GetMouseButtonDown(0);
 
-            // Guard input (Right Mouse Button)
-            bool guardHeld = false;
-            bool guardPressed = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Mouse.current != null)
-            {
-                guardHeld = Mouse.current.rightButton.isPressed;
-                guardPressed = Mouse.current.rightButton.wasPressedThisFrame;
-            }
-#endif
-            if (Input.GetMouseButton(1)) guardHeld = true;
-            if (Input.GetMouseButtonDown(1)) guardPressed = true;
+            // Guard input (Right Mouse Button) via InputHandler
+            bool guardHeld = InputHandler.GetMouseButton(1);
+            bool guardPressed = InputHandler.GetMouseButtonDown(1);
 
-            // Crouch input (C key or Left Ctrl)
-            bool crouchPressed = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Keyboard.current != null && (Keyboard.current.cKey.wasPressedThisFrame || Keyboard.current.leftCtrlKey.wasPressedThisFrame))
-                crouchPressed = true;
-#endif
-            if (Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.LeftControl))
-                crouchPressed = true;
+            // Crouch input (C key or Left Ctrl) via InputHandler
+            bool crouchPressed = InputHandler.GetKeyDown(KeyCode.C) || InputHandler.GetKeyDown(KeyCode.LeftControl);
 
             if (crouchPressed && _controller.isGrounded && _state != CharacterActionState.Attacking)
             {
@@ -312,13 +281,7 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
             {
                 _verticalVelocity = -2f; // Slight downward snap
 
-                bool jumpPressed = false;
-#if ENABLE_INPUT_SYSTEM
-                if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-                    jumpPressed = true;
-#endif
-                if (Input.GetKeyDown(KeyCode.Space))
-                    jumpPressed = true;
+                bool jumpPressed = InputHandler.GetKeyDown(KeyCode.Space);
 
                 if (jumpPressed && !_isCrouching && _state != CharacterActionState.Attacking && _state != CharacterActionState.Flinching)
                 {
@@ -403,20 +366,10 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
         private Vector2 ReadMoveInput()
         {
             Vector2 input = Vector2.zero;
-#if ENABLE_INPUT_SYSTEM
-            if (Keyboard.current != null)
-            {
-                if (Keyboard.current.wKey.isPressed) input.y += 1f;
-                if (Keyboard.current.sKey.isPressed) input.y -= 1f;
-                if (Keyboard.current.aKey.isPressed) input.x -= 1f;
-                if (Keyboard.current.dKey.isPressed) input.x += 1f;
-            }
-#endif
-            if (input == Vector2.zero)
-            {
-                input.x = Input.GetAxisRaw("Horizontal");
-                input.y = Input.GetAxisRaw("Vertical");
-            }
+            if (InputHandler.GetKey(KeyCode.W) || InputHandler.GetKey(KeyCode.UpArrow)) input.y += 1f;
+            if (InputHandler.GetKey(KeyCode.S) || InputHandler.GetKey(KeyCode.DownArrow)) input.y -= 1f;
+            if (InputHandler.GetKey(KeyCode.A) || InputHandler.GetKey(KeyCode.LeftArrow)) input.x -= 1f;
+            if (InputHandler.GetKey(KeyCode.D) || InputHandler.GetKey(KeyCode.RightArrow)) input.x += 1f;
             return Vector2.ClampMagnitude(input, 1f);
         }
 

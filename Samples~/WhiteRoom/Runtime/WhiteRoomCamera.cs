@@ -1,4 +1,5 @@
 using UnityEngine;
+using Yu5h1Lib;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -42,14 +43,8 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
 
         private void Update()
         {
-            // Toggle cursor lock with Left Alt or Escape
-            bool toggleCursor = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Keyboard.current != null && (Keyboard.current.leftAltKey.wasPressedThisFrame || Keyboard.current.escapeKey.wasPressedThisFrame))
-                toggleCursor = true;
-#endif
-            if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.Escape))
-                toggleCursor = true;
+            // Toggle cursor lock with Left Alt or Escape via InputHandler
+            bool toggleCursor = InputHandler.GetKeyDown(KeyCode.LeftAlt) || InputHandler.GetKeyDown(KeyCode.Escape);
 
             if (toggleCursor)
             {
@@ -74,12 +69,10 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
                 {
                     mouseDelta = Mouse.current.delta.ReadValue() * 0.1f;
                 }
+#else
+                mouseDelta.x = InputHandler.GetAxis("Mouse X");
+                mouseDelta.y = InputHandler.GetAxis("Mouse Y");
 #endif
-                if (mouseDelta == Vector2.zero)
-                {
-                    mouseDelta.x = Input.GetAxis("Mouse X");
-                    mouseDelta.y = Input.GetAxis("Mouse Y");
-                }
 
                 _yaw += mouseDelta.x * _mouseSensitivity;
                 _pitch -= mouseDelta.y * _mouseSensitivity;
