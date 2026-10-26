@@ -3,8 +3,8 @@
   "report_id": "combataesthetic-progress",
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
-  "summary": "以戰鬥美學為目標釐清共用介面、遊戲資料、輸入、動畫及網路邊界；WhiteRoom 負責 Unity 戰鬥接用與驗證，形體與動作系統由 [Data-driven Report](/?scope=data-driven) 追蹤，包含 geometry 與 animation 模組。Web 共用能力沿 Yu5h1Lib.Web 發展。",
-  "updated_at": "2026-10-26T12:58:12.436868+00:00",
+  "summary": "以戰鬥美學為目標釐清共用介面、遊戲資料、輸入、動畫及網路邊界；WhiteRoom 負責 Unity 戰鬥接用與驗證，形體與動作系統由 [Data-driven Report](/?scope=data-driven) 追蹤，包含 limb 與 animation 模組。Web 共用能力沿 Yu5h1Lib.Web 發展。",
+  "updated_at": "2026-10-26T13:37:19.315206+00:00",
   "tasks": [
     {
       "id": "white-room-stage1",

@@ -50,7 +50,7 @@ flowchart TD
 | **網格與外觀 (Mesh)** | **固定幾何外殼**：由 agent 預先製作的素面白幾何外觀與深色關節，預先綁定權重。 | **程序化生成 (Markup & Procedural Mesh)**：由肢體系統依據描述語言動態生成表面網格。 |
 | **資料語意 (Data Semantics)** | 標準化人形筋肉數值（Muscles $[-1, 1]$）或本地關節旋轉。 | 肢體段落長度、生長方向、生長曲線與自訂節點約束。 |
 | **首交驗證責任** | **首交必要範圍**：驗證完整的 PvE 循環與動作調整往返閉環。 | **首交非必要條件**：保留後續擴充接用介面，不阻礙首輪 PvE 交付。 |
-| **歸屬與邊界** | 屬於 CombatAesthetic / WhiteRoom 首輪整合與驗證範圍。 | 屬於獨立 `Yu5h1Lib/data-driven/geometry`（或相關獨立計畫），WhiteRoom 僅作為消費端測試場。 |
+| **歸屬與邊界** | 屬於 CombatAesthetic / WhiteRoom 首輪整合與驗證範圍。 | 屬於獨立 `Yu5h1Lib/data-driven/limb`（或相關獨立計畫），WhiteRoom 僅作為消費端測試場。 |
 
 ---
 

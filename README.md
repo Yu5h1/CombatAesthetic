@@ -7,7 +7,7 @@
 ```text
 Yu5h1Lib
 ├─ UX：跨平台戰鬥操作體驗與互動規則
-├─ data-driven：geometry 形體生成／修形、animation 動作資料與播放
+├─ data-driven：limb 形體生成／修形、animation 動作資料與播放
 ├─ Web：Web 共用套件、Viewer 與製作／預覽入口
 └─ Unity/Combat-Aesthetics：Unity 戰鬥整合
    └─ Samples~/WhiteRoom：角色、動畫、戰鬥與連線的測試場
