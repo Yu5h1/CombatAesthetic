@@ -10,7 +10,7 @@
 
 WhiteRoom 是 CombatAesthetic 套件的官方 3D 徒手 PvE 測試場範例（Sample）。其核心使命為：
 1. **驗證第三人稱動作對戰美學**：以可累積、可重用的方式展示角色八方向移動、跳躍、原地/方向出招、普通與精準防禦、受擊反應與受力因果。
-2. **驗證跨平台動作製作管線**：作為獨立動作系統（`Yu5h1Lib/Character-Animation`）跨平台資料在 Unity 宿主環境的消費與重播驗證端。
+2. **驗證跨平台動作製作管線**：作為獨立動作系統（`Yu5h1Lib/data-driven/animation`）跨平台資料在 Unity 宿主環境的消費與重播驗證端。
 3. **提供乾淨的情境重設機制**：允許測試者（人類或 AI）在白色空間中反覆驗證對戰規則，在不累積受擊殘留與速度快照的前提下快速重置。
 
 ---
@@ -20,7 +20,7 @@ WhiteRoom 是 CombatAesthetic 套件的官方 3D 徒手 PvE 測試場範例（Sa
 WhiteRoom 遵循獨立 Assembly 邊界原則，嚴格隔離宿主專案腳本（不依賴 `Assembly-CSharp`），避免將範例邏輯反向污染套件核心 Runtime：
 
 ```text
-Samples/WhiteRoom/
+Samples~/WhiteRoom/
 ├─ README.md                  本文件：匯入、操作、重設與驗收入口
 ├─ Implementation-Plan.md     完整實作計畫與階段規劃
 ├─ Existing-Capabilities.md   既有能力與模組重用分析
@@ -80,5 +80,5 @@ WhiteRoom 支援讀取獨立動作系統保存的非二進位（去 `.anim` / �
 ## 6. 驗證與驗收流程
 
 1. **靜態相容性**：確認套件未引用宿主特定代碼，Standalone Player 編譯無警告。
-2. **場景載入**：開啟 `Samples/WhiteRoom/Scenes/WhiteRoom.unity`，確認素面白色測試場與機械角色模型正確呈現。
+2. **場景載入**：開啟 `Samples~/WhiteRoom/Scenes/WhiteRoom.unity`，確認素面白色測試場與機械角色模型正確呈現。
 3. **PvE 循環驗證**：進入 PlayMode，依序操作八方向移動、跳躍、原地/方向出招、防禦與重設，比對各招式之打擊感、防禦反饋與物理動量延續。

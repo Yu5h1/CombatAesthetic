@@ -6,8 +6,8 @@
 
 ```text
 Yu5h1Lib
-├─ UX：跨平台戰鬥操作體驗、行為規則與動畫格式規範
-├─ Character-Animation：agent／人類友善的動畫系統與製作流程整合
+├─ UX：跨平台戰鬥操作體驗與互動規則
+├─ data-driven：geometry 形體生成／修形、animation 動作資料與播放
 ├─ Web：Web 共用套件、Viewer 與製作／預覽入口
 └─ Unity/Combat-Aesthetics：Unity 戰鬥整合
    └─ Samples~/WhiteRoom：角色、動畫、戰鬥與連線的測試場
@@ -15,7 +15,7 @@ Yu5h1Lib
 
 UX 說明玩家要經歷什麼、操作和結果應如何對應，作為各平台共同依據。此套件的 [WhiteRoom 實作計畫](Samples~/WhiteRoom/Implementation-Plan.md) 說明 Unity 端如何分階段整合與驗證；動畫系統、Web 共用能力與格式規範按各自歸屬接用。
 
-工作區中的戰鬥體驗來源為 `UX/Documentation/CombatAesthetic-Experience-Discovery.md`；動畫系統方向為 `Character-Animation/plan.md`，Web 共用觀看邊界為 `Web/Documentation/ViewerInteractionPlan.md`。動畫格式仍在評估，正式規範由 UX 維護。
+工作區中的戰鬥體驗來源為 `UX/Documentation/CombatAesthetic-Experience-Discovery.md`；形體與動作整體方向為 `data-driven/plan.md`，動畫資料方向為 `data-driven/animation/plan.md`。Web 共用觀看邊界見 `Web/Documentation/ViewerInteractionPlan.md`；領域資料規範由 data-driven 規劃，操作體驗引用 UX。
 
 ## WhiteRoom 發展方向
 

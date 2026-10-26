@@ -3,8 +3,8 @@
   "report_id": "combataesthetic-progress",
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
-  "summary": "以戰鬥美學為目標，持續釐清共用介面、遊戲資料、輸入、動畫及網路的責任邊界；白色測試場先準備跨平台動作製作與徒手 PvE 的驗證依據。製作介面評估 Web 或既有 3D Viewer，Unity 先作戰鬥驗證宿主。",
-  "updated_at": "2026-10-25T17:29:15.332045+00:00",
+  "summary": "以戰鬥美學為目標釐清共用介面、遊戲資料、輸入、動畫及網路邊界；WhiteRoom 負責 Unity 戰鬥接用與驗證，形體與動作系統由 [Data-driven Report](/?scope=data-driven) 追蹤，包含 geometry 與 animation 模組。Web 共用能力沿 Yu5h1Lib.Web 發展。",
+  "updated_at": "2026-10-26T12:58:12.436868+00:00",
   "tasks": [
     {
       "id": "white-room-stage1",
@@ -286,6 +286,14 @@
           ]
         }
       ]
+    },
+    {
+      "id": "data-driven",
+      "title": "Data-driven：形體與動作系統",
+      "kind": "report_pointer",
+      "report_ref": {
+        "scope_id": "data-driven"
+      }
     },
     {
       "id": "viewer-view-decision",

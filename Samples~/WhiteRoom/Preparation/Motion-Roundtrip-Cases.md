@@ -2,7 +2,7 @@
 
 > 執行項目：`white-room-stage0` › `motion-roundtrip-cases`  
 > 基準日期：2026-10-25  
-> 整理依據：[WhiteRoom 實作計畫](../Implementation-Plan.md)、[Character Animation 計畫](../../../../Character-Animation/plan.md)、[既有能力對照](../Existing-Capabilities.md) 與已確認 UX 規格  
+> 整理依據：[WhiteRoom 實作計畫](../Implementation-Plan.md)、[Animation 計畫](../../../../../data-driven/animation/plan.md)、[既有能力對照](../Existing-Capabilities.md) 與已確認 UX 規格
 > 限制約定：純唯讀整理，不自訂資料結構、不預設 API 實作、不私自回答待決決策。
 
 ---
@@ -11,7 +11,7 @@
 
 在 WhiteRoom 的第一個可操作交付中，動作系統不僅要支援常規 3D PvE 戰鬥（移動、跳躍、攻擊、防禦與受擊），同時肩負驗證**跨平台資料驅動動作製作管線**的責任。
 
-依據使用者在 `Implementation-Plan.md` 與 `Character-Animation/plan.md` 的明確約定：
+依據使用者在 `Implementation-Plan.md` 與 `data-driven/animation/plan.md` 的明確約定：
 1. **動作資料跨平台與去引擎化**：製作與播放不依賴 FBX 或 Unity 專屬二進位 `.anim` Clip，採用人類與 agent 皆友善的跨平台資料表達。
 2. **兩路動作測試共用操作流**：首輪「固定人形骨架（簡單幾何外殼）」與後續「獨立肢體系統（LimbSystem）」已確認共用同一套姿態調整、預覽、保存與重載流程。
 3. **受力因果與動量保留**：動作切換、受擊或中斷時，原有速度與受力衝量不得突兀被歸零，需具備物理動量保留機制。
@@ -50,7 +50,7 @@ flowchart TD
 | **網格與外觀 (Mesh)** | **固定幾何外殼**：由 agent 預先製作的素面白幾何外觀與深色關節，預先綁定權重。 | **程序化生成 (Markup & Procedural Mesh)**：由肢體系統依據描述語言動態生成表面網格。 |
 | **資料語意 (Data Semantics)** | 標準化人形筋肉數值（Muscles $[-1, 1]$）或本地關節旋轉。 | 肢體段落長度、生長方向、生長曲線與自訂節點約束。 |
 | **首交驗證責任** | **首交必要範圍**：驗證完整的 PvE 循環與動作調整往返閉環。 | **首交非必要條件**：保留後續擴充接用介面，不阻礙首輪 PvE 交付。 |
-| **歸屬與邊界** | 屬於 CombatAesthetic / WhiteRoom 首輪整合與驗證範圍。 | 屬於獨立 `Yu5h1Lib/LimbSystem`（或相關獨立計畫），WhiteRoom 僅作為消費端測試場。 |
+| **歸屬與邊界** | 屬於 CombatAesthetic / WhiteRoom 首輪整合與驗證範圍。 | 屬於獨立 `Yu5h1Lib/data-driven/geometry`（或相關獨立計畫），WhiteRoom 僅作為消費端測試場。 |
 
 ---
 
@@ -142,8 +142,8 @@ flowchart TD
 
 | 編號 | 待決項目 | 當前考量與候選方向 | 後續定案歸屬 |
 |---|---|---|---|
-| **D1** | **動作製作介面載體** | 候選方向：Web 介面 vs 使用者既有 3D Viewer。不在 Unity Editor 內部綁死製作工具，以利獨立跨平台。 | Character-Animation 計畫 |
-| **D2** | **跨平台資料交換格式** | 候選方向：人類可讀的 JSON / YAML vs 緊湊二進位（FlatBuffers / MsgPack）。需兼顧文字版本追蹤與載入效能。 | Character-Animation 計畫 |
-| **D3** | **骨架姿態語法與自由度** | 候選方向：Unity-like Humanoid 筋肉數值（Muscles 95 維度陣列） vs 骨骼關節本地旋轉四元數（Local Rotation Quaternions）。筋肉跨模型通用性佳但語意抽象；四元數直觀但受骨架 T-Pose 軸向影響。 | Character-Animation 計畫 |
+| **D1** | **動作製作介面載體** | 候選方向：Web 介面 vs 使用者既有 3D Viewer。不在 Unity Editor 內部綁死製作工具，以利獨立跨平台。 | data-driven/animation 計畫 |
+| **D2** | **跨平台資料交換格式** | 候選方向：人類可讀的 JSON / YAML vs 緊湊二進位（FlatBuffers / MsgPack）。需兼顧文字版本追蹤與載入效能。 | data-driven/animation 計畫 |
+| **D3** | **骨架姿態語法與自由度** | 候選方向：Unity-like Humanoid 筋肉數值（Muscles 95 維度陣列） vs 骨骼關節本地旋轉四元數（Local Rotation Quaternions）。筋肉跨模型通用性佳但語意抽象；四元數直觀但受骨架 T-Pose 軸向影響。 | data-driven/animation 計畫 |
 | **D4** | **WhiteRoom 資料熱重載機制** | 候選方向：本機檔案監視器（FileWatcher）自動熱載入 vs WebSocket / Local IPC 本地通訊即時同步。 | CombatAesthetic / WhiteRoom 計畫 |
 | **D5** | **動量衰減模型參數** | 候選方向：基於實體物理 Rigidbody Drag / Friction vs 基於曲線插值的運動學速度衰減（Kinematic Decay）。需兼顧操控手感與受力因果。 | WhiteRoom 階段 1-2 實作收斂 |
