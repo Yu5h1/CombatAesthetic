@@ -4,7 +4,7 @@
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
   "summary": "以戰鬥美學為目標釐清共用介面、遊戲資料、輸入、動畫及網路邊界；WhiteRoom 負責 Unity 戰鬥接用與驗證，形體與動作系統由 [Data-driven Report](/?scope=data-driven) 追蹤，包含 limb 與 animation 模組。Web 共用能力沿 Yu5h1Lib.Web 發展。",
-  "updated_at": "2026-10-26T13:37:19.315206+00:00",
+  "updated_at": "2026-10-27T19:06:38.313089+00:00",
   "tasks": [
     {
       "id": "white-room-stage1",
@@ -733,6 +733,92 @@
         "completed": 2,
         "total": 5
       }
+    },
+    {
+      "id": "camera-controller-extraction",
+      "title": "CombatAesthetic 攝影機附屬功能拆分",
+      "status": "planned",
+      "summary": "將既有 CameraController 的游標、點擊特效、Sorting Layer 遮罩及淡出拆出，各自擁有狀態與更新責任；攝影機控制接用 UnityExtension 的[共用攝影機控制卡](/?scope=unity-extension&pin=camera-controller)。保留 KFC 與套件既有 API、資產及 UnityEvent 接線的相容遷移路線。本輪僅建立任務與項目，拆分與實作未開始。",
+      "pending_items": [
+        {
+          "id": "cursor-extraction",
+          "title": "拆出游標呈現：移出 cursorRenderer、cursorVisible、cursorSprite 與游標位置更新；以明確的座標輸入更新顯示，保留 KFC Draw 等既有消費入口。",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-27T19:06:38.313089+00:00",
+              "session": "攝影機控制收斂任務建卡"
+            }
+          ]
+        },
+        {
+          "id": "click-effect-extraction",
+          "title": "拆出點擊特效：移出 Cursor_Fx、資源建立及 PlayCursorEffect；由消費端的點擊或指標事件提供觸發位置，避免攝影機更新直接讀按鍵並播放特效。",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-27T19:06:38.313089+00:00",
+              "session": "攝影機控制收斂任務建卡"
+            }
+          ]
+        },
+        {
+          "id": "sorting-layer-mask-extraction",
+          "title": "拆出 Sorting Layer 遮罩：移出 SortingLayerSprites、遮罩建立、投影尺寸與深度對齊；攝影機僅提供所需投影資訊，遮罩元件自行管理 Renderer 與更新。",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-27T19:06:38.313089+00:00",
+              "session": "攝影機控制收斂任務建卡"
+            }
+          ]
+        },
+        {
+          "id": "fade-extraction",
+          "title": "拆出淡出／遮罩轉場：移出 FoldUp 與 OverrideFadeMethod 的轉場協調；區分遮罩幾何與淡出時序，保留 KFC 的自訂淡出與背景圖整合。",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-27T19:06:38.313089+00:00",
+              "session": "攝影機控制收斂任務建卡"
+            }
+          ]
+        },
+        {
+          "id": "legacy-compatibility",
+          "title": "整理相容遷移：盤點 CameraController、CameraAssist、CameraControllerAgent、GameManager、SceneController、KFC 與 Editor 工具的呼叫；保留必要委派入口、腳本 GUID、序列化欄位及 UnityEvent 接線。",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-27T19:06:38.313089+00:00",
+              "session": "攝影機控制收斂任務建卡"
+            }
+          ]
+        },
+        {
+          "id": "extraction-acceptance",
+          "title": "驗證拆分後責任與既有行為：攝影機核心不再擁有游標、點擊特效、Sorting Layer 遮罩或淡出更新；各功能可獨立啟停，KFC 游標／點擊／淡出及聚焦演出相容。",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-27T19:06:38.313089+00:00",
+              "session": "攝影機控制收斂任務建卡"
+            }
+          ]
+        }
+      ]
     }
   ],
   "next": {
