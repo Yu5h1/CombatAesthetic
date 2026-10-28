@@ -4,7 +4,7 @@
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
   "summary": "以戰鬥美學為目標釐清共用介面、遊戲資料、輸入、動畫及網路邊界；WhiteRoom 負責 Unity 戰鬥接用與驗證，形體與動作系統由 [Data-driven Report](/?scope=data-driven) 追蹤，包含 limb 與 animation 模組。Web 共用能力沿 Yu5h1Lib.Web 發展。",
-  "updated_at": "2026-10-27T19:06:38.313089+00:00",
+  "updated_at": "2026-10-28T17:42:18.517620+00:00",
   "tasks": [
     {
       "id": "white-room-stage1",
@@ -530,6 +530,20 @@
               "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
             }
           ]
+        },
+        {
+          "id": "kfc-classification-input",
+          "title": "以 KFC 盤點的類別歸屬表（KFC 的 Documentation/Refactor-Migration-Plan.md，含 KFC 對每個類別的引用量與既有套件重複清單）作為 class-to-package map 的輸入；入口見 [KFC 總覽卡](/?scope=kfc&pin=refactor-migration)",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "claude",
+              "at": "2026-10-28T17:42:18.517620+00:00",
+              "session": "KFC 重構遷移計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            }
+          ]
         }
       ]
     },
@@ -815,6 +829,119 @@
               "actor": "codex",
               "at": "2026-10-27T19:06:38.313089+00:00",
               "session": "攝影機控制收斂任務建卡"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "refactor-plan",
+      "title": "重構計畫",
+      "status": "planned",
+      "summary": "依 Documentation/plans/Refactor-Plan.md 整理 Combat-Aesthetics 的文件命名與攝影機責任：專案文件名稱統一為 Combat-Aesthetics，Camera Controller 沿用[共用控制分析與項目](/?scope=unity-extension&pin=camera-controller)及[附屬功能拆分](/?scope=combat-aesthetic&pin=camera-controller-extraction)。本卡提供總覽，Camera 細項與進度由既有卡片維護。",
+      "pending_items": [
+        {
+          "id": "documentation-rename",
+          "title": "將 Combat Aesthetic／CombatAesthetic 相關文件的專案名稱統一為 Combat-Aesthetics：盤點標題、說明、含舊名的文件檔名與引用，修正連結及錨點；程式型別、套件 ID、scope／任務 ID 與必要歷史說明保留。",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-28T17:04:35.580586+00:00",
+              "session": "Combat-Aesthetics 重構計畫"
+            }
+          ]
+        },
+        {
+          "id": "camera-controller-refactor",
+          "title": "Camera Controller 重構：依計畫引用的重構分析推進；細項沿用[共用攝影機控制](/?scope=unity-extension&pin=camera-controller)與[附屬功能拆分](/?scope=combat-aesthetic&pin=camera-controller-extraction)，涵蓋 InputSource、Follow、LookDirection、2D 與既有消費端相容性。",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "codex",
+              "at": "2026-10-28T17:04:35.580586+00:00",
+              "session": "Combat-Aesthetics 重構計畫"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kfc-migration-support",
+      "title": "支援 KFC 遷移：遷出 KFC 專有內容並保留相容入口",
+      "status": "planned",
+      "priority": 2,
+      "summary": "配合 [KFC 重構遷移計畫](/?scope=kfc&pin=refactor-migration)：把只有 KFC 使用的內容交還 KFC、統一顯示名稱、抽出通用類別時保留 script GUID，並在移除舊入口前提供委派。需求細節見 KFC 的 Documentation/Requirements.Combat-Aesthetics.md。",
+      "pending_items": [
+        {
+          "id": "display-name",
+          "title": "package.json 的 displayName 由 Combat Aesthetic 改為 Combat-Aesthetics；套件 ID、asmdef 與型別名稱不動（KFC-COMBATAESTHETICS-1）",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "claude",
+              "at": "2026-10-28T17:42:18.517620+00:00",
+              "session": "KFC 重構遷移計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            }
+          ]
+        },
+        {
+          "id": "move-kfc-only",
+          "title": "把 CannonballFly_SMB 與 DebugSetting 連同 .meta 交給 KFC，GUID 不變，套件內不保留副本（KFC-COMBATAESTHETICS-2）",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "claude",
+              "at": "2026-10-28T17:42:18.517620+00:00",
+              "session": "KFC 重構遷移計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            }
+          ]
+        },
+        {
+          "id": "pigment-hook",
+          "title": "AnimatorCharacterController2D.SetAllSkillActivate 內隱藏紅黃藍能量條的邏輯改為事件或可覆寫入口，由 KFC 接回；列舉值去向等 KFC 決策與本套件討論題 1（KFC-COMBATAESTHETICS-2）",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "claude",
+              "at": "2026-10-28T17:42:18.517620+00:00",
+              "session": "KFC 重構遷移計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            }
+          ]
+        },
+        {
+          "id": "guid-preserving-extraction",
+          "title": "抽出通用類別到 Yu5h1Lib 套件時連同 .meta 搬移、不改序列化欄位名；每批以 KFC 六個 build 場景無 Missing Script 驗收（KFC-COMBATAESTHETICS-3）",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "claude",
+              "at": "2026-10-28T17:42:18.517620+00:00",
+              "session": "KFC 重構遷移計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            }
+          ]
+        },
+        {
+          "id": "legacy-entry-shims",
+          "title": "移除 FoldUp、OverrideFadeMethod、cursorSprite、GameManager.MovePlayer 等 KFC 直接呼叫的舊入口前先委派給新擁有者，與[攝影機附屬功能拆分卡](/?scope=combat-aesthetic&pin=camera-controller-extraction)的 legacy-compatibility 一致（KFC-COMBATAESTHETICS-4）",
+          "status": "planned",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "claude",
+              "at": "2026-10-28T17:42:18.517620+00:00",
+              "session": "KFC 重構遷移計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
             }
           ]
         }
