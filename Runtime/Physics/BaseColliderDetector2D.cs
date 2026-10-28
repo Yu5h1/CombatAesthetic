@@ -12,7 +12,7 @@ public class BaseColliderDetector2D : Rigidbody2DBehaviour , ITransform2D
 
     public ContactFilter2D filter;
     public LayerMask layerMask { get => filter.layerMask; set => filter.layerMask = value; }
-    public RaycastHit2D[] results;
+    public RaycastHit2D[] results { get; set; }
     [Range(0, 1.0f)]
     public float distance = 0.2f;
     [SerializeField, Range(1, 10)]

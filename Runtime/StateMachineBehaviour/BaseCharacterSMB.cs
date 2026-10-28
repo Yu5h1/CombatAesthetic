@@ -10,7 +10,7 @@ public abstract class BaseCharacterSMB : StateMachineBehaviour
 {
     public AnimatorCharacterController2D owner { get; private set; }
     public Animator animator { get; private set; }
-    public Dictionary<string, AnimatorControllerParameter> Parameters;
+    public Dictionary<string, AnimatorControllerParameter> Parameters { get; set; }
 
 
     public virtual void Init(AnimatorCharacterController2D characterController)

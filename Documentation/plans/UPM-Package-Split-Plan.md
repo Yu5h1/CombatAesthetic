@@ -1,6 +1,19 @@
 # CombatAesthetic UPM 拆包討論計畫
 
-本文只討論拆分策略，不實作搬檔。目標是把目前 `com.yu5h1.combataesthetic` 從「整包工具箱」整理成可重用、可替換、可逐步多人化的 package 組合。
+本文記錄 Combat-Aesthetics 的演進方向。已確認先在同一 repo 隔離新戰鬥基礎，由 WhiteRoom 驗證。後文的套件名稱與分層仍是候選，不代表必須立即建立多個 package。
+
+## 已確認的演進與遷移方向
+
+```text
+Combat-Aesthetics repo
+├─ 既有 2D 元件與相容入口 ← 既有使用端
+└─ 新戰鬥基礎 → 經驗證的 Yu5h1Lib 共用能力
+   └─ WhiteRoom：驗證最小 3D 戰鬥與連線案例
+```
+
+本工作範圍是新戰鬥基礎與 WhiteRoom。先界定新舊依賴與狀態責任，再發展最小連線案例；新戰鬥基礎不依賴舊 GameManager 或 2D 角色控制器。保留仍被使用的舊入口與資產識別，避免開發新基礎時破壞既有使用端。
+
+KFC 的逐步遷移仍是必要工作，但由使用者在另一個 session 處理。本計畫不制定其遷移批次、驗收條件或玩法變更，也不以 KFC 遷移完成作為 WhiteRoom 的前置條件。原先在此展開的遷移流程已因工作範圍更正而移除。
 
 ## 目前判斷
 
@@ -39,7 +52,7 @@ CombatAesthetic 現在比較像一個 2D 動作遊戲原型框架，而不是單
 | `com.yu5h1.combat.ui` | Attribute UI、stat bar/counter/animation、combat prompt | combat.2d/UI |
 | `com.yu5h1.network` | Transport/channel abstraction、local loopback、lag simulator、future rollback sync | combat.core 或獨立純 C# |
 
-短期可以不一次開這麼多 package。實務上建議先開 4 個邊界：
+以下四個邊界保留作候選分析；實際邊界由 WhiteRoom 的需求與既有能力盤點決定，不直接照表建立 package：
 
 1. `gameplay.core`
 2. `gameplay.2d`
@@ -286,5 +299,4 @@ Core / common
 1. `AttributeType` 這類 gameplay enum 要不要做成可擴充資料表，而不是 enum？
 2. `HostData2D` 要保留 ScriptableObject authoring，還是切成 runtime command interface + ScriptableObject adapter？
 3. Combat core 是否真的要純 C#，支援 server DLL？若是，`Vector2`/`Time`/`Physics2D` 都要被隔離。
-4. 目前外包 2D 專案的短期需求，是先穩定角色控制/技能/AI，還是先整理 package 可重用性？
-5. `CombatAesthetic` 最後要變成 umbrella package、sample package，還是完全拆空只留文件？
+4. `CombatAesthetic` 最後要變成 umbrella package、sample package，還是完全拆空只留文件？

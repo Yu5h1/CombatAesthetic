@@ -10,7 +10,7 @@ public abstract class StateMachineAdvanced : StateMachineBehaviour
 {
     public string StateName;
     public Animator animator { get; private set; }
-    public Dictionary<string, AnimatorControllerParameter> Parameters;
+    public Dictionary<string, AnimatorControllerParameter> Parameters { get; set; }
 
     public virtual void Init()
     {

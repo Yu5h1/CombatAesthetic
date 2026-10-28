@@ -43,7 +43,7 @@ public class CameraController : SingletonBehaviour<CameraController>
     public Vector3 followOffset = new Vector3(0,0.75f,-5);
     public float bg_depth = 5;
 
-    public Dictionary<string,SpriteRenderer> SortingLayerSprites = new Dictionary<string, SpriteRenderer>();
+    public Dictionary<string,SpriteRenderer> SortingLayerSprites { get; set; } =  new Dictionary<string, SpriteRenderer>();
 
 
     
@@ -62,7 +62,7 @@ public class CameraController : SingletonBehaviour<CameraController>
     private Vector3 currentVelocity;
     
     public Timer timer { get; private set; } = new Timer();
-    public Timer.Wait waiter;
+    public Timer.Wait waiter { get; set; }
 
     private Coroutine coroutineCache;
     [SerializeField]

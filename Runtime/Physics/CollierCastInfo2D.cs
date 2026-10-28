@@ -29,7 +29,7 @@ namespace Yu5h1Lib.Game.Character
         public LayerMask layerMask { get => filter.layerMask; set => filter.layerMask = value; }
 
         [ReadOnly]
-        public RaycastHit2D[] results;
+        public RaycastHit2D[] results { set; get; }
 
         public RaycastHit2D this[int index] => results[Mathf.Clamp(index, 1, 10)];
 

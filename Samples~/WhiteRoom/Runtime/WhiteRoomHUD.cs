@@ -1,36 +1,49 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
 {
+    [Serializable]
+    public struct CombatLogEntry
+    {
+        public float timestamp;
+        public string message;
+    }
+
+    [Serializable]
+    public class CombatSessionLogExport
+    {
+        public string sessionTimestamp;
+        public string unityVersion;
+        public string scenario;
+        public List<CombatLogEntry> logs = new List<CombatLogEntry>();
+    }
+
     public class WhiteRoomHUD : MonoBehaviour
     {
-        [SerializeField] private WhiteRoomCharacter _playerCharacter;
-        [SerializeField] private WhiteRoomDummy _dummy;
-
         private readonly List<string> _actionLogs = new List<string>();
-        private const int MaxLogs = 7;
+        private readonly List<CombatLogEntry> _allHistoryLogs = new List<CombatLogEntry>();
+        private const int MaxDisplayLogs = 7;
 
         // 不良網路模擬器
         private readonly SimulatedNetworkChannel _networkChannel = new SimulatedNetworkChannel();
-        private bool _showNetworkPanel = true;
-        private bool _twoPlayerMode = false;
+        private bool _showDebugPanel = true;
+
+        // UI 區塊 Rect 用於焦點偵測
+        private Rect _rectStatusPanel;
+        private Rect _rectDebugPanel;
+        private Rect _rectHelpPanel;
+        private Rect _rectLogsPanel;
 
         public SimulatedNetworkChannel NetworkChannel => _networkChannel;
 
         private void Start()
         {
-            if (_playerCharacter == null) _playerCharacter = FindFirstObjectByType<WhiteRoomCharacter>();
-            if (_dummy == null) _dummy = FindFirstObjectByType<WhiteRoomDummy>();
+            RefreshBindings();
 
-            if (_playerCharacter != null && _playerCharacter.Entity != null)
-            {
-                _playerCharacter.Entity.OnCombatLog += LogAction;
-            }
-            if (_dummy != null && _dummy.Entity != null)
-            {
-                _dummy.Entity.OnCombatLog += LogAction;
-            }
+            CombatEntity.OnGlobalArenaReset += HandleGlobalReset;
 
             _networkChannel.OnPacketDropped += msg =>
             {
@@ -38,133 +51,218 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
             };
         }
 
+        private void OnDestroy()
+        {
+            CombatEntity.OnGlobalArenaReset -= HandleGlobalReset;
+            UnbindAll();
+        }
+
         private void Update()
         {
             _networkChannel.UpdateQueue();
+
+            // F1 快速切換診斷面板
+            if (InputHandler.GetKeyDown(KeyCode.F1))
+            {
+                _showDebugPanel = !_showDebugPanel;
+            }
         }
 
-        private void OnDestroy()
+        public void RefreshBindings()
         {
-            if (_playerCharacter != null && _playerCharacter.Entity != null)
+            UnbindAll();
+            foreach (var entity in CombatEntity.ActiveEntities)
             {
-                _playerCharacter.Entity.OnCombatLog -= LogAction;
+                if (entity != null)
+                {
+                    entity.OnCombatLog += LogAction;
+                }
             }
-            if (_dummy != null && _dummy.Entity != null)
+        }
+
+        private void UnbindAll()
+        {
+            foreach (var entity in CombatEntity.ActiveEntities)
             {
-                _dummy.Entity.OnCombatLog -= LogAction;
+                if (entity != null)
+                {
+                    entity.OnCombatLog -= LogAction;
+                }
             }
+        }
+
+        private void HandleGlobalReset()
+        {
+            _networkChannel.ResetStats();
+            LogAction("【全場統一重設】角色生命、位置、AI 冷卻/目標及網路佇列已清空還原。");
         }
 
         private void LogAction(string message)
         {
-            _actionLogs.Add($"[{Time.time:F2}s] {message}");
-            if (_actionLogs.Count > MaxLogs)
+            string formatted = $"[{Time.time:F2}s] {message}";
+            _actionLogs.Add(formatted);
+            if (_actionLogs.Count > MaxDisplayLogs)
             {
                 _actionLogs.RemoveAt(0);
+            }
+
+            _allHistoryLogs.Add(new CombatLogEntry
+            {
+                timestamp = Time.time,
+                message = message
+            });
+        }
+
+        private void ExportStructuredLogs()
+        {
+            var builder = FindAnyObjectByType<WhiteRoomSceneBuilder>();
+            var export = new CombatSessionLogExport
+            {
+                sessionTimestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                unityVersion = Application.unityVersion,
+                scenario = builder != null ? builder.CurrentScenario.ToString() : "Default",
+                logs = new List<CombatLogEntry>(_allHistoryLogs)
+            };
+
+            string json = JsonUtility.ToJson(export, true);
+            string filename = $"WhiteRoom_Logs_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+            string path = Path.Combine(Application.persistentDataPath, filename);
+
+            try
+            {
+                File.WriteAllText(path, json);
+                LogAction($"<color=cyan>【紀錄匯出成功】路徑: {path}</color>");
+                Debug.Log($"[WhiteRoomHUD] 結構化日誌成功匯出至: {path}");
+            }
+            catch (Exception ex)
+            {
+                LogAction($"<color=red>【紀錄匯出失敗】{ex.Message}</color>");
             }
         }
 
         private void OnGUI()
         {
-            GUI.skin.label.fontSize = 13;
-            GUI.skin.box.fontSize = 13;
-            GUI.skin.button.fontSize = 13;
+            GUI.skin.label.fontSize = 12;
+            GUI.skin.box.fontSize = 12;
+            GUI.skin.button.fontSize = 12;
 
-            // 1. 左上方：戰鬥狀態與生命條
-            GUILayout.BeginArea(new Rect(15, 15, 380, 260), GUI.skin.box);
-            GUILayout.Label("<b><size=15>WhiteRoom 3D 連線戰鬥測試場</size></b>");
-            GUILayout.Space(4);
+            _rectStatusPanel = new Rect(15, 15, 380, 275);
+            _rectDebugPanel = new Rect(Screen.width - 340, 15, 325, 295);
+            _rectHelpPanel = new Rect(15, Screen.height - 185, 420, 170);
+            _rectLogsPanel = new Rect(Screen.width - 480, Screen.height - 215, 465, 200);
 
-            // 玩家 1 狀態
-            if (_playerCharacter != null && _playerCharacter.Entity != null)
+            // 操作焦點規則：當滑鼠游標位於任一面板內時，由面板獲取焦點，停止玩家戰鬥按鍵採集與鏡頭旋轉
+            Vector2 mousePos = Event.current.mousePosition;
+            bool isMouseOverUI = _rectStatusPanel.Contains(mousePos) ||
+                                (_showDebugPanel && _rectDebugPanel.Contains(mousePos)) ||
+                                _rectHelpPanel.Contains(mousePos) ||
+                                _rectLogsPanel.Contains(mousePos);
+            WhiteRoomCharacter.IsUIFocused = isMouseOverUI;
+
+            // 1. 左上方：戰鬥狀態、全場實體與情境切換
+            GUILayout.BeginArea(_rectStatusPanel, GUI.skin.box);
+            GUILayout.Label("<b><size=14>WhiteRoom 戰鬥與情境控制</size></b>");
+            GUILayout.Space(2);
+
+            // 動態列出所有活動實體狀態
+            var entities = CombatEntity.ActiveEntities;
+            for (int i = 0; i < entities.Count; i++)
             {
-                var pe = _playerCharacter.Entity;
-                GUILayout.Label($"<b>玩家 1 (P1)</b>：HP {pe.CurrentHealth:F0}/{pe.MaxHealth:F0}  [{pe.State}]");
-                DrawHealthBar(pe.CurrentHealth, pe.MaxHealth, Color.green);
+                var ent = entities[i];
+                if (ent == null) continue;
+
+                string teamLabel = ent.TeamId == 0 ? "<color=#4da6ff>[隊伍0-友方]</color>" : "<color=#ff6666>[隊伍1-敵方]</color>";
+                GUILayout.Label($"<b>{ent.EntityId}</b> {teamLabel} HP: {ent.CurrentHealth:F0}/{ent.MaxHealth:F0} [{ent.State}]");
+                Color barColor = ent.TeamId == 0 ? Color.green : Color.red;
+                DrawHealthBar(ent.CurrentHealth, ent.MaxHealth, barColor);
             }
 
             GUILayout.Space(6);
-
-            // 假人 / 對手狀態
-            if (_dummy != null && _dummy.Entity != null)
-            {
-                var de = _dummy.Entity;
-                GUILayout.Label($"<b>訓練假人 (AI)</b>：HP {de.CurrentHealth:F0}/{de.MaxHealth:F0}  [{de.State}]");
-                DrawHealthBar(de.CurrentHealth, de.MaxHealth, Color.red);
-            }
-
-            GUILayout.Space(8);
 
             // 全場統一重設按鈕
             if (GUILayout.Button("【全場統一重設 [R]】"))
             {
                 CombatEntity.ResetAllArenaEntities();
-                _networkChannel.ResetStats();
             }
 
-            // 同機雙人模式切換
-            bool new2P = GUILayout.Toggle(_twoPlayerMode, "啟用同機雙人模式 (2P: 方向鍵+小鍵盤)");
-            if (new2P != _twoPlayerMode)
+            // 情境配置切換
+            GUILayout.Space(4);
+            GUILayout.Label("<b>情境配置切換：</b>");
+            GUILayout.BeginHorizontal();
+            var builder = FindAnyObjectByType<WhiteRoomSceneBuilder>();
+            if (GUILayout.Button("1P vs 1 AI"))
             {
-                _twoPlayerMode = new2P;
-                if (_dummy != null)
-                {
-                    _dummy.enabled = !_twoPlayerMode;
-                    var p2 = _dummy.GetComponent<WhiteRoomCharacter>();
-                    if (_twoPlayerMode && p2 == null)
-                    {
-                        p2 = _dummy.gameObject.AddComponent<WhiteRoomCharacter>();
-                        p2.SetControlScheme(true);
-                    }
-                    else if (p2 != null)
-                    {
-                        p2.enabled = _twoPlayerMode;
-                    }
-                }
+                if (builder != null) builder.ApplyScenario(ArenaScenario.OnePlayerVsOneAI);
             }
+            if (GUILayout.Button("1P vs 2 AI"))
+            {
+                if (builder != null) builder.ApplyScenario(ArenaScenario.OnePlayerVsTwoAI);
+            }
+            if (GUILayout.Button("2P vs 2 AI"))
+            {
+                if (builder != null) builder.ApplyScenario(ArenaScenario.TwoPlayerVsTwoAI);
+            }
+            if (GUILayout.Button("2P PvP"))
+            {
+                if (builder != null) builder.ApplyScenario(ArenaScenario.TwoPlayerPvP);
+            }
+            GUILayout.EndHorizontal();
 
             GUILayout.EndArea();
 
-            // 2. 右上方：不良網路條件模擬面板
-            if (_showNetworkPanel)
+            // 2. 右上方：不良網路條件模擬與真實網路狀態標記
+            if (_showDebugPanel)
             {
-                GUILayout.BeginArea(new Rect(Screen.width - 330, 15, 315, 230), GUI.skin.box);
-                GUILayout.Label("<b><size=14>不良網路模擬器 (Adverse Network)</size></b>");
+                GUILayout.BeginArea(_rectDebugPanel, GUI.skin.box);
+                GUILayout.Label("<b><size=13>診斷面板 (F1 開關) - 網路狀態標記</size></b>");
+                GUILayout.Space(2);
 
-                GUILayout.Label($"延遲 (Latency)：{_networkChannel.LatencyMs:F0} ms");
+                // 明確標記真實網路資訊（未接通真實網路時不可用）
+                GUILayout.Label("• <b>真實傳輸層</b>：<color=yellow>未連接 (不可用 / N/A)</color>");
+                GUILayout.Label("• <b>主機判定延遲 / 修正</b>：<color=orange>[不可用 - 尚未接入真實網路]</color>");
+                GUILayout.Label("• <b>本地模擬通道</b>：單一程序記憶體佇列 (僅供延遲參數實驗)");
+                GUILayout.Space(4);
+
+                GUILayout.Label($"模擬延遲 (Latency)：{_networkChannel.LatencyMs:F0} ms");
                 _networkChannel.LatencyMs = GUILayout.HorizontalSlider(_networkChannel.LatencyMs, 0f, 300f);
 
-                GUILayout.Label($"抖動 (Jitter)：±{_networkChannel.JitterMs:F0} ms");
+                GUILayout.Label($"模擬抖動 (Jitter)：±{_networkChannel.JitterMs:F0} ms");
                 _networkChannel.JitterMs = GUILayout.HorizontalSlider(_networkChannel.JitterMs, 0f, 50f);
 
-                GUILayout.Label($"丟包率 (Packet Loss)：{(_networkChannel.PacketLossRate * 100f):F0} %");
+                GUILayout.Label($"模擬丟包率 (Packet Loss)：{(_networkChannel.PacketLossRate * 100f):F0} %");
                 _networkChannel.PacketLossRate = GUILayout.HorizontalSlider(_networkChannel.PacketLossRate, 0f, 0.25f);
 
-                GUILayout.Space(6);
-                GUILayout.Label($"已發送封包: {_networkChannel.TotalSent} | 遺失: {_networkChannel.TotalDropped}");
+                GUILayout.Space(4);
+                GUILayout.Label($"佇列送出: {_networkChannel.TotalSent} | 遺失: {_networkChannel.TotalDropped}");
 
-                if (GUILayout.Button("測試發送同步心跳封包"))
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("發送心跳封包"))
                 {
                     _networkChannel.SendPacket("P1", CombatActionIntent.Empty);
                 }
+                if (GUILayout.Button("【匯出結構化紀錄 (JSON)】"))
+                {
+                    ExportStructuredLogs();
+                }
+                GUILayout.EndHorizontal();
 
                 GUILayout.EndArea();
             }
 
             // 3. 左下方：操作指南
-            GUILayout.BeginArea(new Rect(15, Screen.height - 180, 420, 165), GUI.skin.box);
+            GUILayout.BeginArea(_rectHelpPanel, GUI.skin.box);
             GUILayout.Label("<b>操作說明 (UX Verified)</b>");
-            GUILayout.Label("• <b>WASD</b>：8 方向移動（相對於第 3 人稱鏡頭）");
-            GUILayout.Label("• <b>Space</b>：起跳（具有重力與貼地）");
-            GUILayout.Label("• <b>Left Ctrl</b>：按住蹲下（放開自動起身）；<b>C</b>：切換蹲下");
-            GUILayout.Label("• <b>滑鼠左鍵</b>：發動攻擊（蓄力前搖 0.2s -> 打擊 0.15s -> 收招 0.25s）");
-            GUILayout.Label("• <b>滑鼠右鍵</b>：長按格擋（減傷80%）；0.18s 內點按觸發<b>精準彈刀</b>中斷敵人！");
-            GUILayout.Label("• <b>R 鍵</b>：全場重設（重置生命、位置、速度、計時）");
+            GUILayout.Label("• <b>WASD</b>：8 方向移動；<b>Space</b>：起跳落地恢復");
+            GUILayout.Label("• <b>Left Ctrl</b>：按住蹲下（放開起身）；<b>C</b>：切換蹲下");
+            GUILayout.Label("• <b>滑鼠左鍵</b>：出招（前搖 0.2s -> 打擊 0.15s -> 收招 0.25s）");
+            GUILayout.Label("• <b>滑鼠右鍵</b>：長按防禦（減傷80%，可<b>警戒慢步</b>）；<b>快速點按放開</b>觸發<b>精準彈刀 (Parry)</b> 中止敵方攻擊！");
+            GUILayout.Label("• <b>R 鍵</b>：全場重設（重置生命、位置、AI冷卻與目標、網路佇列）");
+            GUILayout.Label("• <b>F1</b>：開關診斷面板；滑鼠進入面板時自動釋放游標並暫停戰鬥輸入");
             GUILayout.EndArea();
 
             // 4. 右下方：即時戰鬥事件日誌
-            GUILayout.BeginArea(new Rect(Screen.width - 460, Screen.height - 210, 445, 195), GUI.skin.box);
-            GUILayout.Label("<b>即時攻防判定與網路紀錄</b>");
+            GUILayout.BeginArea(_rectLogsPanel, GUI.skin.box);
+            GUILayout.Label("<b>即時攻防判定與戰鬥紀錄</b>");
             foreach (var log in _actionLogs)
             {
                 GUILayout.Label(log);
@@ -174,7 +272,7 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
 
         private void DrawHealthBar(float current, float max, Color barColor)
         {
-            Rect r = GUILayoutUtility.GetRect(200, 14);
+            Rect r = GUILayoutUtility.GetRect(200, 12);
             GUI.Box(r, "");
             float pct = Mathf.Clamp01(current / Mathf.Max(1f, max));
             Rect fillRect = new Rect(r.x + 1, r.y + 1, (r.width - 2) * pct, r.height - 2);

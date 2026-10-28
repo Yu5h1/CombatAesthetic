@@ -19,7 +19,8 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
     }
 
     /// <summary>
-    /// 不良網路模擬通道：提供延遲 (Latency)、抖動 (Jitter) 與丟包 (Packet Loss) 測試支援
+    /// 不良網路模擬通道：提供延遲 (Latency)、抖動 (Jitter) 與丟包 (Packet Loss) 參數實驗。
+    /// 【注意】：此通道目前為單一程序內的記憶體模擬佇列，未接入真實傳輸層，不代表跨程序傳輸、主機裁定或 LAN 真實連線。
     /// </summary>
     public class SimulatedNetworkChannel
     {

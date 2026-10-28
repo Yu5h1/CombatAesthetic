@@ -7,7 +7,6 @@ using Yu5h1Lib.EditorPrefsExtension;
 
 namespace Yu5h1Lib
 {
-    using DG.Tweening;
     using EditorExtension;
     using System.Collections.Generic;
 

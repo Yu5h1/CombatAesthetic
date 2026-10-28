@@ -12,6 +12,19 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
 
         private CombatEntity _entity;
 
+        // UI 互動焦點：當滑鼠在除錯面板操作時，鎖定戰鬥輸入，避免點擊面板誤觸發出招或防禦
+        public static bool IsUIFocused { get; set; } = false;
+
+        // 防禦與彈刀時序識別（點按 vs 長按）
+        private float _p1RmbDownTime = -1f;
+        private bool _p1RmbWasDown = false;
+
+        private float _p2GuardDownTime = -1f;
+        private bool _p2GuardWasDown = false;
+
+        private const float ParryTapThreshold = 0.22f; // 快速按下並放開（<=0.22s）判定為精準彈刀
+        private const float GuardHoldThreshold = 0.16f; // 長按（>0.16s）進入常態防禦姿態
+
         public CombatEntity Entity => _entity;
         public CombatState CurrentState => _entity != null ? _entity.State : CombatState.Idle;
         public bool IsCrouching => _entity != null && _entity.IsCrouching;
@@ -51,6 +64,15 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
             CombatActionIntent intent = CombatActionIntent.Empty;
             intent.Timestamp = Time.time;
 
+            // 全場統一重設隨時可由 R 鍵觸發
+            intent.GlobalReset = InputHandler.GetKeyDown(KeyCode.R);
+
+            // 若面板取得操作焦點，停止採集戰鬥與位移指令
+            if (IsUIFocused)
+            {
+                return intent;
+            }
+
             if (_usePlayer2ControlScheme)
             {
                 // Player 2 控制方案（同機雙人測試驗證：方向鍵 + 右側數字鍵）
@@ -65,9 +87,34 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
                 intent.CrouchHold = InputHandler.GetKey(KeyCode.DownArrow) && InputHandler.GetKey(KeyCode.RightShift);
                 intent.CrouchToggle = InputHandler.GetKeyDown(KeyCode.KeypadPeriod);
                 intent.Attack = InputHandler.GetKeyDown(KeyCode.Keypad1) || InputHandler.GetKeyDown(KeyCode.Return);
-                intent.GuardHold = InputHandler.GetKey(KeyCode.Keypad2) || InputHandler.GetKey(KeyCode.RightAlt);
-                intent.ParryTap = InputHandler.GetKeyDown(KeyCode.Keypad2) || InputHandler.GetKeyDown(KeyCode.RightAlt);
-                intent.GlobalReset = InputHandler.GetKeyDown(KeyCode.R);
+
+                // P2 防禦採集（Keypad 2 或 Right Alt）：區分點按彈刀 vs 長按格擋
+                bool p2GuardKey = InputHandler.GetKey(KeyCode.Keypad2) || InputHandler.GetKey(KeyCode.RightAlt);
+                bool p2GuardKeyDown = InputHandler.GetKeyDown(KeyCode.Keypad2) || InputHandler.GetKeyDown(KeyCode.RightAlt);
+                bool p2GuardKeyUp = InputHandler.GetKeyUp(KeyCode.Keypad2) || InputHandler.GetKeyUp(KeyCode.RightAlt);
+
+                if (p2GuardKeyDown)
+                {
+                    _p2GuardDownTime = Time.time;
+                    _p2GuardWasDown = true;
+                }
+
+                if (p2GuardKeyUp && _p2GuardWasDown)
+                {
+                    if (Time.time - _p2GuardDownTime <= ParryTapThreshold)
+                    {
+                        intent.ParryTap = true; // 點按彈刀
+                    }
+                    _p2GuardWasDown = false;
+                    _p2GuardDownTime = -1f;
+                }
+                else if (p2GuardKey && _p2GuardWasDown)
+                {
+                    if (Time.time - _p2GuardDownTime > GuardHoldThreshold)
+                    {
+                        intent.GuardHold = true; // 長按格擋
+                    }
+                }
             }
             else
             {
@@ -85,9 +132,36 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
                 intent.CrouchToggle = InputHandler.GetKeyDown(KeyCode.C);
 
                 intent.Attack = InputHandler.GetMouseButtonDown(0);
-                intent.GuardHold = InputHandler.GetMouseButton(1);
-                intent.ParryTap = InputHandler.GetMouseButtonDown(1);
-                intent.GlobalReset = InputHandler.GetKeyDown(KeyCode.R);
+
+                // P1 防禦採集（右鍵）：嚴格區分點按彈刀 vs 長按格擋
+                bool rmbKey = InputHandler.GetMouseButton(1);
+                bool rmbDown = InputHandler.GetMouseButtonDown(1);
+                bool rmbUp = InputHandler.GetMouseButtonUp(1);
+
+                if (rmbDown)
+                {
+                    _p1RmbDownTime = Time.time;
+                    _p1RmbWasDown = true;
+                }
+
+                if (rmbUp && _p1RmbWasDown)
+                {
+                    // 快速按下放開（<=0.22s）：觸發精準彈刀 (Parry)
+                    if (Time.time - _p1RmbDownTime <= ParryTapThreshold)
+                    {
+                        intent.ParryTap = true;
+                    }
+                    _p1RmbWasDown = false;
+                    _p1RmbDownTime = -1f;
+                }
+                else if (rmbKey && _p1RmbWasDown)
+                {
+                    // 按住超過點按時限：進入普通防禦姿態 (GuardHold)
+                    if (Time.time - _p1RmbDownTime > GuardHoldThreshold)
+                    {
+                        intent.GuardHold = true;
+                    }
+                }
             }
 
             return intent;
@@ -103,7 +177,7 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
             // 向後相容或由假人觸發
             if (_entity != null)
             {
-                CombatEntity dummyAttacker = FindFirstObjectByType<CombatEntity>();
+                CombatEntity dummyAttacker = FindAnyObjectByType<CombatEntity>();
                 _entity.TakeHit(dummyAttacker, damage, knockback);
             }
         }

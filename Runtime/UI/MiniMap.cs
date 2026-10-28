@@ -12,7 +12,7 @@ public class MiniMap : MonoBehaviour
 {
     public readonly string Tag = $"{nameof(MiniMap)}Camera";
 
-    public LinkedList<GameObject> objs;
+    public LinkedList<GameObject> objs { get; set; }
     [Serializable]
     public class TagInfo
     {

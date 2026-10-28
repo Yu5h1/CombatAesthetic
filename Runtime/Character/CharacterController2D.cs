@@ -134,7 +134,7 @@ namespace Yu5h1Lib.Game.Character
                 hostBehaviour = host.CreateBehaviour(this);
             }
         }
-        public HostData2D.HostBehaviour2D hostBehaviour;
+        public HostData2D.HostBehaviour2D hostBehaviour { get; set; }
 
         public bool TriggerJump = false;
         [SerializeField,ReadOnly]

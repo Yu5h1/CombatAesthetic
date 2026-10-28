@@ -43,6 +43,17 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
 
         private void Update()
         {
+            // 当除错面板取得操作焦点时，释放光标并禁止旋转镜头
+            if (WhiteRoomCharacter.IsUIFocused)
+            {
+                if (Cursor.lockState == CursorLockMode.Locked)
+                {
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                }
+                return;
+            }
+
             // Toggle cursor lock with Left Alt or Escape via InputHandler
             bool toggleCursor = InputHandler.GetKeyDown(KeyCode.LeftAlt) || InputHandler.GetKeyDown(KeyCode.Escape);
 
