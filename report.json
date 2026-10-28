@@ -4,7 +4,7 @@
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
   "summary": "以戰鬥美學為目標釐清共用介面、遊戲資料、輸入、動畫及網路邊界；WhiteRoom 負責 Unity 戰鬥接用與驗證，形體與動作系統由 [Data-driven Report](/?scope=data-driven) 追蹤，包含 limb 與 animation 模組。Web 共用能力沿 Yu5h1Lib.Web 發展。",
-  "updated_at": "2026-10-28T17:42:18.517620+00:00",
+  "updated_at": "2026-10-28T19:28:11.158776+00:00",
   "tasks": [
     {
       "id": "white-room-stage1",
@@ -533,7 +533,7 @@
         },
         {
           "id": "kfc-classification-input",
-          "title": "以 KFC 盤點的類別歸屬表（KFC 的 Documentation/Refactor-Migration-Plan.md，含 KFC 對每個類別的引用量與既有套件重複清單）作為 class-to-package map 的輸入；入口見 [KFC 總覽卡](/?scope=kfc&pin=refactor-migration)",
+          "title": "以 KFC 盤點的類別歸屬表（KFC 的 Documentation/Refactor-Migration-Plan.md，含 KFC 對每個類別的引用量與既有套件重複清單）作為 class-to-package map 的輸入；KFC 決策（2026-10-29）：搬移前先逐功能確認既有 Yu5h1Lib 模組能否取代（例：PlayerPrefs 存取改用 common PlayerPreferences 綁定 UI），能取代的以取代代替搬移。入口見 [KFC 總覽卡](/?scope=kfc&pin=refactor-migration)",
           "status": "planned",
           "activity": [
             {
@@ -541,6 +541,13 @@
               "actor": "claude",
               "at": "2026-10-28T17:42:18.517620+00:00",
               "session": "KFC 重構遷移計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            },
+            {
+              "event": "updated",
+              "actor": "claude",
+              "at": "2026-10-28T19:28:11.158776+00:00",
+              "session": "KFC 遊戲專案重構計畫",
               "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
             }
           ]
@@ -905,7 +912,7 @@
         },
         {
           "id": "pigment-hook",
-          "title": "AnimatorCharacterController2D.SetAllSkillActivate 內隱藏紅黃藍能量條的邏輯改為事件或可覆寫入口，由 KFC 接回；列舉值去向等 KFC 決策與本套件討論題 1（KFC-COMBATAESTHETICS-2）",
+          "title": "AnimatorCharacterController2D.SetAllSkillActivate 內隱藏紅黃藍能量條的邏輯改為事件或可覆寫入口；KFC 已決定接回，接回時間依其畫線功能拆解分析；列舉值去向等本套件討論題 1（KFC-COMBATAESTHETICS-2）",
           "status": "planned",
           "activity": [
             {
@@ -913,6 +920,13 @@
               "actor": "claude",
               "at": "2026-10-28T17:42:18.517620+00:00",
               "session": "KFC 重構遷移計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            },
+            {
+              "event": "updated",
+              "actor": "claude",
+              "at": "2026-10-28T19:28:11.158776+00:00",
+              "session": "KFC 遊戲專案重構計畫",
               "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
             }
           ]
