@@ -4,7 +4,7 @@
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
   "summary": "以戰鬥美學為目標釐清共用介面、遊戲資料、輸入、動畫及網路邊界；WhiteRoom 負責 Unity 戰鬥接用與驗證，形體與動作系統由 [Data-driven Report](/?scope=data-driven) 追蹤，包含 limb 與 animation 模組。Web 共用能力沿 Yu5h1Lib.Web 發展。",
-  "updated_at": "2026-10-28T19:41:48.368627+00:00",
+  "updated_at": "2026-10-28T19:54:30.232021+00:00",
   "tasks": [
     {
       "id": "white-room-stage1",
@@ -554,6 +554,51 @@
               "event": "updated",
               "actor": "claude",
               "at": "2026-10-28T19:41:48.368627+00:00",
+              "session": "KFC 遊戲專案重構計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            }
+          ]
+        },
+        {
+          "id": "issue-fragments-sleep",
+          "status": "planned",
+          "priority": 2,
+          "title": "問題：FragmentsHandler2D.Sleep 呼叫 SetSimulation(true)，與 Wake 相同，碎片永遠不會停止模擬（KFC 功能分析 2026-10-29 發現）",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "claude",
+              "at": "2026-10-28T19:54:30.232021+00:00",
+              "session": "KFC 遊戲專案重構計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            }
+          ]
+        },
+        {
+          "id": "issue-fade-sprite-renderer",
+          "status": "planned",
+          "priority": 2,
+          "title": "問題：FadeSpriteRenderer.OnInitializing 把 GetComponentsInChildren 結果存到局部變數，欄位永遠為 null；FadeIn／FadeOut 為空方法（KFC 功能分析 2026-10-29 發現）",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "claude",
+              "at": "2026-10-28T19:54:30.232021+00:00",
+              "session": "KFC 遊戲專案重構計畫",
+              "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
+            }
+          ]
+        },
+        {
+          "id": "issue-sfx-volume-default",
+          "status": "planned",
+          "priority": 2,
+          "title": "問題：AudioManager.sfxVolume 沒有 PlayerPrefs 時預設 0，新玩家聽不到音效，bgmVolume 預設卻是 1（KFC 功能分析 2026-10-29 發現）",
+          "activity": [
+            {
+              "event": "created",
+              "actor": "claude",
+              "at": "2026-10-28T19:54:30.232021+00:00",
               "session": "KFC 遊戲專案重構計畫",
               "session_id": "1e11615a-2607-4fc6-bafa-bd066692a168"
             }
