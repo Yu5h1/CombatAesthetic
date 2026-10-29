@@ -4,7 +4,7 @@
   "scope_id": "combat-aesthetic",
   "title": "CombatAesthetic 任務進度",
   "summary": "以戰鬥美學為目標釐清共用介面、遊戲資料、輸入、動畫及網路邊界；WhiteRoom 負責 Unity 戰鬥接用與驗證，形體與動作系統由 [Data-driven Report](/?scope=data-driven) 追蹤，包含 limb 與 animation 模組。Web 共用能力沿 Yu5h1Lib.Web 發展。",
-  "updated_at": "2026-10-28T19:54:30.232021+00:00",
+  "updated_at": "2026-10-29T13:49:03.739297+00:00",
   "tasks": [
     {
       "id": "white-room-stage1",
@@ -297,11 +297,79 @@
     },
     {
       "id": "viewer-view-decision",
-      "title": "釐清共用 Viewer／View 的範圍",
+      "title": "釐清共用 View／ViewNavigator 的範圍",
       "status": "in_progress",
       "priority": 0,
-      "summary": "決策報告已定義首個成功目標：CombatAesthetic 的 UI_Manager／UI_Menu 與 Virtual-Chat-Partner 的 MainMenu／Page，均能由同一份共用 Viewer／View 來源取代，且行為不退化。",
+      "summary": "決策清單（第 1–18 題）已全部定案，見決策報告〈已決定〉。共用元件實作在 [unity-extension](/?scope=unity-extension) 的 view-navigator 卡；首次遷移驗證是 [VCP](/?scope=virtual-chat-partner) 的 view-navigator-adoption 卡，等 VCP 目前的任務完成後開始。CombatAesthetic（KFC）為第二輪。",
       "completed_items": [
+        {
+          "id": "defer-implementation",
+          "title": "決策清單確認前，先不實作 Viewer／View 遷移。",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "done",
+              "actor": "claude",
+              "at": "2026-10-29T13:49:03.739297+00:00",
+              "session": "Combat-Aesthetics Viewer／View 決策"
+            }
+          ],
+          "status": "done"
+        },
+        {
+          "id": "confirm-initial-validation",
+          "title": "選定第一個遷移驗證對象：Virtual-Chat-Partner 的 Page 流程",
+          "priority": 1,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "done",
+              "actor": "claude",
+              "at": "2026-10-29T13:49:03.739297+00:00",
+              "session": "Combat-Aesthetics Viewer／View 決策"
+            }
+          ],
+          "status": "done"
+        },
+        {
+          "id": "answer-decision-list",
+          "title": "由使用者逐題回答 View／ViewNavigator 決策（第 1–18 題已定案）",
+          "priority": 0,
+          "activity": [
+            {
+              "event": "updated",
+              "actor": "codex",
+              "at": "2026-10-25T06:20:58.035121+00:00",
+              "session": "CombatAesthetic Report 中文化與 scope 更名",
+              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
+            },
+            {
+              "event": "updated",
+              "actor": "antigravity",
+              "at": "2026-10-25T16:44:06.602635+00:00"
+            },
+            {
+              "event": "done",
+              "actor": "claude",
+              "at": "2026-10-29T13:49:03.739297+00:00",
+              "session": "Combat-Aesthetics Viewer／View 決策"
+            }
+          ],
+          "status": "done"
+        },
         {
           "id": "source-analysis",
           "title": "已比較 UI_Manager／UI_Menu 與 MainMenu／Page，辨識共用 Viewer／View 的責任分工。",
@@ -329,55 +397,7 @@
           ]
         }
       ],
-      "pending_items": [
-        {
-          "id": "answer-decision-list",
-          "title": "由使用者逐題回答 Viewer／View 決策，先釐清返回目標命名及 Back 處理方式。",
-          "priority": 0,
-          "activity": [
-            {
-              "event": "updated",
-              "actor": "codex",
-              "at": "2026-10-25T06:20:58.035121+00:00",
-              "session": "CombatAesthetic Report 中文化與 scope 更名",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            },
-            {
-              "event": "updated",
-              "actor": "antigravity",
-              "at": "2026-10-25T16:44:06.602635+00:00"
-            }
-          ]
-        },
-        {
-          "id": "confirm-initial-validation",
-          "title": "選定第一個遷移驗證對象：Virtual-Chat-Partner 的 Page 流程，或 CombatAesthetic 的 UI_Menu 流程。",
-          "priority": 1,
-          "activity": [
-            {
-              "event": "updated",
-              "actor": "codex",
-              "at": "2026-10-25T06:20:58.035121+00:00",
-              "session": "CombatAesthetic Report 中文化與 scope 更名",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            }
-          ]
-        },
-        {
-          "id": "defer-implementation",
-          "title": "決策清單確認前，先不實作 Viewer／View 遷移。",
-          "priority": 0,
-          "activity": [
-            {
-              "event": "updated",
-              "actor": "codex",
-              "at": "2026-10-25T06:20:58.035121+00:00",
-              "session": "CombatAesthetic Report 中文化與 scope 更名",
-              "session_id": "01a167b8-0ca2-7fe0-b6bd-3e4496452513"
-            }
-          ]
-        }
-      ],
+      "pending_items": [],
       "progress": {
         "completed": 2,
         "total": 5

@@ -132,8 +132,8 @@ Later split adapters:
 - TaskProgress report is `report.json`, scope `combat-aesthetic` (includes task `directional-input-ux-design`).
 - TaskProgress now includes `physical-aesthetic-core` to track no perfect cloning, no process-free teleportation, and player spawn/birth decisions.
 - Local Viewer route: `http://127.0.0.1:8001/?scope=combat-aesthetic`.
-- Next discussion should answer the decision list in that report, starting with the initial Viewer/View success standard and Back/return behavior.
-- Do not implement Viewer/View migration until the user validates those decisions.
+- The View/ViewNavigator decision list (items 1–18) is settled; see the report's 〈已決定〉. The shared `Viewer` was renamed `ViewNavigator` because Yu5h1Lib.UX already defines Viewer as the camera viewport. Implementation and migration are queued as Report items: `unity-extension › view-navigator › view-navigator-core`, then `virtual-chat-partner › view-navigator-adoption › vcp-page-migration` (waits on that item and on VCP's in-progress `streaming-assets` items). CombatAesthetic/KFC is the second round, not planned here.
+- The physics-aesthetic items (decision list 0.x) remain open.
 
 ## Refactor Guidance Added
 
