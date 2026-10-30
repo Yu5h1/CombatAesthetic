@@ -28,7 +28,8 @@ Samples~/WhiteRoom/
 ├─ Implementation-Plan.md     實作計畫與連線方案評估
 ├─ Existing-Capabilities.md   既有能力與模組重用分析
 ├─ Preparation/               階段 0 盤點報告
-├─ Scenes/                    WhiteRoom.unity（URP 測試場景）
+├─ Combat/                    WhiteRoom.unity（可以對戰的 URP 測試場景，暫停到戰鬥驗證；移入後生效）
+├─ Handshake/                 移動＋握手的場景（第一個交付；建立後生效）
 ├─ Runtime/                   獨立 asmdef 執行程式
 │  ├─ CombatActionIntent.cs   抽象操作意圖與輸入來源介面
 │  ├─ CombatEntity.cs         共用戰鬥實體狀態機與受擊/中斷判定核心
