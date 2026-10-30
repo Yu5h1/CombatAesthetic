@@ -16,6 +16,9 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
         public bool Attack;
         public bool GuardHold;
         public bool ParryTap;
+        public bool InteractHold;
+        public bool InteractDown;
+        public bool InteractUp;
         public bool GlobalReset;
         public float Timestamp;
 
@@ -28,6 +31,9 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
             Attack = false,
             GuardHold = false,
             ParryTap = false,
+            InteractHold = false,
+            InteractDown = false,
+            InteractUp = false,
             GlobalReset = false,
             Timestamp = 0f
         };

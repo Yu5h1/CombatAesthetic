@@ -121,3 +121,47 @@
 - 雙台實體電腦 LAN 連線實測（本輪尚未接通真實傳輸層）。
 - 手感與數值平衡驗收（由使用者本人回饋定案）。
 - 外部跨平台動作資料檔案格式（Web Viewer / Clip 載入器尚未實裝）。
+
+---
+
+## 握手互動系統 Stage 2b（第 1 批）實機驗收紀錄 (2026-10-31)
+
+依據 [WhiteRoom 實作計畫](../Samples~/WhiteRoom/Implementation-Plan.md#本輪實作交辦範圍)，本輪完成第一個交付（Stage 2b 移動＋握手第 1 批：發起、取消、回應、成功），並於 Unity `6000.6.0f1` 宿主（`Yu5h1LibTest`）完成 PlayMode 實機自動化驗證。
+
+### 1. 場景分離與架構隔離
+- **戰鬥場景歸檔**：將套件與宿主之戰鬥場景 `WhiteRoom.unity` 及其 `.meta` 移入 `Samples~/WhiteRoom/Combat/`（GUID 不變），保持原狀，暫停至戰鬥驗證重啟。
+- **握手獨立場景**：於 `Samples~/WhiteRoom/Handshake/` 建立 `Handshake.unity`，配置獨立 Assembly `Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom.Handshake`，參照 Sample Runtime 與 Yu5h1Lib 核心庫，不與戰鬥判定相互耦合。
+
+### 2. 判定與表現嚴格分離
+- **權威判定核心 (`HandshakeArbitrator`)**：
+  - 由判定元件裁決雙手碰觸（手部距離 <=0.65m 或身軀距離 <=1.05m）、握緊時窗 (0.50s)、搖手時窗 (0.50s)、中途放開收手（標明第 2 批情況）及全場快速重設。
+  - 玩家與 AI 僅送出移動意圖與按住/放開互動按鍵 (E) 意圖，其他邏輯不干涉裁決。
+- **表現層 (`HandshakeVisualFeedback`)**：
+  - 程序化機械人形手臂 IK：發起伸手時向前伸展 0.65m 並內斜 0.30m 對齊身體中線；等待期間維持自然呼吸微動；成功時上下搖手（振幅 0.06m @ 25 rad/s）；結束後平滑收回。
+  - 視鏡狀態顏色反饋：常態藍色 ➔ 伸手/等待黃色 ➔ 握緊紫色 ➔ 成功搖手綠色 ➔ 中途放開灰色。視覺僅為呈現，不反向干擾判定數值。
+
+### 3. 自主 AI 對手 (`HandshakeAiController`)
+- AI 與玩家走相同規則，僅產生移動意圖與 E 鍵按住/放開意圖。
+- 支援 5 大模式：`Idle`、`AiInitiator`（主動伸手等待玩家走近）、`AiResponder`（偵測玩家伸手後自動走近回應）、`AiCancel`（主動伸手後放開取消）、`AiEarlyRelease`（握緊期間主動放開）。
+
+### 4. PlayMode 自動化驗證數據（`HandshakeVerificationRunner`）
+在 Unity `6000.6.0f1` 實機環境執行 6 大情境回歸測試：
+
+| 案例編號 | 驗收情境 | 實測時序與流轉指標 | 驗收結果 |
+|---|---|---|---|
+| **案例 1** | 玩家發起伸手後放開 E（取消收手） | 伸手狀態: True, 收手過渡: True, 最終站立: True | **PASS** |
+| **案例 2** | AI 發起、玩家走近回應、握緊至結束（成功） | AI 等待: True, 雙手碰到握緊: True, 進入搖手: True, 正式結果: `Success` | **PASS** |
+| **案例 3** | 玩家發起、AI 走近回應（對調角色成功） | 碰到握緊: True, 進入搖手: True, 正式結果: `Success` | **PASS** |
+| **案例 4** | 握緊期間有人放開（第 2 批情況直接收手） | 進入握緊: True, 提前放開判定: True, 會話中止收手: True, 結果: `EarlyReleaseDuringGrip` | **PASS** |
+| **案例 5** | AI 發起後放開 E（AI 取消收手） | AI 曾伸手: True, AI 隨後收手: True | **PASS** |
+| **案例 6** | 全場統一快速重設無殘留 | 玩家位置與狀態乾淨: True, AI 位置與狀態乾淨: True, 判定元件無殘留: True | **PASS** |
+
+**總體驗收結果：★ ALL PASSED (全數通過，6 / 6)**
+
+### 5. 結構化日誌證據
+- **日誌檔案**：`Documentation/WhiteRoom_Handshake_Logs.json`（由 `HandshakeHUD` 匯出至 `Application.persistentDataPath`），完整記錄 155 筆事件時序戳記、判定轉換與狀態機流轉。
+
+### 6. 未執行項目明列（依計畫規劃）
+- **握手第 2 批情況**：惡作劇收手（對方握空反應）與同時收手完整動畫分支。
+- **握手第 3 批情況**：握手比力氣（Strength Contest 力量對抗機制）。
+- **有手指的成人角色模型替換**：等待角色建造線交付。

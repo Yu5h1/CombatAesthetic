@@ -9,6 +9,9 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
     {
         [SerializeField] private Transform _cameraTransform;
         [SerializeField] private bool _usePlayer2ControlScheme = false;
+        [SerializeField] private KeyCode _interactKey = KeyCode.E;
+
+        public KeyCode InteractKey { get => _interactKey; set => _interactKey = value; }
 
         private CombatEntity _entity;
 
@@ -88,6 +91,11 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
                 intent.CrouchToggle = InputHandler.GetKeyDown(KeyCode.KeypadPeriod);
                 intent.Attack = InputHandler.GetKeyDown(KeyCode.Keypad1) || InputHandler.GetKeyDown(KeyCode.Return);
 
+                // P2 互動按鍵（Keypad 3）
+                intent.InteractHold = InputHandler.GetKey(KeyCode.Keypad3);
+                intent.InteractDown = InputHandler.GetKeyDown(KeyCode.Keypad3);
+                intent.InteractUp = InputHandler.GetKeyUp(KeyCode.Keypad3);
+
                 // P2 防禦採集（Keypad 2 或 Right Alt）：區分點按彈刀 vs 長按格擋
                 bool p2GuardKey = InputHandler.GetKey(KeyCode.Keypad2) || InputHandler.GetKey(KeyCode.RightAlt);
                 bool p2GuardKeyDown = InputHandler.GetKeyDown(KeyCode.Keypad2) || InputHandler.GetKeyDown(KeyCode.RightAlt);
@@ -132,6 +140,11 @@ namespace Yu5h1Lib.CombatAesthetic.Samples.WhiteRoom
                 intent.CrouchToggle = InputHandler.GetKeyDown(KeyCode.C);
 
                 intent.Attack = InputHandler.GetMouseButtonDown(0);
+
+                // P1 互動按鍵（預設 E 鍵）
+                intent.InteractHold = InputHandler.GetKey(_interactKey);
+                intent.InteractDown = InputHandler.GetKeyDown(_interactKey);
+                intent.InteractUp = InputHandler.GetKeyUp(_interactKey);
 
                 // P1 防禦採集（右鍵）：嚴格區分點按彈刀 vs 長按格擋
                 bool rmbKey = InputHandler.GetMouseButton(1);
